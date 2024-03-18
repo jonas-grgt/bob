@@ -1,4 +1,4 @@
-package io.jonasg.bob.utils;
+package io.jonasg.bob;
 
 public class Formatter {
 

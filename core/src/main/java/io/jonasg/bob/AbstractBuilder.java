@@ -8,10 +8,8 @@ public abstract class AbstractBuilder<T> implements Builder<T> {
     protected T instance;
 
     public AbstractBuilder() {
-        instance = newInstance();
     }
 
-    abstract protected T newInstance();
     abstract public T build();
 
     protected void setField(String name, Object value) {

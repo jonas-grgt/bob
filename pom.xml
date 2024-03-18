@@ -45,6 +45,7 @@
 		<junit-bom.version>5.10.1</junit-bom.version>
 		<assertj-core.version>3.23.1</assertj-core.version>
 		<mockito-core.version>5.11.0</mockito-core.version>
+		<cute.version>1.0.0</cute.version>
     </properties>
 
     <scm>
@@ -77,6 +78,12 @@
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
 				<version>${mockito-core.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.toolisticon.cute</groupId>
+				<artifactId>cute</artifactId>
+				<version>${cute.version}</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>

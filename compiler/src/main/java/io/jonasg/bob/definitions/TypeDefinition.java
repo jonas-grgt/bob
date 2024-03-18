@@ -8,12 +8,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unused")
+/**
+ * Defines a specific Java Type.
+ * It declares its fields, constructors, methods and generic parameters.
+ */
 public class TypeDefinition extends SimpleTypeDefinition {
 
     private List<FieldDefinition> fields = new ArrayList<>();
+
     private List<ConstructorDefinition> constructors = new ArrayList<>();
+
     private List<GenericParameterDefinition> genericParameters = new ArrayList<>();
+
     private List<MethodDefinition> methods;
 
     private TypeDefinition(String typeName, String packageName, String enclosedIn, List<FieldDefinition> fields, List<ConstructorDefinition> constructors) {

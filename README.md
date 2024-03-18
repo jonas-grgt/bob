@@ -1,38 +1,84 @@
 # Bob
-Builder generator for Java
+Lightweight Builder generator for Java
+
+## Why Bob?
+
+Bob serves as a lightweight alternative to Lombok's `@Builder` annotation.
 
 ## Getting Started
 
 Annotate the class you which to build with `@Buildable`
     
-    package foo.bar
+```java
+package my.garage;
 
-    @Buildable
-    public class Car {
-        private Brand brand;
-        private String color;
-        private BigDecimal price;
-        
-        ...
+@Buildable
+public class Car {
+	
+    private Brand brand;
+    private String color;
+    private BigDecimal price;
+	
+    public Car(Brand brand, String color, BigDecimal price) {
+        this.brand = brand;
+        this.color = color;
+        this.price = price;
     }
     
-A `CarBuilder` class will be generated for you in the same package as the source class with *builder* as suffix.
-For the car example this will be `foo.bar.builder`
+    // getters toString and hashcode left out for brevity
+}
+```
+
+## Usage
+
+### Basic Usage
+
+By default,
+Bob will look for the constructor with the most parameters
+and will create setters for all parameters that have a matching field name. 
+For parameters
+that do not have a corresponding field, the default value for that type will be used.
+In example `null` for `Integer` and zero for `int`.
+
+```java
+@Buildable
+public class Car {
+    private String color;
+    private BigDecimal price;
+    
+    public Car(Brand brand, int year, String color, BigDecimal price) {
+        this.color = color;
+        this.price = price;
+    }
+    
+    // getters toString and hashcode left out for brevity
+}
+```
+
+The generated builder will look like this:
+When building a car instance in this way `new CarBuilder().color("red").price(BigDecimal.ZERO).build();`
+The car will be instantiated with the following constructor call:
+
+```java
+new Car(null, 0, "red", BigDecimal.ZERO);
+```
+
+If you want to use a different constructor instead of the default selected one, annotated it with `@BuildableConstructor`
+
+### Package
+    
+A `CarBuilder` class will be generated in the same package as the source class with *builder* as suffix.
+For the car example this will be `my.garage.CarBuilder`
 
 The location of the builder can be changed:
 
-    @Buildable(package = "custom.package")
+    @Buildable(package = "my.other.garage")
     public class Car {
       ...
             
 The generated builder can be used now:
 
     Car redCar = new CarBuilder().color("red").build();
-
-Bob will try to be smart about creating a builder for you. 
-* If there are *standard* Java Bean setters available they will be used. (`setField`) 
-* If you do not have any setters reflection will be used.
-* If the fields are accessible directly (public or protected fields) they will be set directly.
 
 Fields can be excluded:
 

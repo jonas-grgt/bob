@@ -1,4 +1,4 @@
-package io.jonasg.bob;
+package io.jonasg.bob.definitions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +56,7 @@ public class TypeDefinitionFactory {
 		List<GenericParameterDefinition> parameters = new ArrayList<>();
 		if (ElementKind.CLASS.equals(element.getKind()))
 			for (TypeParameterElement param : ((TypeElement) element).getTypeParameters())
-				parameters.add(new GenericParameterDefinition(param.getSimpleName().toString(), toTypeDefinitions(param.getBounds())));
+				parameters.add(new GenericParameterDefinition(param.asType(), param.getSimpleName().toString(), toTypeDefinitions(param.getBounds())));
 		return parameters;
 	}
 
@@ -97,8 +97,9 @@ public class TypeDefinitionFactory {
 		List<ConstructorDefinition> definitions = new ArrayList<>();
 		for (ExecutableElement constructor : ElementFilter.constructorsIn(element.getEnclosedElements())) {
 			List<ParameterDefinition> constructorParams = new ArrayList<>();
-			for (VariableElement param : constructor.getParameters())
-				constructorParams.add(new ParameterDefinition(param.getSimpleName().toString()));
+			for (VariableElement param : constructor.getParameters()) {
+				constructorParams.add(new ParameterDefinition(param.asType(), param.getSimpleName().toString()));
+			}
 			definitions.add(new ConstructorDefinition(constructorParams, constructor.getModifiers()));
 		}
 		return definitions;

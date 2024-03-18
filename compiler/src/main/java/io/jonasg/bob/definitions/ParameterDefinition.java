@@ -1,37 +1,44 @@
 package io.jonasg.bob.definitions;
 
 
+import javax.lang.model.type.TypeMirror;
+
 public class ParameterDefinition {
 
-    private String name;
+	private final TypeMirror type;
 
-    public ParameterDefinition(String name) {
-        this.name = name;
+	private final String name;
+
+    public ParameterDefinition(TypeMirror type, String name) {
+		this.type = type;
+		this.name = name;
     }
 
     public String name() {
         return name;
     }
 
-    private ParameterDefinition() {
-    }
+	public TypeMirror type() {
+		return type;
+	}
 
-    public static Builder newBuilder() {
+	public static Builder newBuilder() {
         return new Builder();
     }
 
     public static class Builder {
-        private ParameterDefinition instance = new ParameterDefinition();
 
-        public Builder name(String name) {
-            instance.name = name;
+		private String name;
+
+		private TypeMirror type;
+
+		public Builder name(String name) {
+            this.name = name;
             return this;
         }
 
         public ParameterDefinition build() {
-            ParameterDefinition result = instance;
-            instance = null;
-            return result;
+            return new ParameterDefinition(this.type, this.name);
         }
     }
 
