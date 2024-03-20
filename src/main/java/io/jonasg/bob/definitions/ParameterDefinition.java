@@ -1,6 +1,8 @@
 package io.jonasg.bob.definitions;
 
 
+import java.util.Objects;
+
 import javax.lang.model.type.TypeMirror;
 
 public class ParameterDefinition {
@@ -22,34 +24,14 @@ public class ParameterDefinition {
 		return type;
 	}
 
-	public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-
-		private String name;
-
-		private TypeMirror type;
-
-		public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public ParameterDefinition build() {
-            return new ParameterDefinition(this.type, this.name);
-        }
-    }
-
-    @Override
+	@Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         ParameterDefinition that = (ParameterDefinition) o;
 
-        return name != null ? name.equals(that.name) : that.name == null;
+        return Objects.equals(name, that.name);
     }
 
     @Override

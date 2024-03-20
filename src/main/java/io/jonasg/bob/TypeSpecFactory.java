@@ -200,20 +200,6 @@ public class TypeSpecFactory {
 		return typeNames;
 	}
 
-	private TypeName classNameWithoutGenerics(TypeDefinition definition) {
-		return ClassName.get(definition.packageName(), definition.fullTypeName());
-	}
-
-	private boolean defaultConstructorPresent() {
-		if (typeDefinition.constructors().isEmpty())
-			return true;
-		else
-			for (ConstructorDefinition constructor : typeDefinition.constructors())
-				if (constructor.parameters().isEmpty())
-					return true;
-		return false;
-	}
-
 	private String fieldName(String name) {
 		if (buildable.prefix().isEmpty()) {
 			return name;
@@ -223,10 +209,6 @@ public class TypeSpecFactory {
 
 	private boolean notExcluded(ParameterDefinition field) {
 		return !Arrays.asList(buildable.excludes()).contains(field.name());
-	}
-
-	private boolean notWithinTheSamePackage() {
-		return !typeDefinition.packageName().equals(buildable.packageName());
 	}
 
 	private MethodSpec constructor() {

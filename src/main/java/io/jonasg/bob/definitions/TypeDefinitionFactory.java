@@ -83,7 +83,7 @@ public class TypeDefinitionFactory {
 	private List<FieldDefinition> fields(List<VariableElement> fields) {
 		List<FieldDefinition> definitions = new ArrayList<>();
 		for (VariableElement field : fields)
-			definitions.add(new FieldDefinition(field.getSimpleName().toString(), field.getModifiers(), field.asType()));
+			definitions.add(new FieldDefinition(field.getSimpleName().toString(), field.asType()));
 		return definitions;
 	}
 

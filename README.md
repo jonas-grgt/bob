@@ -62,7 +62,6 @@ public class Car {
         this.price = price;
     }
     
-    // getters toString and hashcode left out for brevity
 }
 ```
 
@@ -132,15 +131,15 @@ Can be used as:
     
 ```java
 Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("cream")
-        .contents(BigDecimal.ZERO)
-        .build();
+    .contents(BigDecimal.ZERO)
+    .build();
 ```
 
 or alternatively:
 
 ```java
 GenericsAreBuildableBuilder.of(BigDecimal.class, String.class)
-.topping("cream")
-.contents(BigDecimal.ZERO)
-.build();
+    .topping("cream")
+    .contents(BigDecimal.ZERO)
+    .build();
 ```
