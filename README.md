@@ -3,7 +3,10 @@ Lightweight Builder generator for Java
 
 ## Why Bob?
 
-Bob serves as a lightweight alternative to Lombok's @Builder annotation. Its retention policy is SOURCE, ensuring it won't clutter your bytecode. Bob generates a builder in the form of a pure Java source code file, which the Java compiler can pick up as a regular source file.
+Bob serves as a lightweight alternative to Lombok's `@Builder` annotation.
+Its retention policy is `SOURCE`, ensuring it won't clutter your bytecode.
+Bob generates a builder in the form of a pure Java source code file,
+which the Java compiler can pick up as a regular source file.
 
 ## Installation
 
@@ -75,8 +78,6 @@ new Car(null, 0, "red", BigDecimal.ZERO);
 
 ### Different constructor
 
-⚠️ NOT IMPLEMENTED YET
-
 If you want to use a different constructor instead of the default selected one, annotated it with `@BuildableConstructor`
 
 ### Package
@@ -86,43 +87,43 @@ For the car example this will be `my.garage.CarBuilder`
 
 The location of the builder can be changed:
 
-    @Buildable(package = "my.other.garage")
-    public class Car {
-      ...
+```java
+@Buildable(package = "my.other.garage")
+public class Car {
+```
             
-The generated builder can be used now:
+### Field exclusion
 
-    Car redCar = new CarBuilder().color("red").build();
+```java
+@Buildable(excludes = {"brand", "color"})
+public class Car {
+```
 
-Fields can be excluded:
-
-    @Buildable(excludes = {"brand", "color"})
-    public class Car {
-      ...
+### Setter prefix
       
 By default Bob will generated setter methods consisting out of *new style setters* (`name(String name)` instead of `setName(String name)` or the default builder pattern setter style `withName(String name)`)
 If you want to change the prefix of those setter methods you can:
 
-    @Buildable(prefix = "with")
-    public class Car {
-      ...      
-      
+```java
+@Buildable(prefix = "with")
+public class Car {
+```
+
+### Generics
+
 Bob is not afraid of generics
 
-    @Buildable
-    public class Cup<T, R extends String> {
-        private T contents;
-        private R topping;
-        
-    // usage
-    
-    Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("String").contents(BigDecimal.ZERO).build();
-    
-Bob can handle final fields    
+```java
+@Buildable
+public class Cup<T, R extends String> {
+    private T contents;
+    private R topping;
+```
 
-    @Buildable
-    public class Car {
-        private final String color; 
-        
-        public Car(String color) {
-            ....
+Can be used as:
+    
+```java
+Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("String")
+        .contents(BigDecimal.ZERO)
+        .build();
+```

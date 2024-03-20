@@ -1,21 +1,46 @@
-*.class
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-target
-*target/*
+### Maven ###
+.flattened-pom.xml
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+### Xjx ###
+LargeFileTest.java
+TODO.md
 
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-TODO
-
-# IntelliJ
-/out/
+### IntelliJ IDEA ###
+.idea/
+*.iws
 *.iml
-.idea
+*.ipr
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Jreleaser
+out/
+trace.log

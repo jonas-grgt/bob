@@ -1,10 +1,11 @@
 package io.jonasg.bob;
 
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
+import java.io.IOException;
 
 import javax.annotation.processing.Filer;
-import java.io.IOException;
+
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeSpec;
 
 public class TypeWriter {
     public static void write(Filer filer, String packageName, TypeSpec spec) {

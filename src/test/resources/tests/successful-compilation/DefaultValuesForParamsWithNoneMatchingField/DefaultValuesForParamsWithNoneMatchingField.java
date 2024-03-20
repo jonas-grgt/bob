@@ -1,5 +1,7 @@
 package io.jonasg.bob.test;
 
+import java.math.BigDecimal;
+
 import io.jonasg.bob.Buildable;
 
 import java.math.BigDecimal;

@@ -1,6 +1,7 @@
 package io.jonasg.bob.test.builder;
 
 import io.jonasg.bob.test.DefaultValuesForParamsWithNoneMatchingField;
+import java.lang.String;
 
 public final class DefaultValuesForParamsWithNoneMatchingFieldBuilder {
   public DefaultValuesForParamsWithNoneMatchingFieldBuilder() {

@@ -15,14 +15,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 
-import io.jonasg.bob.definitions.ConstructorDefinition;
-import io.jonasg.bob.definitions.FieldDefinition;
-import io.jonasg.bob.definitions.GenericParameterDefinition;
-import io.jonasg.bob.definitions.MethodDefinition;
-import io.jonasg.bob.definitions.ParameterDefinition;
-import io.jonasg.bob.definitions.SimpleTypeDefinition;
-import io.jonasg.bob.definitions.TypeDefinition;
-
 public class TypeDefinitionFactory {
 
 	protected final Elements elementUtils;

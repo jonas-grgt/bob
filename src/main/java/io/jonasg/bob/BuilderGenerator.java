@@ -1,12 +1,9 @@
 package io.jonasg.bob;
 
-import io.jonasg.bob.Buildable;
-import io.jonasg.bob.TypeWriter;
-import io.jonasg.bob.definitions.TypeDefinition;
-import io.jonasg.bob.TypeSpecFactory;
-import com.squareup.javapoet.TypeSpec;
-
 import javax.annotation.processing.Filer;
+
+import com.squareup.javapoet.TypeSpec;
+import io.jonasg.bob.definitions.TypeDefinition;
 
 public class BuilderGenerator {
 
