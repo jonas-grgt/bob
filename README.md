@@ -1,13 +1,23 @@
-# Bob
+# 👷‍ Bob
 Lightweight Builder generator for Java
 
 ## Why Bob?
 
-Bob serves as a lightweight alternative to Lombok's `@Builder` annotation.
+Bob serves as a lightweight alternative to Lombok's @Builder annotation. Its retention policy is SOURCE, ensuring it won't clutter your bytecode. Bob generates a builder in the form of a pure Java source code file, which the Java compiler can pick up as a regular source file.
+
+## Installation
+
+```xml
+<dependency>
+    <groupId>io.jonasg</groupId>
+    <artifactId>bob</artifactId>
+    <version>${bob.version}</version>
+</dependency>
+```
 
 ## Getting Started
 
-Annotate the class you which to build with `@Buildable`
+Annotate the class you which to be able to build with `@Buildable`
     
 ```java
 package my.garage;
@@ -62,6 +72,10 @@ The car will be instantiated with the following constructor call:
 ```java
 new Car(null, 0, "red", BigDecimal.ZERO);
 ```
+
+### Different constructor
+
+⚠️ NOT IMPLEMENTED YET
 
 If you want to use a different constructor instead of the default selected one, annotated it with `@BuildableConstructor`
 
