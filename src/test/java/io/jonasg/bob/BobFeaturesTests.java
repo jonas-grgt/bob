@@ -162,4 +162,21 @@ public class BobFeaturesTests {
 				.executeTest();
 	}
 
+	@Test
+	void recordsAreBuildable() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles("/tests/successful-compilation/RecordsAreBuildable/RecordsAreBuildable.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.builder.RecordsAreBuildableBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/RecordsAreBuildable/Expected_RecordsAreBuildable.java"))
+				.executeTest();
+	}
+
 }

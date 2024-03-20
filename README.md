@@ -107,6 +107,16 @@ If you want to change the prefix of those setter methods you can:
 public class Car {
 ```
 
+### Records
+
+Records work as normal java classes
+
+```java
+@Buildable
+public record Record(String name, int age) {
+}
+```
+
 ### Generics
 
 Bob is not afraid of generics
