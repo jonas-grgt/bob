@@ -1,5 +1,5 @@
-# 👷‍ Bob
-Lightweight Builder generator for Java
+# 👷‍Bob
+🪶Lightweight Builder generator for Java
 
 ## Why Bob?
 
@@ -37,8 +37,6 @@ public class Car {
         this.color = color;
         this.price = price;
     }
-    
-    // getters toString and hashcode left out for brevity
 }
 ```
 
@@ -123,7 +121,16 @@ public class Cup<T, R extends String> {
 Can be used as:
     
 ```java
-Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("String")
+Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("cream")
         .contents(BigDecimal.ZERO)
         .build();
+```
+
+or alternatively:
+
+```java
+GenericsAreBuildableBuilder.of(BigDecimal.class, String.class)
+.topping("cream")
+.contents(BigDecimal.ZERO)
+.build();
 ```

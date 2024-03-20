@@ -130,7 +130,7 @@ public class BobFeaturesTests {
 
 	@Test
 	void useConstructorWithTheGreatestNumberOfParameters() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles("/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/UseConstructorWithTheGreatestNumberOfParameters.java")
@@ -141,7 +141,24 @@ public class BobFeaturesTests {
 				.generatedSourceFile("io.jonasg.bob.test.builder.UseConstructorWithTheGreatestNumberOfParametersBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/useConstructorWithTheGreatestNumberOfParameters/Expected_UseConstructorWithTheGreatestNumberOfParameters.java"))
+						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/Expected_UseConstructorWithTheGreatestNumberOfParameters.java"))
+				.executeTest();
+	}
+
+	@Test
+	void genericsAreBuildable() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles("/tests/successful-compilation/GenericsAreBuildable/GenericsAreBuildable.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.builder.GenericsAreBuildableBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/GenericsAreBuildable/Expected_GenericsAreBuildable.java"))
 				.executeTest();
 	}
 
