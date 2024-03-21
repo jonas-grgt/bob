@@ -28,7 +28,8 @@ public class TypeDefinitionFactory {
 	/**
 	 * Create a TypeDefinition for the given element
 	 *
-	 * @param element the element to create a TypeDefinition for
+	 * @param element
+	 *            the element to create a TypeDefinition for
 	 * @return a TypeDefinition for the given element
 	 */
 	public TypeDefinition typeDefinitionForElement(Element element) {
@@ -48,7 +49,8 @@ public class TypeDefinitionFactory {
 		List<GenericParameterDefinition> parameters = new ArrayList<>();
 		if (ElementKind.CLASS.equals(element.getKind())) {
 			for (TypeParameterElement param : ((TypeElement) element).getTypeParameters()) {
-				parameters.add(new GenericParameterDefinition(param.asType(), param.getSimpleName().toString(), toTypeDefinitions(param.getBounds())));
+				parameters.add(new GenericParameterDefinition(param.asType(), param.getSimpleName().toString(),
+						toTypeDefinitions(param.getBounds())));
 			}
 		}
 		return parameters;
@@ -94,7 +96,8 @@ public class TypeDefinitionFactory {
 			for (VariableElement param : constructor.getParameters()) {
 				constructorParams.add(new ParameterDefinition(param.asType(), param.getSimpleName().toString()));
 			}
-			definitions.add(new ConstructorDefinition(constructorParams, constructor.getModifiers(), constructor.getAnnotationMirrors()));
+			definitions.add(new ConstructorDefinition(constructorParams, constructor.getModifiers(),
+					constructor.getAnnotationMirrors()));
 		}
 		return definitions;
 	}

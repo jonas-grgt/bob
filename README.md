@@ -5,11 +5,10 @@
 
 Bob serves as a lightweight alternative to Lombok's `@Builder` annotation.
 Its retention policy is `SOURCE`, ensuring it won't clutter your bytecode.
-Bob generates a builder in the form of a pure Java source code file,
-which the Java compiler can pick up as a regular source file.
+Bob generates a builder in the form of pure Java source code.
 
 ## Installation
-
+### Maven
 ```xml
 <dependency>
     <groupId>io.jonasg</groupId>
@@ -17,10 +16,17 @@ which the Java compiler can pick up as a regular source file.
     <version>${bob.version}</version>
 </dependency>
 ```
+### Gradle
+```groovy
+dependencies {
+  annotationProcessor "io.jonasg:bob:" + bobVersion
+  compileOnly "io.jonasg:bob:" + bobVersion
+}
+```
 
 ## Getting Started
 
-Annotate the class you which to be able to build with `@Buildable`
+Annotate the class with `@Buildable` to generate a builder for it.
     
 ```java
 package my.garage;
@@ -108,7 +114,7 @@ public class Car {
 
 ### Records
 
-Records work as normal java classes
+Bob can work with Records work as normal java classes
 
 ```java
 @Buildable

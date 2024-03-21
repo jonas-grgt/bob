@@ -7,13 +7,13 @@ import io.jonasg.bob.definitions.TypeDefinition;
 
 public class BuilderGenerator {
 
-    private final Filer filer;
+	private final Filer filer;
 
-    public BuilderGenerator(Filer filer) {
-        this.filer = filer;
-    }
+	public BuilderGenerator(Filer filer) {
+		this.filer = filer;
+	}
 
-    public void generate(TypeDefinition typeDefinition, Buildable buildable) {
+	public void generate(TypeDefinition typeDefinition, Buildable buildable) {
 		TypeSpec typeSpec = TypeSpecFactory.produce(typeDefinition, buildable);
 		String result;
 		if (!buildable.packageName().isEmpty()) {
@@ -22,6 +22,6 @@ public class BuilderGenerator {
 			result = String.format("%s.builder", typeDefinition.packageName());
 		}
 		TypeWriter.write(filer, result, typeSpec);
-    }
+	}
 
 }

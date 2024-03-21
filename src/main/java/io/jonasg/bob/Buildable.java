@@ -19,7 +19,7 @@ public @interface Buildable {
 	 *
 	 * @return the list of fields to be excluded to be included in the builder.
 	 */
-    String[] excludes() default {};
+	String[] excludes() default {};
 
 	/**
 	 * The prefix for the generated setters.
@@ -28,7 +28,7 @@ public @interface Buildable {
 	 *
 	 * @return the prefix for the generated setters.
 	 */
-    String prefix() default "";
+	String prefix() default "";
 
 	/**
 	 * The package name of the generated builder.
@@ -36,5 +36,5 @@ public @interface Buildable {
 	 *
 	 * @return the package name of the generated builder
 	 */
-    String packageName() default "";
+	String packageName() default "";
 }

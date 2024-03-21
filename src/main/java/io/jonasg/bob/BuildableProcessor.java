@@ -1,6 +1,5 @@
 package io.jonasg.bob;
 
-
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -32,8 +31,7 @@ public final class BuildableProcessor extends AbstractProcessor {
 					TypeDefinition sourceDefinition = typeDefinitionFactory.typeDefinitionForElement(element);
 					try {
 						builderGenerator.generate(sourceDefinition, buildable);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), element);
 					}
 				});

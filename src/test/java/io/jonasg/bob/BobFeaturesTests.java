@@ -15,7 +15,8 @@ public class BobFeaturesTests {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
-				.andSourceFiles("/tests/failing-compilation/MultipleBuildableConstructorAnnotationsPresent/MultipleBuildableConstructorAnnotationsPresent.java")
+				.andSourceFiles(
+						"/tests/failing-compilation/MultipleBuildableConstructorAnnotationsPresent/MultipleBuildableConstructorAnnotationsPresent.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationFails()
@@ -28,10 +29,11 @@ public class BobFeaturesTests {
 
 	@Test
 	void allConstructorParamsAreBuildable() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
-				.andSourceFiles("/tests/successful-compilation/AllConstructorParamsAreBuildable/AllConstructorParamsAreBuildable.java")
+				.andSourceFiles(
+						"/tests/successful-compilation/AllConstructorParamsAreBuildable/AllConstructorParamsAreBuildable.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
@@ -39,47 +41,54 @@ public class BobFeaturesTests {
 				.generatedSourceFile("io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/AllConstructorParamsAreBuildable/Expected_AllConstructorParamsAreBuildable.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/AllConstructorParamsAreBuildable/Expected_AllConstructorParamsAreBuildable.java"))
 				.executeTest();
 	}
 
 	@Test
 	void allConstructorParamsAreBuildableIfHavingMatchingField() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
-				.andSourceFiles("/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/AllConstructorParamsAreBuildableIfHavingMatchingField.java")
+				.andSourceFiles(
+						"/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/AllConstructorParamsAreBuildableIfHavingMatchingField.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/Expected_AllConstructorParamsAreBuildableIfHavingMatchingField.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/Expected_AllConstructorParamsAreBuildableIfHavingMatchingField.java"))
 				.executeTest();
 	}
 
 	@Test
 	void defaultValuesForParamsWithNoneMatchingField() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
-				.andSourceFiles("/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/AllConstructorParamsAreBuildableIfHavingMatchingField.java")
+				.andSourceFiles(
+						"/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/AllConstructorParamsAreBuildableIfHavingMatchingField.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/Expected_AllConstructorParamsAreBuildableIfHavingMatchingField.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/AllConstructorParamsAreBuildableIfHavingMatchingField/Expected_AllConstructorParamsAreBuildableIfHavingMatchingField.java"))
 				.executeTest();
 	}
 
 	@Test
 	void overrideDefaultPackage() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles("/tests/successful-compilation/OverrideDefaultPackage/OverrideDefaultPackage.java")
@@ -90,13 +99,14 @@ public class BobFeaturesTests {
 				.generatedSourceFile("io.jonasg.bob.test.other.OverrideDefaultPackageBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/OverrideDefaultPackage/Expected_OverrideDefaultPackage.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/OverrideDefaultPackage/Expected_OverrideDefaultPackage.java"))
 				.executeTest();
 	}
 
 	@Test
 	void setterWithCustomPrefix() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles("/tests/successful-compilation/SetterWithCustomPrefix/SetterWithCustomPrefix.java")
@@ -107,24 +117,28 @@ public class BobFeaturesTests {
 				.generatedSourceFile("io.jonasg.bob.test.builder.SetterWithCustomPrefixBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/SetterWithCustomPrefix/Expected_SetterWithCustomPrefix.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/SetterWithCustomPrefix/Expected_SetterWithCustomPrefix.java"))
 				.executeTest();
 	}
 
 	@Test
 	void useConstructorAnnotatedWithBuildableConstructor() {
-				Cute.blackBoxTest()
+		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
-				.andSourceFiles("/tests/successful-compilation/UseConstructorAnnotatedWithBuildableConstructor/UseConstructorAnnotatedWithBuildableConstructor.java")
+				.andSourceFiles(
+						"/tests/successful-compilation/UseConstructorAnnotatedWithBuildableConstructor/UseConstructorAnnotatedWithBuildableConstructor.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.UseConstructorAnnotatedWithBuildableConstructorBuilder")
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.UseConstructorAnnotatedWithBuildableConstructorBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/UseConstructorAnnotatedWithBuildableConstructor/Expected_UseConstructorAnnotatedWithBuildableConstructor.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/UseConstructorAnnotatedWithBuildableConstructor/Expected_UseConstructorAnnotatedWithBuildableConstructor.java"))
 				.executeTest();
 	}
 
@@ -133,15 +147,18 @@ public class BobFeaturesTests {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
-				.andSourceFiles("/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/UseConstructorWithTheGreatestNumberOfParameters.java")
+				.andSourceFiles(
+						"/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/UseConstructorWithTheGreatestNumberOfParameters.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.UseConstructorWithTheGreatestNumberOfParametersBuilder")
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.UseConstructorWithTheGreatestNumberOfParametersBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/Expected_UseConstructorWithTheGreatestNumberOfParameters.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/Expected_UseConstructorWithTheGreatestNumberOfParameters.java"))
 				.executeTest();
 	}
 
@@ -158,7 +175,8 @@ public class BobFeaturesTests {
 				.generatedSourceFile("io.jonasg.bob.test.builder.GenericsAreBuildableBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/GenericsAreBuildable/Expected_GenericsAreBuildable.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/GenericsAreBuildable/Expected_GenericsAreBuildable.java"))
 				.executeTest();
 	}
 
@@ -175,7 +193,8 @@ public class BobFeaturesTests {
 				.generatedSourceFile("io.jonasg.bob.test.builder.RecordsAreBuildableBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-						JavaFileObjectUtils.readFromResource("/tests/successful-compilation/RecordsAreBuildable/Expected_RecordsAreBuildable.java"))
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/RecordsAreBuildable/Expected_RecordsAreBuildable.java"))
 				.executeTest();
 	}
 

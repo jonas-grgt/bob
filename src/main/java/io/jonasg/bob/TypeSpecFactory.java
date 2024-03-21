@@ -112,9 +112,11 @@ public class TypeSpecFactory {
 		MethodSpec.Builder builder = MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC)
 				.returns(className(this.typeDefinition));
-		builder.addStatement("return new $T($L)", className(this.typeDefinition), this.constructorDefinition.parameters().stream()
-				.map(param -> this.eligibleConstructorParams.contains(param) ? param.name() : defaultForType(param.type()))
-				.collect(Collectors.joining(", ")));
+		builder.addStatement("return new $T($L)", className(this.typeDefinition),
+				this.constructorDefinition.parameters().stream()
+						.map(param -> this.eligibleConstructorParams.contains(param) ? param.name()
+								: defaultForType(param.type()))
+						.collect(Collectors.joining(", ")));
 		return builder.build();
 	}
 
@@ -137,7 +139,8 @@ public class TypeSpecFactory {
 				.addTypeVariables(builderTypeGenerics())
 				.returns(builderType());
 		for (ParameterDefinition parameter : this.typeDefinition.genericParameters())
-			of.addParameter(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), TypeVariableName.get(parameter.name())), String.format("%stype", parameter.name()));
+			of.addParameter(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"),
+					TypeVariableName.get(parameter.name())), String.format("%stype", parameter.name()));
 		of.addCode(body.build());
 		return of.build();
 	}
@@ -157,7 +160,8 @@ public class TypeSpecFactory {
 			result = this.buildable.packageName();
 		else
 			result = String.format("%s.builder", this.typeDefinition.packageName());
-		return ParameterizedTypeName.get(ClassName.get(result, builderTypeName(this.typeDefinition)), typeVariableNames.toArray(new TypeName[typeVariableNames.size()]));
+		return ParameterizedTypeName.get(ClassName.get(result, builderTypeName(this.typeDefinition)),
+				typeVariableNames.toArray(new TypeName[typeVariableNames.size()]));
 	}
 
 	private List<TypeVariableName> builderTypeGenerics() {
@@ -175,11 +179,11 @@ public class TypeSpecFactory {
 	private TypeName className(TypeDefinition definition) {
 		if (definition.genericParameters().isEmpty()) {
 			if (definition.isNested())
-				return ClassName.get(definition.packageName(), definition.nestedIn()).nestedClass(definition.typeName());
+				return ClassName.get(definition.packageName(), definition.nestedIn())
+						.nestedClass(definition.typeName());
 			else
 				return ClassName.get(definition.packageName(), definition.fullTypeName());
-		}
-		else {
+		} else {
 			List<TypeVariableName> genericParameters = toTypeVariableNames(definition);
 			return ParameterizedTypeName.get(ClassName.get(definition.packageName(), definition.fullTypeName()),
 					genericParameters.toArray(new TypeName[genericParameters.size()]));
@@ -189,7 +193,9 @@ public class TypeSpecFactory {
 	private List<TypeVariableName> toTypeVariableNames(TypeDefinition definition) {
 		List<TypeVariableName> genericParameters = new ArrayList<>();
 		for (GenericParameterDefinition parameterDefinition : definition.genericParameters())
-			genericParameters.add(TypeVariableName.get(parameterDefinition.name(), simpleClassNames(parameterDefinition.bounds()).toArray(new TypeName[parameterDefinition.bounds().size()])));
+			genericParameters
+					.add(TypeVariableName.get(parameterDefinition.name(), simpleClassNames(parameterDefinition.bounds())
+							.toArray(new TypeName[parameterDefinition.bounds().size()])));
 		return genericParameters;
 	}
 
@@ -204,7 +210,8 @@ public class TypeSpecFactory {
 		if (buildable.prefix().isEmpty()) {
 			return name;
 		}
-		return Formatter.format("$prefix$name", buildable.prefix(), name.substring(0, 1).toUpperCase() + name.substring(1));
+		return Formatter.format("$prefix$name", buildable.prefix(),
+				name.substring(0, 1).toUpperCase() + name.substring(1));
 	}
 
 	private boolean notExcluded(ParameterDefinition field) {

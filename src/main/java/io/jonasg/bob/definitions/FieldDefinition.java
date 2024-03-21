@@ -4,20 +4,20 @@ import javax.lang.model.type.TypeMirror;
 
 public class FieldDefinition {
 
-    private final String name;
+	private final String name;
 
 	private final TypeMirror type;
 
-    public FieldDefinition(String name, TypeMirror type) {
-        this.name = name;
+	public FieldDefinition(String name, TypeMirror type) {
+		this.name = name;
 		this.type = type;
-    }
+	}
 
-    public String name() {
-        return name;
-    }
+	public String name() {
+		return name;
+	}
 
-    public TypeMirror type() {
-        return type;
-    }
+	public TypeMirror type() {
+		return type;
+	}
 }
