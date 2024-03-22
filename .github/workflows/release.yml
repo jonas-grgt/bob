@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        description: tag
+
+jobs:
+  bump_version:
+    name: "Bump Version"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+      - name: Bump version
+        id: bump
+        run: "./mvnw versions:set -DnewVersion=${{ github.event.inputs.tag }} -DprocessAllModules && ./mvnw versions:commit -DprocessAllModules"
+      - name: Commit bumped version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Prepare release version ${{ github.event.inputs.tag }}"
+  publish:
+    name: "Publish"
+    needs: [bump_version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+      - name: Stage Release
+        run: ./mvnw -Prelease deploy -DaltDeploymentRepository=local::file:./target/staging-deploy
+      - name: Release
+        env:
+          JRELEASER_NEXUS2_USERNAME: ${{ secrets.JRELEASER_NEXUS2_USERNAME }}
+          JRELEASER_NEXUS2_PASSWORD: ${{ secrets.JRELEASER_NEXUS2_PASSWORD }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./mvnw -Prelease jreleaser:full-release --non-recursive
