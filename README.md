@@ -20,7 +20,7 @@ Bob generates a builder in the form of pure Java source code.
     <groupId>io.jonasg</groupId>
     <artifactId>bob-processor</artifactId>
     <version>${bob.version}</version>
-    <scope>compile</scope>
+    <scope>provided</scope>
 </dependency>
 ```
 ### Gradle
