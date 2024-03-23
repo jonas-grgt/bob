@@ -6,10 +6,6 @@ target/
 ### Maven ###
 .flattened-pom.xml
 
-### Xjx ###
-LargeFileTest.java
-TODO.md
-
 ### IntelliJ IDEA ###
 .idea/
 *.iws
