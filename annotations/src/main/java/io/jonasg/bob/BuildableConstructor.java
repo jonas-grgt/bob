@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
  * using the selected constructor as opposed to the one with the most
  * parameters.
  */
+@SuppressWarnings("unused")
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.CONSTRUCTOR)
 public @interface BuildableConstructor {

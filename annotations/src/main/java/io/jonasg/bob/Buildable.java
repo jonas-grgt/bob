@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
  * The builder will have a build method
  * that will create an instance of the annotated class.
  */
+@SuppressWarnings("unused")
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface Buildable {
@@ -19,16 +20,16 @@ public @interface Buildable {
 	 *
 	 * @return the list of fields to be excluded to be included in the builder.
 	 */
-	String[] excludes() default {};
+	String[] excludeFields() default {};
 
 	/**
-	 * The prefix for the generated setters.
+	 * The setterPrefix for the generated setters.
 	 * For example, "with" or "set"
-	 * Defaults to no prefix.
+	 * Defaults to no setterPrefix.
 	 *
-	 * @return the prefix for the generated setters.
+	 * @return the setterPrefix for the generated setters.
 	 */
-	String prefix() default "";
+	String setterPrefix() default "";
 
 	/**
 	 * The package name of the generated builder.

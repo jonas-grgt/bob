@@ -207,15 +207,15 @@ public class TypeSpecFactory {
 	}
 
 	private String fieldName(String name) {
-		if (buildable.prefix().isEmpty()) {
+		if (buildable.setterPrefix().isEmpty()) {
 			return name;
 		}
-		return Formatter.format("$prefix$name", buildable.prefix(),
+		return Formatter.format("$setterPrefix$name", buildable.setterPrefix(),
 				name.substring(0, 1).toUpperCase() + name.substring(1));
 	}
 
 	private boolean notExcluded(ParameterDefinition field) {
-		return !Arrays.asList(buildable.excludes()).contains(field.name());
+		return !Arrays.asList(buildable.excludeFields()).contains(field.name());
 	}
 
 	private MethodSpec constructor() {

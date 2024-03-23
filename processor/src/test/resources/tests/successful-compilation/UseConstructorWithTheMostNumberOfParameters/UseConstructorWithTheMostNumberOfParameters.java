@@ -3,7 +3,7 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.Buildable;
 
 @Buildable
-public class UseConstructorWithTheGreatestNumberOfParameters {
+public class UseConstructorWithTheMostNumberOfParameters {
 	private String make;
 
 	private int year;
@@ -14,16 +14,16 @@ public class UseConstructorWithTheGreatestNumberOfParameters {
 
 	private float fuelEfficiency;
 
-	public UseConstructorWithTheGreatestNumberOfParameters() {
+	public UseConstructorWithTheMostNumberOfParameters() {
 	}
 
-	public UseConstructorWithTheGreatestNumberOfParameters(double engineSize, boolean isElectric, float fuelEfficiency) {
+	public UseConstructorWithTheMostNumberOfParameters(double engineSize, boolean isElectric, float fuelEfficiency) {
 		this.engineSize = engineSize;
 		this.isElectric = isElectric;
 		this.fuelEfficiency = fuelEfficiency;
 	}
 
-	public UseConstructorWithTheGreatestNumberOfParameters(String make, int year, double engineSize, boolean isElectric, float fuelEfficiency) {
+	public UseConstructorWithTheMostNumberOfParameters(String make, int year, double engineSize, boolean isElectric, float fuelEfficiency) {
 		this.make = make;
 		this.year = year;
 		this.engineSize = engineSize;
@@ -31,7 +31,7 @@ public class UseConstructorWithTheGreatestNumberOfParameters {
 		this.fuelEfficiency = fuelEfficiency;
 	}
 
-	public UseConstructorWithTheGreatestNumberOfParameters(String make, int year) {
+	public UseConstructorWithTheMostNumberOfParameters(String make, int year) {
 		this.make = make;
 		this.year = year;
 	}

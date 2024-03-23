@@ -143,22 +143,42 @@ public class BobFeaturesTests {
 	}
 
 	@Test
-	void useConstructorWithTheGreatestNumberOfParameters() {
+	void useConstructorWithTheMostNumberOfParameters() {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles(
-						"/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/UseConstructorWithTheGreatestNumberOfParameters.java")
+						"/tests/successful-compilation/UseConstructorWithTheMostNumberOfParameters/UseConstructorWithTheMostNumberOfParameters.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.UseConstructorWithTheGreatestNumberOfParametersBuilder")
+						"io.jonasg.bob.test.builder.UseConstructorWithTheMostNumberOfParametersBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
-								"/tests/successful-compilation/UseConstructorWithTheGreatestNumberOfParameters/Expected_UseConstructorWithTheGreatestNumberOfParameters.java"))
+								"/tests/successful-compilation/UseConstructorWithTheMostNumberOfParameters/Expected_UseConstructorWithTheMostNumberOfParameters.java"))
+				.executeTest();
+	}
+
+	@Test
+	void useFirstConstructorWithTheMostNumberOfParameters() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/successful-compilation/UseFirstConstructorWithTheMostNumberOfParameters/UseFirstConstructorWithTheMostNumberOfParameters.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.UseFirstConstructorWithTheMostNumberOfParametersBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/UseFirstConstructorWithTheMostNumberOfParameters/Expected_UseFirstConstructorWithTheMostNumberOfParameters.java"))
 				.executeTest();
 	}
 

@@ -12,15 +12,22 @@ Bob generates a builder in the form of pure Java source code.
 ```xml
 <dependency>
     <groupId>io.jonasg</groupId>
-    <artifactId>bob</artifactId>
+    <artifactId>bob-annotations</artifactId>
     <version>${bob.version}</version>
+    <scope>compile</scope>
+</dependency>
+<dependency>
+    <groupId>io.jonasg</groupId>
+    <artifactId>bob-processor</artifactId>
+    <version>${bob.version}</version>
+    <scope>compile</scope>
 </dependency>
 ```
 ### Gradle
 ```groovy
 dependencies {
-  annotationProcessor "io.jonasg:bob:" + bobVersion
-  compileOnly "io.jonasg:bob:" + bobVersion
+  annotationProcessor "io.jonasg:bob-processor:" + bobVersion
+  compileOnly "io.jonasg:bob-annotations:" + bobVersion
 }
 ```
 
@@ -57,6 +64,10 @@ For parameters
 that do not have a corresponding field, the default value for that type will be used.
 In example `null` for `Integer` and zero for `int`.
 
+If your class contains multiple constructors that tie for having the most parameters,
+the first one will be selected. 
+See `@BuildableConstructor` if you want to change this behavior.
+
 ```java
 @Buildable
 public class Car {
@@ -91,14 +102,14 @@ For the car example this will be `my.garage.CarBuilder`
 The location of the builder can be changed:
 
 ```java
-@Buildable(package = "my.other.garage")
+@Buildable(packageName = "my.other.garage")
 public class Car {
 ```
             
 ### Field exclusion
 
 ```java
-@Buildable(excludes = {"brand", "color"})
+@Buildable(excludeFields = {"brand", "color"})
 public class Car {
 ```
 
@@ -108,7 +119,7 @@ By default Bob will generated setter methods consisting out of *new style setter
 If you want to change the prefix of those setter methods you can:
 
 ```java
-@Buildable(prefix = "with")
+@Buildable(setterPrefix = "with")
 public class Car {
 ```
 
