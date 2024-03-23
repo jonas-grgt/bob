@@ -155,7 +155,7 @@ Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("c
 or alternatively:
 
 ```java
-GenericsAreBuildableBuilder.of(BigDecimal.class, String.class)
+CupBuilder.of(BigDecimal.class, String.class)
     .topping("cream")
     .contents(BigDecimal.ZERO)
     .build();
