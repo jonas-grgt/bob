@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
       - name: Bump version
         id: bump
         run: "./mvnw versions:set -DnewVersion=${{ github.event.inputs.tag }} -DprocessAllModules && ./mvnw versions:commit -DprocessAllModules"
@@ -38,7 +38,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
       - name: Stage Release
         run: ./mvnw -Prelease deploy -DaltDeploymentRepository=local::file:./target/staging-deploy
       - name: Release
