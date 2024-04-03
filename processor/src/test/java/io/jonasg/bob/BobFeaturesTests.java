@@ -218,4 +218,24 @@ public class BobFeaturesTests {
 				.executeTest();
 	}
 
+	@Test
+	void allPublicSettersThatHaveCorrespondingFieldsAreBuildable() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/successful-compilation/AllPublicSettersThatHaveCorrespondingFieldsAreBuildable/AllPublicSettersThatHaveCorrespondingFieldsAreBuildable.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/AllPublicSettersThatHaveCorrespondingFieldsAreBuildable/Expected_AllPublicSettersThatHaveCorrespondingFieldsAreBuildable.java"))
+				.executeTest();
+	}
+
 }

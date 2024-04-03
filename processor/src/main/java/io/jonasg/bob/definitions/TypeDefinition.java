@@ -2,6 +2,7 @@ package io.jonasg.bob.definitions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,31 @@ public class TypeDefinition extends SimpleTypeDefinition {
 
 	public static Builder newBuilder() {
 		return new Builder();
+	}
+
+	public List<SetterMethodDefinition> getSetterMethods() {
+		List<SetterMethodDefinition> setters = new ArrayList<>();
+		List<MethodDefinition> methodsWithOneParam = this.methods.stream()
+				.filter(m -> m.parameters().size() == 1)
+				.toList();
+		for (FieldDefinition field : fields) {
+			String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
+			methodsWithOneParam.stream()
+					.filter(m -> m.name().equals(field.name()))
+					.findFirst()
+					.map(m -> new SetterMethodDefinition(m.name(), field.name(), m.parameters().get(0)))
+					.ifPresent(setters::add);
+			methodsWithOneParam.stream()
+					.filter(m -> m.name().equals("set%s".formatted(name)))
+					.findFirst()
+					.map(m -> new SetterMethodDefinition(m.name(), field.name(), m.parameters().get(0)))
+					.ifPresent(setters::add);
+		}
+		return setters;
+	}
+
+	public boolean containsSetterMethods() {
+		return !getSetterMethods().isEmpty();
 	}
 
 	public static class Builder {

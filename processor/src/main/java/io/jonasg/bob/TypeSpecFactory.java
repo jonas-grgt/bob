@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
@@ -13,6 +16,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
@@ -32,7 +36,7 @@ public class TypeSpecFactory {
 
 	private final Buildable buildable;
 
-	private final List<ParameterDefinition> eligibleConstructorParams;
+	private final List<BuildableField> buildableFields;
 
 	private String builderTypeName(TypeDefinition source) {
 		return Formatter.format("$typeName$suffix", source.typeName(), "Builder");
@@ -41,7 +45,31 @@ public class TypeSpecFactory {
 	private TypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable) {
 		this.typeDefinition = typeDefinition;
 		this.buildable = buildable;
+		this.constructorDefinition = extractConstructorDefinitionFrom(typeDefinition);
+		this.buildableFields = extractBuildableFieldsFrom(typeDefinition);
+	}
 
+	private List<BuildableField> extractBuildableFieldsFrom(TypeDefinition typeDefinition) {
+		var fieldNames = typeDefinition.fields().stream()
+				.map(FieldDefinition::name)
+				.toList();
+		List<ParameterDefinition> eligibleConstructorParams = this.constructorDefinition.parameters()
+				.stream()
+				.filter(p -> fieldNames.contains(p.name()))
+				.toList();
+		Stream<BuildableField> constructorBuildableFields = this.constructorDefinition.parameters()
+				.stream()
+				.filter(p -> fieldNames.contains(p.name()))
+				.map(p -> BuildableField.fromConstructor(p.name(), p.type()));
+		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
+				.stream()
+				.filter(field -> !eligibleConstructorParams
+						.contains(new ParameterDefinition(field.type(), field.fieldName())))
+				.map(p -> new BuildableField(p.fieldName(), false, Optional.of(p.methodName()), p.type()));
+		return Stream.concat(constructorBuildableFields, setterBuildableFields).toList();
+	}
+
+	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
 		var buildableConstructors = typeDefinition.constructors().stream()
 				.filter(c -> c.isAnnotatedWith(BuildableConstructor.class))
 				.toList();
@@ -49,19 +77,11 @@ public class TypeSpecFactory {
 			throw new IllegalArgumentException("Only one constructor can be annotated with @BuildableConstructor");
 		}
 		if (buildableConstructors.isEmpty()) {
-			this.constructorDefinition = typeDefinition.constructors().stream()
+			return typeDefinition.constructors().stream()
 					.max(Comparator.comparingInt(c -> c.parameters().size())).orElseThrow();
 		} else {
-			this.constructorDefinition = buildableConstructors.get(0);
+			return buildableConstructors.get(0);
 		}
-
-		var fieldNames = typeDefinition.fields().stream()
-				.map(FieldDefinition::name)
-				.toList();
-		this.eligibleConstructorParams = this.constructorDefinition.parameters()
-				.stream()
-				.filter(p -> fieldNames.contains(p.name()))
-				.toList();
 	}
 
 	public static TypeSpec produce(TypeDefinition typeDefinition, Buildable buildable) {
@@ -73,51 +93,77 @@ public class TypeSpecFactory {
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 		if (!this.typeDefinition.genericParameters().isEmpty())
 			builder.addTypeVariables(toTypeVariableNames(this.typeDefinition));
-		builder.addMethods(setters());
-		builder.addFields(fields());
-		builder.addMethod(buildMethod());
-		builder.addMethod(constructor());
-		if (!this.typeDefinition.genericParameters().isEmpty())
+		builder.addMethods(generateSetters());
+		builder.addFields(generateFields());
+		builder.addMethod(genereateBuildMethod());
+		builder.addMethod(generateConstructor());
+		if (!this.typeDefinition.genericParameters().isEmpty()) {
 			builder.addMethod(of());
+		}
 		return builder.build();
 	}
 
-	private List<MethodSpec> setters() {
-		List<MethodSpec> setters = new ArrayList<>();
-		for (ParameterDefinition field : this.eligibleConstructorParams) {
-			if (notExcluded(field)) {
-				MethodSpec.Builder setter = MethodSpec.methodBuilder(fieldName(field.name()))
+	private List<MethodSpec> generateSetters() {
+		return this.buildableFields.stream()
+				.filter(this::notExcluded)
+				.map(field -> MethodSpec.methodBuilder(setterName(field.fieldName()))
 						.addModifiers(Modifier.PUBLIC)
 						.returns(builderType())
-						.addParameter(TypeName.get(field.type()), field.name());
-				setter
-						.addStatement("this.$L = $L", field.name(), field.name())
-						.build();
-				setters.add(setter
+						.addParameter(TypeName.get(field.type()), field.fieldName())
+						.addStatement("this.$L = $L", field.fieldName(), field.fieldName())
 						.addStatement("return this")
-						.build());
-			}
-		}
-		return setters;
-	}
-
-	private List<FieldSpec> fields() {
-		return this.eligibleConstructorParams.stream()
-				.map(field -> FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 						.build())
 				.toList();
 	}
 
-	private MethodSpec buildMethod() {
-		MethodSpec.Builder builder = MethodSpec.methodBuilder("build")
+	private List<FieldSpec> generateFields() {
+		return buildableFields.stream()
+				.map(field -> FieldSpec.builder(TypeName.get(field.type()), field.fieldName(), Modifier.PRIVATE)
+						.build())
+				.toList();
+	}
+
+	private MethodSpec genereateBuildMethod() {
+		Builder builder = MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC)
 				.returns(className(this.typeDefinition));
-		builder.addStatement("return new $T($L)", className(this.typeDefinition),
-				this.constructorDefinition.parameters().stream()
-						.map(param -> this.eligibleConstructorParams.contains(param) ? param.name()
-								: defaultForType(param.type()))
-						.collect(Collectors.joining(", ")));
+		if (typeDefinition.containsSetterMethods()) {
+			createConstructorAndSetterAwareBuildMethod(builder);
+		} else {
+			createConstructorOnlyBuildMethod(builder);
+		}
 		return builder.build();
+	}
+
+	private void createConstructorAndSetterAwareBuildMethod(Builder builder) {
+		builder.addStatement("var instance = new $T($L)", className(this.typeDefinition),
+				this.toConstructorCallingStatement(this.constructorDefinition));
+		typeDefinition.getSetterMethods()
+				.forEach(method -> {
+					String fieldName;
+					if (method.methodName().startsWith("set")) {
+						fieldName = method.methodName().substring(3, 4).toLowerCase()
+								+ method.methodName().substring(4);
+						builder.addStatement("instance.%s(this.%s)".formatted(method.methodName(), fieldName));
+					} else {
+						fieldName = method.methodName();
+						builder.addStatement("instance.%s(this.%s)".formatted(setterName(fieldName), fieldName));
+					}
+				});
+		builder.addStatement("return instance");
+	}
+
+	private void createConstructorOnlyBuildMethod(Builder builder) {
+		builder.addStatement("return new $T($L)", className(this.typeDefinition),
+				toConstructorCallingStatement(this.constructorDefinition));
+	}
+
+	private String toConstructorCallingStatement(ConstructorDefinition constructorDefinition) {
+		return constructorDefinition.parameters().stream()
+				.map(param -> this.buildableFields.stream().anyMatch(f -> Objects.equals(f.fieldName(), param.name()))
+						? param.name()
+						: defaultForType(param.type()))
+				.collect(Collectors.joining(", "));
 	}
 
 	private String defaultForType(TypeMirror type) {
@@ -134,15 +180,16 @@ public class TypeSpecFactory {
 	private MethodSpec of() {
 		CodeBlock.Builder body = CodeBlock.builder();
 		body.addStatement("return new $L<>()", builderTypeName(this.typeDefinition));
-		MethodSpec.Builder of = MethodSpec.methodBuilder("of")
+		Builder builder = MethodSpec.methodBuilder("of")
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
 				.addTypeVariables(builderTypeGenerics())
 				.returns(builderType());
-		for (ParameterDefinition parameter : this.typeDefinition.genericParameters())
-			of.addParameter(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"),
+		for (ParameterDefinition parameter : this.typeDefinition.genericParameters()) {
+			builder.addParameter(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"),
 					TypeVariableName.get(parameter.name())), String.format("%stype", parameter.name()));
-		of.addCode(body.build());
-		return of.build();
+		}
+		builder.addCode(body.build());
+		return builder.build();
 	}
 
 	private TypeName builderType() {
@@ -161,7 +208,7 @@ public class TypeSpecFactory {
 		else
 			result = String.format("%s.builder", this.typeDefinition.packageName());
 		return ParameterizedTypeName.get(ClassName.get(result, builderTypeName(this.typeDefinition)),
-				typeVariableNames.toArray(new TypeName[typeVariableNames.size()]));
+				typeVariableNames.toArray(new TypeName[0]));
 	}
 
 	private List<TypeVariableName> builderTypeGenerics() {
@@ -171,7 +218,7 @@ public class TypeSpecFactory {
 			for (SimpleTypeDefinition definition : param.bounds()) {
 				bounds.add(TypeVariableName.get(definition.typeName()));
 			}
-			typeVariableNames.add(TypeVariableName.get(param.name(), bounds.toArray(new TypeName[bounds.size()])));
+			typeVariableNames.add(TypeVariableName.get(param.name(), bounds.toArray(new TypeName[0])));
 		}
 		return typeVariableNames;
 	}
@@ -186,7 +233,7 @@ public class TypeSpecFactory {
 		} else {
 			List<TypeVariableName> genericParameters = toTypeVariableNames(definition);
 			return ParameterizedTypeName.get(ClassName.get(definition.packageName(), definition.fullTypeName()),
-					genericParameters.toArray(new TypeName[genericParameters.size()]));
+					genericParameters.toArray(new TypeName[0]));
 		}
 	}
 
@@ -206,7 +253,7 @@ public class TypeSpecFactory {
 		return typeNames;
 	}
 
-	private String fieldName(String name) {
+	private String setterName(String name) {
 		if (buildable.setterPrefix().isEmpty()) {
 			return name;
 		}
@@ -214,11 +261,11 @@ public class TypeSpecFactory {
 				name.substring(0, 1).toUpperCase() + name.substring(1));
 	}
 
-	private boolean notExcluded(ParameterDefinition field) {
-		return !Arrays.asList(buildable.excludeFields()).contains(field.name());
+	private boolean notExcluded(BuildableField field) {
+		return !Arrays.asList(buildable.excludeFields()).contains(field.fieldName());
 	}
 
-	private MethodSpec constructor() {
+	private MethodSpec generateConstructor() {
 		return MethodSpec.constructorBuilder()
 				.addModifiers(Modifier.PUBLIC)
 				.build();

@@ -1,13 +1,9 @@
 package io.jonasg.bob.definitions;
 
-public class MethodDefinition {
-	private final String name;
+import java.util.List;
 
-	public MethodDefinition(String name) {
-		this.name = name;
-	}
+import javax.lang.model.type.TypeMirror;
 
-	public String name() {
-		return name;
-	}
+public record MethodDefinition(String name,
+							   List<TypeMirror> parameters) {
 }

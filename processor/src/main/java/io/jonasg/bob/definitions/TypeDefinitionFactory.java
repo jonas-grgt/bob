@@ -133,7 +133,13 @@ public class TypeDefinitionFactory {
 
 	private List<MethodDefinition> methods() {
 		return ElementFilter.methodsIn(element.getEnclosedElements()).stream()
-				.map(e -> new MethodDefinition(e.getSimpleName().toString()))
+				.map(e -> new MethodDefinition(e.getSimpleName().toString(), parameterTypes(e)))
+				.toList();
+	}
+
+	private List<TypeMirror> parameterTypes(ExecutableElement element) {
+		return element.getParameters().stream()
+				.map(VariableElement::asType)
 				.toList();
 	}
 }
