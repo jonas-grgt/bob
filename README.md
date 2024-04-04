@@ -1,4 +1,5 @@
-# 👷‍Bob [![Maven Central](https://img.shields.io/maven-central/v/io.jonasg/bob-annotations.svg)](https://search.maven.org/artifact/io.jonasg/bob-annotations)
+# 👷‍Bob [![Maven Central](https://img.shields.io/maven-central/v/io.jonasg/bob-annotations.svg)](https://search.maven.org/artifact/io.jonasg/bob-annotations) [![License](https://img.shields.io/github/license/io.jonasg/bob-annotations.svg)](https://opensource.org/licenses/Apache-2.0)
+
 
 🪶Lightweight Builder generator for Java
 
