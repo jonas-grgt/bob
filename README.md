@@ -151,7 +151,7 @@ public class Car {
 
 ### Records
 
-Bob can work with Records work as normal java classes
+Bob can work with Records and function just as normal java classes
 
 ```java
 @Buildable
