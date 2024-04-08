@@ -71,10 +71,10 @@ public class TypeSpecFactory {
 
 	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
 		var buildableConstructors = typeDefinition.constructors().stream()
-				.filter(c -> c.isAnnotatedWith(BuildableConstructor.class))
+				.filter(c -> c.isAnnotatedWith(Buildable.Constructor.class))
 				.toList();
 		if (buildableConstructors.size() > 1) {
-			throw new IllegalArgumentException("Only one constructor can be annotated with @BuildableConstructor");
+			throw new IllegalArgumentException("Only one constructor can be annotated with @Buildable.Constructor");
 		}
 		if (buildableConstructors.isEmpty()) {
 			return typeDefinition.constructors().stream()
@@ -95,7 +95,7 @@ public class TypeSpecFactory {
 			builder.addTypeVariables(toTypeVariableNames(this.typeDefinition));
 		builder.addMethods(generateSetters());
 		builder.addFields(generateFields());
-		builder.addMethod(genereateBuildMethod());
+		builder.addMethod(generateBuildMethod());
 		builder.addMethod(generateConstructor());
 		if (!this.typeDefinition.genericParameters().isEmpty()) {
 			builder.addMethod(of());
@@ -123,7 +123,7 @@ public class TypeSpecFactory {
 				.toList();
 	}
 
-	private MethodSpec genereateBuildMethod() {
+	private MethodSpec generateBuildMethod() {
 		Builder builder = MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC)
 				.returns(className(this.typeDefinition));

@@ -1,7 +1,7 @@
 package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
-import io.jonasg.bob.BuildableConstructor;
+import io.jonasg.bob.Buildable.Constructor;
 
 @Buildable
 public class MultipleBuildableConstructorAnnotationsPresent {
@@ -24,7 +24,7 @@ public class MultipleBuildableConstructorAnnotationsPresent {
 		this.fuelEfficiency = fuelEfficiency;
 	}
 
-	@BuildableConstructor
+	@Buildable.Constructor
 	public MultipleBuildableConstructorAnnotationsPresent(String make, int year, double engineSize, boolean isElectric, float fuelEfficiency) {
 		this.make = make;
 		this.year = year;
@@ -33,7 +33,7 @@ public class MultipleBuildableConstructorAnnotationsPresent {
 		this.fuelEfficiency = fuelEfficiency;
 	}
 
-	@BuildableConstructor
+	@Buildable.Constructor
 	public MultipleBuildableConstructorAnnotationsPresent(String make, int year) {
 		this.make = make;
 		this.year = year;

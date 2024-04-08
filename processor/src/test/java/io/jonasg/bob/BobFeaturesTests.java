@@ -23,7 +23,7 @@ public class BobFeaturesTests {
 				.andThat()
 				.compilerMessage()
 				.ofKindError()
-				.contains("Only one constructor can be annotated with @BuildableConstructor")
+				.contains("Only one constructor can be annotated with @Buildable.Constructor")
 				.executeTest();
 	}
 

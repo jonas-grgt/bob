@@ -20,32 +20,12 @@ public class TypeDefinition extends SimpleTypeDefinition {
 
 	private List<MethodDefinition> methods;
 
-	private TypeDefinition(String typeName, String packageName, String enclosedIn, List<FieldDefinition> fields,
-			List<ConstructorDefinition> constructors) {
-		super(typeName, packageName);
-		this.parent = enclosedIn;
-		this.fields = fields;
-		this.constructors = constructors;
-	}
-
 	public TypeDefinition() {
 		super();
 	}
 
 	public List<FieldDefinition> fields() {
 		return fields;
-	}
-
-	public List<FieldDefinition> fields(Predicate<FieldDefinition> predicate) {
-		return fields().stream()
-				.filter(predicate)
-				.collect(Collectors.<FieldDefinition>toList());
-	}
-
-	public List<MethodDefinition> methods(Predicate<MethodDefinition> predicate) {
-		return methods.stream()
-				.filter(predicate)
-				.toList();
 	}
 
 	public String nestedIn() {

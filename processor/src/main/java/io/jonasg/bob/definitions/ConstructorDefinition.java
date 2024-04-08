@@ -1,6 +1,7 @@
 package io.jonasg.bob.definitions;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -32,6 +33,7 @@ public final class ConstructorDefinition {
 
 	public boolean isAnnotatedWith(Class<?> type) {
 		return annotations.stream()
-				.anyMatch(a -> a.getAnnotationType().toString().equals(type.getName()));
+				.anyMatch(a -> Objects.equals(type.getName().replaceAll("\\$", "."),
+						a.getAnnotationType().asElement().asType().toString()));
 	}
 }

@@ -68,7 +68,7 @@ In example `null` for `Integer` and zero for `int`.
 
 If your class contains multiple constructors that tie for having the most parameters,
 the first one will be selected. 
-See `@BuildableConstructor` if you want to change this behavior.
+See `@Buildable.Constructor` if you want to change this behavior.
 
 ```java
 @Buildable
@@ -94,7 +94,7 @@ new Car(null, 0, "red", BigDecimal.ZERO);
 
 ### Different constructor
 
-If you want to use a different constructor instead of the default selected one, annotated it with `@BuildableConstructor`
+If you want to use a different constructor instead of the default selected one, annotated it with `@Buildable.Constructor`
 
 ### Package
     

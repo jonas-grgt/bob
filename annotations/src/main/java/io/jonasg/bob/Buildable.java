@@ -38,4 +38,17 @@ public @interface Buildable {
 	 * @return the package name of the generated builder
 	 */
 	String packageName() default "";
+
+	/**
+	 * Marks a constructor as buildable.
+	 * This means that a builder will be generated
+	 * using the selected constructor as opposed to the one with the most
+	 * parameters.
+	 */
+	@SuppressWarnings("unused")
+	@Retention(RetentionPolicy.SOURCE)
+	@Target(ElementType.CONSTRUCTOR)
+	@interface Constructor {
+	}
+
 }

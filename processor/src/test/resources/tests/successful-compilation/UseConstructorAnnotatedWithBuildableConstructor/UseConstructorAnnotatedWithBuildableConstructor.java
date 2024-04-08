@@ -1,7 +1,6 @@
 package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
-import io.jonasg.bob.BuildableConstructor;
 
 @Buildable
 public class UseConstructorAnnotatedWithBuildableConstructor {
@@ -32,7 +31,7 @@ public class UseConstructorAnnotatedWithBuildableConstructor {
 		this.fuelEfficiency = fuelEfficiency;
 	}
 
-	@BuildableConstructor
+	@Buildable.Constructor
 	public UseConstructorAnnotatedWithBuildableConstructor(String make, int year) {
 		this.make = make;
 		this.year = year;

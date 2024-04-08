@@ -65,7 +65,7 @@ public class TypeDefinitionFactory {
 				String name = parts.get(0);
 				parts.remove(0);
 				Collections.reverse(parts);
-				String packageName = join(parts.toArray(new String[parts.size()]), ".");
+				String packageName = join(parts.toArray(new String[0]), ".");
 				definitions.add(new SimpleTypeDefinition(name, packageName));
 			}
 		}
