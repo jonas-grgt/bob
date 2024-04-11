@@ -138,18 +138,11 @@ public class TypeSpecFactory {
 	private void createConstructorAndSetterAwareBuildMethod(Builder builder) {
 		builder.addStatement("var instance = new $T($L)", className(this.typeDefinition),
 				this.toConstructorCallingStatement(this.constructorDefinition));
-		typeDefinition.getSetterMethods()
-				.forEach(method -> {
-					String fieldName;
-					if (method.methodName().startsWith("set")) {
-						fieldName = method.methodName().substring(3, 4).toLowerCase()
-								+ method.methodName().substring(4);
-						builder.addStatement("instance.%s(this.%s)".formatted(method.methodName(), fieldName));
-					} else {
-						fieldName = method.methodName();
-						builder.addStatement("instance.%s(this.%s)".formatted(setterName(fieldName), fieldName));
-					}
-				});
+		this.buildableFields.stream()
+				.filter(field -> !field.isConstructorArgument() && field.setterMethodName().isPresent())
+				.forEach(field -> builder
+						.addStatement("instance.%s(this.%s)".formatted(setterName(field.setterMethodName().get()),
+								field.fieldName())));
 		builder.addStatement("return instance");
 	}
 

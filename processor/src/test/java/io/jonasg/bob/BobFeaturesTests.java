@@ -238,4 +238,24 @@ public class BobFeaturesTests {
 				.executeTest();
 	}
 
+	@Test
+	void allPublicSettersExceptThoseUsedInConstructorAreBuildable() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/successful-compilation/AllPublicSettersExceptThoseUsedInConstructorAreBuildable/AllPublicSettersExceptThoseUsedInConstructorAreBuildable.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.AllPublicSettersExceptThoseUsedInConstructorAreBuildableBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/AllPublicSettersExceptThoseUsedInConstructorAreBuildable/Expected_AllPublicSettersExceptThoseUsedInConstructorAreBuildable.java"))
+				.executeTest();
+	}
+
 }
