@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
  * The builder will have a build method
  * that will create an instance of the annotated class.
  */
-@SuppressWarnings("unused")
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface Buildable {
@@ -40,6 +39,14 @@ public @interface Buildable {
 	String packageName() default "";
 
 	/**
+	 * List of fields that should be set within the building process.
+	 * If not, an {@link MandatoryFieldMissingException} will be thrown.
+	 *
+	 * @return mandatory fields
+	 */
+	String[] mandatoryFields() default {};
+
+	/**
 	 * Specifies the constructor policy to be applied when building an instance of
 	 * the annotated class.
 	 * The policy controls how strictly the builder enforces the setting of fields
@@ -65,10 +72,19 @@ public @interface Buildable {
 	 * using the selected constructor as opposed to the one with the most
 	 * parameters.
 	 */
-	@SuppressWarnings("unused")
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.CONSTRUCTOR)
 	@interface Constructor {
+	}
+
+	/**
+	 * Marks a field as mandatory. When the field is not set within the building
+	 * process
+	 * an {@link MandatoryFieldMissingException} will be thrown.
+	 */
+	@Retention(RetentionPolicy.SOURCE)
+	@Target(ElementType.FIELD)
+	@interface Mandatory {
 	}
 
 }

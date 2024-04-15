@@ -259,4 +259,43 @@ public class BobFeaturesTests {
 				.executeTest();
 	}
 
+	@Test
+	void markThroughTopLevelAnnotationThatIndividualFieldsAsMandatoryWhenInPermissiveMode() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/successful-compilation/MarkIndividualFieldsAsMandatory/MarkThroughTopLevelAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.MarkThroughTopLevelAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/MarkIndividualFieldsAsMandatory/Expected_MarkThroughTopLevelAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode.java"))
+				.executeTest();
+	}
+
+	@Test
+	void markFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/successful-compilation/MarkIndividualFieldsAsMandatory/MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/MarkIndividualFieldsAsMandatory/Expected_MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode.java"))
+				.executeTest();
+	}
 }

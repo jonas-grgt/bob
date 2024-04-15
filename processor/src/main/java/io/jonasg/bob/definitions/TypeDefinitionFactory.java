@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -75,8 +76,9 @@ public class TypeDefinitionFactory {
 	private static String join(String[] aArr, String sSep) {
 		StringBuilder sbStr = new StringBuilder();
 		for (int i = 0, il = aArr.length; i < il; i++) {
-			if (i > 0)
+			if (i > 0) {
 				sbStr.append(sSep);
+			}
 			sbStr.append(aArr[i]);
 		}
 		return sbStr.toString();
@@ -84,8 +86,10 @@ public class TypeDefinitionFactory {
 
 	private List<FieldDefinition> fields(List<VariableElement> fields) {
 		List<FieldDefinition> definitions = new ArrayList<>();
-		for (VariableElement field : fields)
-			definitions.add(new FieldDefinition(field.getSimpleName().toString(), field.asType()));
+		for (VariableElement field : fields) {
+			definitions.add(new FieldDefinition(field.getSimpleName().toString(), field.getAnnotationMirrors(),
+					field.asType()));
+		}
 		return definitions;
 	}
 
@@ -103,15 +107,18 @@ public class TypeDefinitionFactory {
 	}
 
 	private String outerType(Element enclosingElement) {
-		String enclosedIn = null;
+		StringBuilder enclosedIn = null;
 		while (!enclosingElement.getKind().equals(ElementKind.PACKAGE)) {
-			if (enclosedIn == null)
-				enclosedIn = enclosingElement.getSimpleName().toString();
-			else
-				enclosedIn += String.format(".%s", enclosingElement.getSimpleName());
+			if (enclosedIn == null) {
+				enclosedIn = Optional.ofNullable(enclosingElement.getSimpleName().toString())
+						.map(StringBuilder::new)
+						.orElse(null);
+			} else {
+				enclosedIn.append(String.format(".%s", enclosingElement.getSimpleName()));
+			}
 			enclosingElement = enclosingElement.getEnclosingElement();
 		}
-		return enclosedIn;
+		return enclosedIn == null ? null : enclosedIn.toString();
 	}
 
 	private String typeName() {

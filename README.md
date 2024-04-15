@@ -93,6 +93,11 @@ new Car(null, 0, "red", BigDecimal.ZERO);
 
 Because `brand` and `year` aren't fields the default value for the corresponding types are used.
 
+
+### Different constructor
+
+If you want to use a different constructor instead of the default selected one, annotated it with `@Buildable.Constructor`
+
 ### Constructor enforcement
 
 When constructing Java objects,
@@ -107,10 +112,10 @@ to be partially constructed without setting all fields specified in the construc
 This default behavior is governed by the `ConstructorPolicy.PERMISSIVE` setting.
 
 However, the `ConstructorPolicy` also provides an `ENFORCED` mode.
-When this mode is active,
+When this policy is active,
 it is mandatory to supply all constructor parameters when creating a new object.
 If any required parameters are missing,
-the policy enforces strict compliance by throwing an exception.
+the policy enforces strict compliance by throwing an `MandatoryFieldMissingException`.
 This ensures that every object is fully initialized as intended,
 preventing issues that arise from improperly constructed objects.
 
@@ -119,11 +124,29 @@ preventing issues that arise from improperly constructed objects.
 public class Car {
 ```
 
-### Different constructor
+### Mandatory Fields
 
-If you want to use a different constructor instead of the default selected one, annotated it with `@Buildable.Constructor`
+Fields can be designated as mandatory;
+- through the `mandatoryFields` property of `@Buildable`
+- through annotating the field with @Buildable.Mandatory.
+ 
+Similar to the constructor parameters in the ENFORCED mode,
+the omission of these required fields when building an object will trigger a MandatoryFieldMissingException.
+This mechanism ensures that all necessary fields are set before an object is finalized.
 
-### Package
+```java
+@Buildable(mandatoryFields = {"color"})
+public class Car {
+    private String color;
+```
+
+```java
+@Buildable
+public class Car {
+    @Buildable.Mandatory
+    private String color;
+```
+### Change Default Package
     
 A `CarBuilder` class will be generated in the same package as the source class with *builder* as suffix.
 For the car example this will be `my.garage.CarBuilder`

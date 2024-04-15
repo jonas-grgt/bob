@@ -59,12 +59,12 @@ public class TypeDefinition extends SimpleTypeDefinition {
 			methodsWithOneParam.stream()
 					.filter(m -> m.name().equals(field.name()))
 					.findFirst()
-					.map(m -> new SetterMethodDefinition(m.name(), field.name(), m.parameters().get(0)))
+					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
 			methodsWithOneParam.stream()
 					.filter(m -> m.name().equals("set%s".formatted(name)))
 					.findFirst()
-					.map(m -> new SetterMethodDefinition(m.name(), field.name(), m.parameters().get(0)))
+					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
 		}
 		return setters;

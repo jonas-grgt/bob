@@ -31,8 +31,7 @@ public final class RequiredField<T> {
 
 	public T orElseThrow() {
 		if (fieldValue == null) {
-			throw new IllegalStateException(
-					"Required field (" + fieldName + ") not set when building type (" + typeName + ")");
+			throw new MandatoryFieldMissingException(fieldName, typeName);
 		}
 		return fieldValue;
 	}

@@ -15,14 +15,15 @@ import javax.lang.model.type.TypeMirror;
 public record BuildableField(
 		String fieldName,
 		boolean isConstructorArgument,
+		boolean isMandatory,
 		Optional<String> setterMethodName,
 		TypeMirror type) {
 
 	public static BuildableField fromConstructor(String fieldName, TypeMirror type) {
-		return new BuildableField(fieldName, true, Optional.empty(), type);
+		return new BuildableField(fieldName, true, false, Optional.empty(), type);
 	}
 
-	public boolean isMandatory() {
-		return isConstructorArgument;
+	public static BuildableField fromSetter(String fieldName, boolean fieldIsMandatory, String setterMethodName, TypeMirror type) {
+		return new BuildableField(fieldName, false, fieldIsMandatory, Optional.of(setterMethodName), type);
 	}
 }

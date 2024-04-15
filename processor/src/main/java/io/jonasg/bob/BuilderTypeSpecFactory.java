@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,9 +67,14 @@ public class BuilderTypeSpecFactory {
 				.map(p -> BuildableField.fromConstructor(p.name(), p.type()));
 		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
 				.stream()
-				.filter(field -> !eligibleConstructorParams
-						.contains(new ParameterDefinition(field.type(), field.fieldName())))
-				.map(p -> new BuildableField(p.fieldName(), false, Optional.of(p.methodName()), p.type()));
+				.filter(setter -> !eligibleConstructorParams
+						.contains(new ParameterDefinition(setter.type(), setter.field().name())))
+				.map(p -> {
+					boolean fieldIsMandatory = Arrays.stream(this.buildable.mandatoryFields())
+							.anyMatch(f -> Objects.equals(f, p.field().name()))
+							|| p.field().isAnnotatedWith(Buildable.Mandatory.class);
+					return BuildableField.fromSetter(p.field().name(), fieldIsMandatory, p.methodName(), p.type());
+				});
 		return Stream.concat(constructorBuildableFields, setterBuildableFields).toList();
 	}
 
@@ -116,7 +120,7 @@ public class BuilderTypeSpecFactory {
 				.addModifiers(Modifier.PUBLIC)
 				.returns(builderType())
 				.addParameter(TypeName.get(field.type()), field.fieldName());
-		if (field.isMandatory() && isEnforcedConstructorPolicy()) {
+		if (field.isConstructorArgument() && isEnforcedConstructorPolicy() || field.isMandatory()) {
 			builder.addStatement("this.$L.set($L)", field.fieldName(), field.fieldName());
 		} else {
 			builder.addStatement("this.$L = $L", field.fieldName(), field.fieldName());
@@ -136,7 +140,7 @@ public class BuilderTypeSpecFactory {
 	}
 
 	protected FieldSpec generateField(BuildableField field) {
-		if (field.isMandatory() && isEnforcedConstructorPolicy()) {
+		if ((field.isConstructorArgument() && isEnforcedConstructorPolicy()) || field.isMandatory()) {
 			return FieldSpec
 					.builder(ParameterizedTypeName.get(ClassName.get(RequiredField.class),
 							TypeName.get(boxedType(field.type()))), field.fieldName(), Modifier.PRIVATE,
@@ -205,13 +209,14 @@ public class BuilderTypeSpecFactory {
 	}
 
 	protected CodeBlock generateFieldAssignment(BuildableField field) {
-		if (field.isMandatory() && isEnforcedConstructorPolicy()) {
+		if (field.isConstructorArgument() && isEnforcedConstructorPolicy() || field.isMandatory()) {
 			return CodeBlock.builder()
-					.addStatement("instance.$L(this.$L)", setterName(field.setterMethodName().get()), field.fieldName())
+					.addStatement("instance.$L(this.$L.orElseThrow())",
+							setterName(field.setterMethodName().orElseThrow()), field.fieldName())
 					.build();
 		} else {
 			return CodeBlock.builder()
-					.addStatement("instance.%s(this.%s)".formatted(setterName(field.setterMethodName().get()),
+					.addStatement("instance.%s(this.%s)".formatted(setterName(field.setterMethodName().orElseThrow()),
 							field.fieldName()))
 					.build();
 		}
