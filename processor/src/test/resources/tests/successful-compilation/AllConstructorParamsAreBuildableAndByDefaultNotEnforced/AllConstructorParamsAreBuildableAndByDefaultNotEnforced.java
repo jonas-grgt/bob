@@ -3,7 +3,7 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.Buildable;
 
 @Buildable
-public class AllConstructorParamsAreBuildable {
+public class AllConstructorParamsAreBuildableAndByDefaultNotEnforced {
 	private String make;
 
 	private int year;
@@ -14,7 +14,7 @@ public class AllConstructorParamsAreBuildable {
 
 	private float fuelEfficiency;
 
-	public AllConstructorParamsAreBuildable(String make, int year, double engineSize, boolean isElectric, float fuelEfficiency) {
+	public AllConstructorParamsAreBuildableAndByDefaultNotEnforced(String make, int year, double engineSize, boolean isElectric, float fuelEfficiency) {
 		this.make = make;
 		this.year = year;
 		this.engineSize = engineSize;

@@ -84,12 +84,39 @@ public class Car {
 }
 ```
 
-The generated builder will look like this:
 When building a car instance in this way `new CarBuilder().color("red").price(BigDecimal.ZERO).build();`
 The car will be instantiated with the following constructor call:
 
 ```java
 new Car(null, 0, "red", BigDecimal.ZERO);
+```
+
+Because `brand` and `year` aren't fields the default value for the corresponding types are used.
+
+### Constructor enforcement
+
+When constructing Java objects,
+ensuring that all necessary constructor parameters are provided is essential
+for maintaining the integrity and proper initialization of the object's state.
+To facilitate strict parameter enforcement and manage the creation process,
+a `ConstructorPolicy` can be utilized.
+
+By default, the constructor policy is quite lenient,
+allowing objects
+to be partially constructed without setting all fields specified in the constructor.
+This default behavior is governed by the `ConstructorPolicy.PERMISSIVE` setting.
+
+However, the `ConstructorPolicy` also provides an `ENFORCED` mode.
+When this mode is active,
+it is mandatory to supply all constructor parameters when creating a new object.
+If any required parameters are missing,
+the policy enforces strict compliance by throwing an exception.
+This ensures that every object is fully initialized as intended,
+preventing issues that arise from improperly constructed objects.
+
+```java
+@Buildable(constructorPolicy = ENFORCED)
+public class Car {
 ```
 
 ### Different constructor

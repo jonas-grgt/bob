@@ -1,7 +1,6 @@
 package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
-import io.jonasg.bob.Buildable.Constructor;
 
 @Buildable
 public class MultipleBuildableConstructorAnnotationsPresent {

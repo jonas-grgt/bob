@@ -30,7 +30,7 @@ public final class BuildableProcessor extends AbstractProcessor {
 					Buildable buildable = element.getAnnotation(Buildable.class);
 					TypeDefinition sourceDefinition = typeDefinitionFactory.typeDefinitionForElement(element);
 					try {
-						builderGenerator.generate(sourceDefinition, buildable);
+						builderGenerator.generate(sourceDefinition, buildable, processingEnv.getTypeUtils());
 					} catch (Exception e) {
 						processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), element);
 					}

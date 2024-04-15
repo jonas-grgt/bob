@@ -1,6 +1,7 @@
 package io.jonasg.bob;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.util.Types;
 
 import com.squareup.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
@@ -13,8 +14,9 @@ public class BuilderGenerator {
 		this.filer = filer;
 	}
 
-	public void generate(TypeDefinition typeDefinition, Buildable buildable) {
-		TypeSpec typeSpec = TypeSpecFactory.produce(typeDefinition, buildable);
+	public void generate(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils) {
+		var abstractTypeSpecFactory = new BuilderTypeSpecFactory(typeDefinition, buildable, typeUtils);
+		TypeSpec typeSpec = abstractTypeSpecFactory.typeSpec();
 		String result;
 		if (!buildable.packageName().isEmpty()) {
 			result = buildable.packageName();

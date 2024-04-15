@@ -28,21 +28,22 @@ public class BobFeaturesTests {
 	}
 
 	@Test
-	void allConstructorParamsAreBuildable() {
+	void allConstructorParamsAreBuildableAndByDefaultNotEnforced() {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles(
-						"/tests/successful-compilation/AllConstructorParamsAreBuildable/AllConstructorParamsAreBuildable.java")
+						"/tests/successful-compilation/AllConstructorParamsAreBuildableAndByDefaultNotEnforced/AllConstructorParamsAreBuildableAndByDefaultNotEnforced.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableBuilder")
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
-								"/tests/successful-compilation/AllConstructorParamsAreBuildable/Expected_AllConstructorParamsAreBuildable.java"))
+								"/tests/successful-compilation/AllConstructorParamsAreBuildableAndByDefaultNotEnforced/Expected_AllConstructorParamsAreBuildableAndByDefaultNotEnforced.java"))
 				.executeTest();
 	}
 
@@ -239,22 +240,22 @@ public class BobFeaturesTests {
 	}
 
 	@Test
-	void allPublicSettersExceptThoseUsedInConstructorAreBuildable() {
+	void constructorParametersAreEnforcedWhenConstructorPolicyIsEnforced() {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles(
-						"/tests/successful-compilation/AllPublicSettersExceptThoseUsedInConstructorAreBuildable/AllPublicSettersExceptThoseUsedInConstructorAreBuildable.java")
+						"/tests/successful-compilation/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.AllPublicSettersExceptThoseUsedInConstructorAreBuildableBuilder")
+						"io.jonasg.bob.test.builder.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
-								"/tests/successful-compilation/AllPublicSettersExceptThoseUsedInConstructorAreBuildable/Expected_AllPublicSettersExceptThoseUsedInConstructorAreBuildable.java"))
+								"/tests/successful-compilation/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced/Expected_ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced.java"))
 				.executeTest();
 	}
 
