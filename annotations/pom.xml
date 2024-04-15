@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>io.jonasg</groupId>
 		<artifactId>bob</artifactId>
-		<version>0.3.0</version>
+		<version>0.4.0</version>
 	</parent>
 
 	<artifactId>bob-annotations</artifactId>
