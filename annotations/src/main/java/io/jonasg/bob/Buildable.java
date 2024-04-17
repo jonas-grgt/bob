@@ -59,7 +59,11 @@ public @interface Buildable {
 	 * fields. Alternatively,
 	 * setting this to {@link ConstructorPolicy#ENFORCED} requires all fields to be
 	 * explicitly set, otherwise,
-	 * the builder throws an exception.
+	 * the builder throws an exception. <br/>
+	 * Setting it to {@link ConstructorPolicy#ENFORCED_ALLOW_NULLS} requires all
+	 * fields
+	 * to be explicitly set, otherwise the builder throws an exception. But by using
+	 * this policy, null can also be set.
 	 * </p>
 	 *
 	 * @return the constructor policy used by the builder
