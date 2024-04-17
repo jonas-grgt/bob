@@ -1,38 +1,17 @@
 package io.jonasg.bob;
 
-/**
- * Container Object for a required field and its value
- * 
- * @param <T>
- *            the type of the required field its value
- */
-@SuppressWarnings("unused")
-public final class RequiredField<T> {
+public interface RequiredField<T> {
 
-	private T fieldValue;
-
-	private final String fieldName;
-
-	private final String typeName;
-
-	private RequiredField(T fieldValue, String fieldName, String typeName) {
-		this.fieldValue = fieldValue;
-		this.fieldName = fieldName;
-		this.typeName = typeName;
+	static <T> RequiredField<T> notNullableOfNameWithinType(String fieldName, String typeName) {
+		return new NotNullableRequiredField<>(null, fieldName, typeName);
 	}
 
-	public static <T> RequiredField<T> ofNameWithinType(String fieldName, String typeName) {
-		return new RequiredField<>(null, fieldName, typeName);
+	static <T> RequiredField<T> nullableOfNameWithinType(String fieldName, String typeName) {
+		return new NullableRequiredField<>(null, fieldName, typeName);
 	}
 
-	public void set(T value) {
-		this.fieldValue = value;
-	}
+	void set(T value);
 
-	public T orElseThrow() {
-		if (fieldValue == null) {
-			throw new MandatoryFieldMissingException(fieldName, typeName);
-		}
-		return fieldValue;
-	}
+	T orElseThrow();
+
 }

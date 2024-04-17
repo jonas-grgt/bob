@@ -6,9 +6,9 @@ import java.lang.Integer;
 import java.lang.String;
 
 public final class ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedBuilder {
-  private final RequiredField<String> make = RequiredField.ofNameWithinType("make", "ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced");
+  private final RequiredField<String> make = RequiredField.notNullableOfNameWithinType("make", "ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced");
 
-  private final RequiredField<Integer> year = RequiredField.ofNameWithinType("year", "ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced");
+  private final RequiredField<Integer> year = RequiredField.notNullableOfNameWithinType("year", "ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced");
 
   private double engineSize;
 

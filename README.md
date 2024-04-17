@@ -124,6 +124,15 @@ preventing issues that arise from improperly constructed objects.
 public class Car {
 ```
 
+Another `ConstructorPolicy` that also enforces all the parameters to be set, but less strictly is
+`ENFORCED_ALLOW_NULLS`. By using this policy, you enforce all variables to be set, 
+but you can also set them to null, which is not allowed when using `ENFORCED`.
+
+```java
+@Buildable(constructorPolicy = ENFORCED_ALLOW_NULLS)
+public class Car {
+```
+
 ### Mandatory Fields
 
 Fields can be designated as mandatory;

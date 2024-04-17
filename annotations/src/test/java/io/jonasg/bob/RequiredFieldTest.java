@@ -2,36 +2,101 @@ package io.jonasg.bob;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class RequiredFieldTest {
 
-	@Test
-	void throwIllegalBuildExceptionWhenFieldValueIsNotSet() {
-		// given
-		RequiredField<String> nameField = RequiredField.ofNameWithinType("name", "Person");
+	@Nested
+	class NotNullableRequiredFieldTest {
 
-		// when
-		ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
+		@Test
+		void throwExceptionWhenFieldValueIsNotSet() {
+			// given
+			RequiredField<String> nameField = RequiredField.notNullableOfNameWithinType("name", "Person");
 
-		// then
-		Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
-				.isInstanceOf(MandatoryFieldMissingException.class)
-				.hasMessage("Mandatory field (name) not set when building type (Person)");
+			// when
+			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
+
+			// then
+			Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
+					.isInstanceOf(MandatoryFieldMissingException.class)
+					.hasMessage("Mandatory field (name) not set when building type (Person)");
+		}
+
+		@Test
+		void returnFieldValue() {
+			// given
+			RequiredField<String> nameField = RequiredField.notNullableOfNameWithinType("name", "Person");
+			nameField.set("John");
+
+			// when
+			String value = nameField.orElseThrow();
+
+			// then
+			Assertions.assertThat(value)
+					.isEqualTo("John");
+		}
+
+		@Test
+		void throwExceptionWhenNotNullableRequiredFieldSetToNull() {
+			// given
+			RequiredField<String> nameField = RequiredField.notNullableOfNameWithinType("name", "Person");
+			nameField.set(null);
+
+			// when
+			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
+
+			// then
+			Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
+					.isInstanceOf(MandatoryFieldMissingException.class)
+					.hasMessage("Mandatory field (name) not set when building type (Person)");
+		}
 	}
 
-	@Test
-	void returnFieldValue() {
-		// given
-		RequiredField<String> nameField = RequiredField.ofNameWithinType("name", "Person");
-		nameField.set("John");
+	@Nested
+	class NullableRequiredFieldTest {
 
-		// when
-		String value = nameField.orElseThrow();
+		@Test
+		void throwExceptionWhenFieldValueIsNotSet() {
+			// given
+			RequiredField<String> nameField = RequiredField.nullableOfNameWithinType("name", "Person");
 
-		// then
-		Assertions.assertThat(value)
-				.isEqualTo("John");
+			// when
+			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
+
+			// then
+			Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
+					.isInstanceOf(MandatoryFieldMissingException.class)
+					.hasMessage("Mandatory field (name) not set when building type (Person)");
+		}
+
+		@Test
+		void returnFieldValue() {
+			// given
+			RequiredField<String> nameField = RequiredField.nullableOfNameWithinType("name", "Person");
+			nameField.set("John");
+
+			// when
+			String value = nameField.orElseThrow();
+
+			// then
+			Assertions.assertThat(value)
+					.isEqualTo("John");
+		}
+
+		@Test
+		void returnFieldValueWhenSetToNull() {
+			// given
+			RequiredField<String> nameField = RequiredField.nullableOfNameWithinType("name", "Person");
+			nameField.set(null);
+
+			// when
+			String value = nameField.orElseThrow();
+
+			// then
+			Assertions.assertThat(value)
+					.isEqualTo(null);
+		}
 	}
-
 }
