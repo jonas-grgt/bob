@@ -9,11 +9,11 @@ import java.lang.String;
 public final class MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder {
   private String make;
 
-  private final RequiredField<Integer> year = RequiredField.ofNameWithinType("year", "MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode");
+  private final RequiredField<Integer> year = RequiredField.nullableOfNameWithinType("year", "MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode");
 
   private double engineSize;
 
-  private final RequiredField<Float> fuelEfficiency = RequiredField.ofNameWithinType("fuelEfficiency", "MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode");
+  private final RequiredField<Float> fuelEfficiency = RequiredField.nullableOfNameWithinType("fuelEfficiency", "MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode");
 
   public MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder() {
   }

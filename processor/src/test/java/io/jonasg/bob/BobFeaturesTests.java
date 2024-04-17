@@ -260,6 +260,26 @@ public class BobFeaturesTests {
 	}
 
 	@Test
+	void constructorParametersAreEnforcedAndNullableWhenConstructorPolicyIsEnforcedAllowNulls() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/successful-compilation/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNulls/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNulls.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.builder.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNullsBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/successful-compilation/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNulls/Expected_ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNulls.java"))
+				.executeTest();
+	}
+
+	@Test
 	void markThroughTopLevelAnnotationThatIndividualFieldsAsMandatoryWhenInPermissiveMode() {
 		Cute.blackBoxTest()
 				.given()
