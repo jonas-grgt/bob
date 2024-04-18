@@ -23,6 +23,8 @@ public enum ConstructorPolicy {
 	 */
 	ENFORCED,
 
+	ENFORCED_STEPWISE,
+
 	/**
 	 * Requires all fields
 	 * to be explicitly set with a concrete value or {@code null} in the
