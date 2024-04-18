@@ -2,6 +2,7 @@ package io.jonasg.bob;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import io.toolisticon.cute.Cute;
@@ -11,12 +12,12 @@ import io.toolisticon.cute.JavaFileObjectUtils;
 public class BobFeaturesTests {
 
 	@Test
-	void failWhenMultipleConstructorAreAnnotatedWithBuildableConstructor() {
+	void failWhenMultipleConstructorsAreAnnotatedWithBuildableConstructor() {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles(
-						"/tests/failing-compilation/MultipleBuildableConstructorAnnotationsPresent/MultipleBuildableConstructorAnnotationsPresent.java")
+						"/tests/failing-compilation/MultipleBuildableConstructorsAnnotationsPresent/MultipleBuildableConstructorsAnnotationsPresent.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationFails()
@@ -257,6 +258,91 @@ public class BobFeaturesTests {
 						JavaFileObjectUtils.readFromResource(
 								"/tests/successful-compilation/ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced/Expected_ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced.java"))
 				.executeTest();
+	}
+
+	@Nested
+	class StepWise {
+
+		@Test
+		void generateStepBuilderWhenConstructorPolicyIsEnforcedStepWise() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/successful-compilation/StepWise/GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise/GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.builder.DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/successful-compilation/StepWise/GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise/Expected_DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.builder.GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/successful-compilation/StepWise/GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise/Expected_GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		void generateStepBuilderWithSingleArgumentConstructor() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleArgumentConstructor/GenerateStepBuilderWithSingleArgumentConstructor.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.builder.DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleArgumentConstructor/Expected_DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.builder.GenerateStepBuilderWithSingleArgumentConstructorBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleArgumentConstructor/Expected_GenerateStepBuilderWithSingleArgumentConstructorBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		void generateStepBuilderWithSingleMandatoryAnnotatedField() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleMandatoryAnnotatedField/GenerateStepBuilderWithSingleMandatoryAnnotatedField.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.builder.DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleMandatoryAnnotatedField/Expected_DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.builder.GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleMandatoryAnnotatedField/Expected_GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.java"))
+					.executeTest();
+		}
 	}
 
 	@Test

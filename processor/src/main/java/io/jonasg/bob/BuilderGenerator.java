@@ -6,6 +6,8 @@ import javax.lang.model.util.Types;
 import com.squareup.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
 
+import java.util.List;
+
 public class BuilderGenerator {
 
 	private final Filer filer;
@@ -15,15 +17,20 @@ public class BuilderGenerator {
 	}
 
 	public void generate(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils) {
-		var abstractTypeSpecFactory = new BuilderTypeSpecFactory(typeDefinition, buildable, typeUtils);
-		TypeSpec typeSpec = abstractTypeSpecFactory.typeSpec();
-		String result;
+		String packageName = getPackageName(typeDefinition, buildable);
+		var abstractTypeSpecFactory = new BuilderTypeSpecFactory(typeDefinition, buildable, typeUtils, packageName);
+		List<TypeSpec> typeSpecs = abstractTypeSpecFactory.typeSpecs();
+		typeSpecs.forEach(t -> TypeWriter.write(filer, packageName, t));
+	}
+
+	private String getPackageName(TypeDefinition typeDefinition, Buildable buildable) {
+		String packageName;
 		if (!buildable.packageName().isEmpty()) {
-			result = buildable.packageName();
+			packageName = buildable.packageName();
 		} else {
-			result = String.format("%s.builder", typeDefinition.packageName());
+			packageName = String.format("%s.builder", typeDefinition.packageName());
 		}
-		TypeWriter.write(filer, result, typeSpec);
+		return packageName;
 	}
 
 }

@@ -22,6 +22,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import io.jonasg.bob.StepBuilderInterfaceTypeSpecFactory.BuilderDetails;
 import io.jonasg.bob.definitions.ConstructorDefinition;
 import io.jonasg.bob.definitions.FieldDefinition;
 import io.jonasg.bob.definitions.GenericParameterDefinition;
@@ -41,16 +42,24 @@ public class BuilderTypeSpecFactory {
 
 	private final Types typeUtils;
 
+	private final String packageName;
+
 	private String builderTypeName(TypeDefinition source) {
-		return Formatter.format("$typeName$suffix", source.typeName(), "Builder");
+		String name = Formatter.format("$typeName$suffix", source.typeName(), "Builder");
+		if (this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED_STEPWISE)) {
+			name = "Default" + name;
+		}
+		return name;
 	}
 
-	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils) {
+	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils,
+			String packageName) {
 		this.typeDefinition = typeDefinition;
 		this.buildable = buildable;
 		this.constructorDefinition = extractConstructorDefinitionFrom(typeDefinition);
 		this.buildableFields = extractBuildableFieldsFrom(typeDefinition);
 		this.typeUtils = typeUtils;
+		this.packageName = packageName;
 	}
 
 	private List<BuildableField> extractBuildableFieldsFrom(TypeDefinition typeDefinition) {
@@ -93,11 +102,21 @@ public class BuilderTypeSpecFactory {
 		}
 	}
 
-	public TypeSpec typeSpec() {
-		TypeSpec.Builder builder = TypeSpec.classBuilder(builderTypeName(this.typeDefinition))
+	public List<TypeSpec> typeSpecs() {
+		List<TypeSpec> typeSpecs = new ArrayList<>();
+		String builderName = builderTypeName(this.typeDefinition);
+		TypeSpec.Builder builder = TypeSpec.classBuilder(builderName)
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-		if (!this.typeDefinition.genericParameters().isEmpty())
+		if (this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED_STEPWISE)) {
+			var factory = new StepBuilderInterfaceTypeSpecFactory(this.typeDefinition, this.buildable,
+					this.buildableFields, this.packageName);
+			BuilderDetails builderDetails = factory.typeSpec(builderName);
+			typeSpecs.add(builderDetails.typeSpec());
+			builderDetails.interfaces().forEach(builder::addSuperinterface);
+		}
+		if (!this.typeDefinition.genericParameters().isEmpty()) {
 			builder.addTypeVariables(toTypeVariableNames(this.typeDefinition));
+		}
 		builder.addMethods(generateSetters());
 		builder.addFields(generateFields());
 		builder.addMethod(generateBuildMethod());
@@ -105,7 +124,8 @@ public class BuilderTypeSpecFactory {
 		if (!this.typeDefinition.genericParameters().isEmpty()) {
 			builder.addMethod(of());
 		}
-		return builder.build();
+		typeSpecs.add(builder.build());
+		return typeSpecs;
 	}
 
 	private List<MethodSpec> generateSetters() {
@@ -117,14 +137,14 @@ public class BuilderTypeSpecFactory {
 
 	protected MethodSpec generateSetterForField(BuildableField field) {
 
-		var builder = MethodSpec.methodBuilder(setterName(field.fieldName()))
+		var builder = MethodSpec.methodBuilder(setterName(field.name()))
 				.addModifiers(Modifier.PUBLIC)
 				.returns(builderType())
-				.addParameter(TypeName.get(field.type()), field.fieldName());
+				.addParameter(TypeName.get(field.type()), field.name());
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
-			builder.addStatement("this.$L.set($L)", field.fieldName(), field.fieldName());
+			builder.addStatement("this.$L.set($L)", field.name(), field.name());
 		} else {
-			builder.addStatement("this.$L = $L", field.fieldName(), field.fieldName());
+			builder.addStatement("this.$L = $L", field.name(), field.name());
 		}
 		return builder.addStatement("return this")
 				.build();
@@ -156,13 +176,13 @@ public class BuilderTypeSpecFactory {
 					: "nullableOfNameWithinType";
 			return FieldSpec
 					.builder(ParameterizedTypeName.get(ClassName.get(RequiredField.class),
-							TypeName.get(boxedType(field.type()))), field.fieldName(), Modifier.PRIVATE,
+							TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
 							Modifier.FINAL)
-					.initializer("$T.$L(\"" + field.fieldName() + "\", \""
+					.initializer("$T.$L(\"" + field.name() + "\", \""
 							+ this.typeDefinition.typeName() + "\")", RequiredField.class, methodName)
 					.build();
 		} else {
-			return FieldSpec.builder(TypeName.get(field.type()), field.fieldName(), Modifier.PRIVATE)
+			return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 					.build();
 		}
 	}
@@ -200,7 +220,7 @@ public class BuilderTypeSpecFactory {
 
 	protected String toConstructorCallingStatement(ConstructorDefinition constructorDefinition) {
 		return constructorDefinition.parameters().stream()
-				.map(param -> this.buildableFields.stream().anyMatch(f -> Objects.equals(f.fieldName(), param.name()))
+				.map(param -> this.buildableFields.stream().anyMatch(f -> Objects.equals(f.name(), param.name()))
 						? String.format("%s%s", param.name(),
 								isAnEnforcedConstructorPolicy() ? ".orElseThrow()"
 										: "")
@@ -225,12 +245,12 @@ public class BuilderTypeSpecFactory {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
 			return CodeBlock.builder()
 					.addStatement("instance.$L(this.$L.orElseThrow())",
-							setterName(field.setterMethodName().orElseThrow()), field.fieldName())
+							setterName(field.setterMethodName().orElseThrow()), field.name())
 					.build();
 		} else {
 			return CodeBlock.builder()
 					.addStatement("instance.%s(this.%s)".formatted(setterName(field.setterMethodName().orElseThrow()),
-							field.fieldName()))
+							field.name()))
 					.build();
 		}
 	}
@@ -336,7 +356,7 @@ public class BuilderTypeSpecFactory {
 	}
 
 	private boolean notExcluded(BuildableField field) {
-		return !Arrays.asList(buildable.excludeFields()).contains(field.fieldName());
+		return !Arrays.asList(buildable.excludeFields()).contains(field.name());
 	}
 
 	private MethodSpec generateConstructor() {
