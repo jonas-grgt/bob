@@ -24,13 +24,11 @@ public class BuilderGenerator {
 	}
 
 	private String getPackageName(TypeDefinition typeDefinition, Buildable buildable) {
-		String packageName;
+
 		if (!buildable.packageName().isEmpty()) {
-			packageName = buildable.packageName();
-		} else {
-			packageName = String.format("%s.builder", typeDefinition.packageName());
+			return buildable.packageName();
 		}
-		return packageName;
+		return typeDefinition.packageName();
 	}
 
 }

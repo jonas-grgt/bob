@@ -1,6 +1,5 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
-import io.jonasg.bob.test.UseConstructorAnnotatedWithBuildableConstructor;
 import java.lang.String;
 
 public final class UseConstructorAnnotatedWithBuildableConstructorBuilder {

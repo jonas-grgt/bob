@@ -1,6 +1,5 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
-import io.jonasg.bob.test.AllConstructorParamsAreBuildableAndByDefaultNotEnforced;
 import java.lang.String;
 
 public final class AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder {

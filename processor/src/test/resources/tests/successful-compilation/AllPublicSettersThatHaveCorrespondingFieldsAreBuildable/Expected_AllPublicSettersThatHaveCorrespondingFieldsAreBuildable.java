@@ -1,6 +1,5 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
-import io.jonasg.bob.test.AllPublicSettersThatHaveCorrespondingFieldsAreBuildable;
 import java.lang.String;
 
 public final class AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder {

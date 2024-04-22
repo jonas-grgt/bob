@@ -294,7 +294,7 @@ public class BuilderTypeSpecFactory {
 			if (!this.buildable.packageName().isEmpty()) {
 				result = this.buildable.packageName();
 			} else {
-				result = String.format("%s.builder", this.typeDefinition.packageName());
+				result = this.typeDefinition.packageName();
 			}
 			return ClassName.get(result, builderTypeName(this.typeDefinition));
 		}
@@ -303,7 +303,7 @@ public class BuilderTypeSpecFactory {
 		if (!this.buildable.packageName().isEmpty()) {
 			result = this.buildable.packageName();
 		} else {
-			result = String.format("%s.builder", this.typeDefinition.packageName());
+			result = this.typeDefinition.packageName();
 		}
 		return ParameterizedTypeName.get(ClassName.get(result, builderTypeName(this.typeDefinition)),
 				typeVariableNames.toArray(new TypeName[0]));

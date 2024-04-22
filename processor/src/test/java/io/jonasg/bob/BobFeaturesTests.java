@@ -40,7 +40,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder")
+						"io.jonasg.bob.test.AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -60,7 +60,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
+						"io.jonasg.bob.test.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -80,7 +80,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
+						"io.jonasg.bob.test.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -116,7 +116,7 @@ public class BobFeaturesTests {
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.SetterWithCustomPrefixBuilder")
+				.generatedSourceFile("io.jonasg.bob.test.SetterWithCustomPrefixBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -136,7 +136,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.UseConstructorAnnotatedWithBuildableConstructorBuilder")
+						"io.jonasg.bob.test.UseConstructorAnnotatedWithBuildableConstructorBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -156,7 +156,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.UseConstructorWithTheMostNumberOfParametersBuilder")
+						"io.jonasg.bob.test.UseConstructorWithTheMostNumberOfParametersBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -176,7 +176,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.UseFirstConstructorWithTheMostNumberOfParametersBuilder")
+						"io.jonasg.bob.test.UseFirstConstructorWithTheMostNumberOfParametersBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -194,7 +194,7 @@ public class BobFeaturesTests {
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
-				.generatedSourceFile("io.jonasg.bob.test.builder.GenericsAreBuildableBuilder")
+				.generatedSourceFile("io.jonasg.bob.test.GenericsAreBuildableBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -214,7 +214,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder")
+						"io.jonasg.bob.test.AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -234,7 +234,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedBuilder")
+						"io.jonasg.bob.test.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -257,14 +257,14 @@ public class BobFeaturesTests {
 					.compilationSucceeds()
 					.andThat()
 					.generatedSourceFile(
-							"io.jonasg.bob.test.builder.DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder")
+							"io.jonasg.bob.test.DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder")
 					.matches(
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/successful-compilation/StepWise/GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise/Expected_DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.java"))
 					.andThat()
 					.generatedSourceFile(
-							"io.jonasg.bob.test.builder.GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder")
+							"io.jonasg.bob.test.GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder")
 					.matches(
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
@@ -284,14 +284,14 @@ public class BobFeaturesTests {
 					.compilationSucceeds()
 					.andThat()
 					.generatedSourceFile(
-							"io.jonasg.bob.test.builder.DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder")
+							"io.jonasg.bob.test.DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder")
 					.matches(
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleArgumentConstructor/Expected_DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder.java"))
 					.andThat()
 					.generatedSourceFile(
-							"io.jonasg.bob.test.builder.GenerateStepBuilderWithSingleArgumentConstructorBuilder")
+							"io.jonasg.bob.test.GenerateStepBuilderWithSingleArgumentConstructorBuilder")
 					.matches(
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
@@ -311,14 +311,14 @@ public class BobFeaturesTests {
 					.compilationSucceeds()
 					.andThat()
 					.generatedSourceFile(
-							"io.jonasg.bob.test.builder.DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder")
+							"io.jonasg.bob.test.DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder")
 					.matches(
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/successful-compilation/StepWise/GenerateStepBuilderWithSingleMandatoryAnnotatedField/Expected_DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.java"))
 					.andThat()
 					.generatedSourceFile(
-							"io.jonasg.bob.test.builder.GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder")
+							"io.jonasg.bob.test.GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder")
 					.matches(
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
@@ -339,7 +339,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNullsBuilder")
+						"io.jonasg.bob.test.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforcedAllowNullsBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -359,7 +359,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.MarkThroughTopLevelAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder")
+						"io.jonasg.bob.test.MarkThroughTopLevelAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
@@ -379,7 +379,7 @@ public class BobFeaturesTests {
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.builder.MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder")
+						"io.jonasg.bob.test.MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveModeBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(

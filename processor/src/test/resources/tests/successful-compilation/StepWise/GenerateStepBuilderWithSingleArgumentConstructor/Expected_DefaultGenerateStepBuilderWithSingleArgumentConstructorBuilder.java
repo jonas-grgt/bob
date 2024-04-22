@@ -1,6 +1,5 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
-import io.jonasg.bob.test.GenerateStepBuilderWithSingleArgumentConstructor;
 import java.lang.String;
 
 public final class DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder implements GenerateStepBuilderWithSingleArgumentConstructorBuilder.BuildStep, GenerateStepBuilderWithSingleArgumentConstructorBuilder {

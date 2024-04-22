@@ -1,6 +1,4 @@
-package io.jonasg.bob.test.builder;
-
-import io.jonasg.bob.test.UseFirstConstructorWithTheMostNumberOfParameters;
+package io.jonasg.bob.test;
 
 public final class UseFirstConstructorWithTheMostNumberOfParametersBuilder {
   private double engineSize;
