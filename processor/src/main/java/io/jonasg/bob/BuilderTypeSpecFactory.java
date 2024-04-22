@@ -29,6 +29,7 @@ import io.jonasg.bob.definitions.GenericParameterDefinition;
 import io.jonasg.bob.definitions.ParameterDefinition;
 import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
+import static io.jonasg.bob.Strategy.PERMISSIVE;
 
 public class BuilderTypeSpecFactory {
 
@@ -43,14 +44,6 @@ public class BuilderTypeSpecFactory {
 	private final Types typeUtils;
 
 	private final String packageName;
-
-	private String builderTypeName(TypeDefinition source) {
-		String name = Formatter.format("$typeName$suffix", source.typeName(), "Builder");
-		if (this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED_STEPWISE)) {
-			name = "Default" + name;
-		}
-		return name;
-	}
 
 	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils,
 			String packageName) {
@@ -103,11 +96,17 @@ public class BuilderTypeSpecFactory {
 	}
 
 	public List<TypeSpec> typeSpecs() {
+		if (Arrays.asList(this.buildable.strategy()).contains(PERMISSIVE) &&
+				this.buildableFields.stream().anyMatch(f -> f.isMandatory() && !f.isConstructorArgument())) {
+			throw new StrategyConflictException(
+					"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider "
+							+ "STRICT or STEP_WISE or remove the mandatory fields");
+		}
 		List<TypeSpec> typeSpecs = new ArrayList<>();
 		String builderName = builderTypeName(this.typeDefinition);
 		TypeSpec.Builder builder = TypeSpec.classBuilder(builderName)
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-		if (this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED_STEPWISE)) {
+		if (this.strategy().contains(Strategy.STEP_WISE)) {
 			var factory = new StepBuilderInterfaceTypeSpecFactory(this.typeDefinition, this.buildable,
 					this.buildableFields, this.packageName);
 			BuilderDetails builderDetails = factory.typeSpec(builderName);
@@ -126,6 +125,10 @@ public class BuilderTypeSpecFactory {
 		}
 		typeSpecs.add(builder.build());
 		return typeSpecs;
+	}
+
+	private List<Strategy> strategy() {
+		return Arrays.stream(this.buildable.strategy()).collect(Collectors.toList());
 	}
 
 	private List<MethodSpec> generateSetters() {
@@ -151,16 +154,8 @@ public class BuilderTypeSpecFactory {
 	}
 
 	private boolean isAnEnforcedConstructorPolicy() {
-		return this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED) ||
-				this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED_ALLOW_NULLS);
-	}
-
-	private boolean isEnforcedConstructorPolicy() {
-		return this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED);
-	}
-
-	private boolean isEnforcedAllowNullsConstructorPolicy() {
-		return this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED_ALLOW_NULLS);
+		return this.strategy().contains(Strategy.STRICT) ||
+				this.strategy().contains(Strategy.ALLOW_NULLS);
 	}
 
 	private List<FieldSpec> generateFields() {
@@ -171,9 +166,9 @@ public class BuilderTypeSpecFactory {
 
 	protected FieldSpec generateField(BuildableField field) {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
-			String methodName = this.buildable.constructorPolicy().equals(ConstructorPolicy.ENFORCED)
-					? "notNullableOfNameWithinType"
-					: "nullableOfNameWithinType";
+			String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
+					? "nullableOfNameWithinType"
+					: "notNullableOfNameWithinType";
 			return FieldSpec
 					.builder(ParameterizedTypeName.get(ClassName.get(RequiredField.class),
 							TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
@@ -370,5 +365,13 @@ public class BuilderTypeSpecFactory {
 		return MethodSpec.constructorBuilder()
 				.addModifiers(Modifier.PUBLIC)
 				.build();
+	}
+
+	private String builderTypeName(TypeDefinition source) {
+		String name = Formatter.format("$typeName$suffix", source.typeName(), "Builder");
+		if (this.strategy().contains(Strategy.STEP_WISE)) {
+			name = "Default" + name;
+		}
+		return name;
 	}
 }

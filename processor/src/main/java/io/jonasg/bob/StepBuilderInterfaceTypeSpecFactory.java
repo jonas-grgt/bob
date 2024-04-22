@@ -1,7 +1,7 @@
 package io.jonasg.bob;
 
-import static io.jonasg.bob.ConstructorPolicy.ENFORCED;
-import static io.jonasg.bob.ConstructorPolicy.ENFORCED_STEPWISE;
+import static io.jonasg.bob.Strategy.STRICT;
+import static io.jonasg.bob.Strategy.STEP_WISE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -161,7 +161,8 @@ public class StepBuilderInterfaceTypeSpecFactory {
 	}
 
 	private boolean isEnforcedConstructorPolicy() {
-		return List.of(ENFORCED, ENFORCED_STEPWISE).contains(this.buildable.constructorPolicy());
+		return Arrays.stream(this.buildable.strategy())
+				.anyMatch(s -> List.of(STRICT, STEP_WISE).contains(s));
 	}
 
 	private boolean notExcluded(BuildableField field) {

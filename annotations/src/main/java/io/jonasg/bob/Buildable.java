@@ -47,20 +47,22 @@ public @interface Buildable {
 	String[] mandatoryFields() default {};
 
 	/**
-	 * Specifies the constructor policy to be applied when building an instance of
+	 * Specifies the strategy to be applied when generating a builder of
 	 * the annotated class.
-	 * The policy controls how strictly the builder enforces the setting of fields
+	 * The strategy mostly controls how strictly the builder enforces the setting of
+	 * fields
 	 * during object instantiation.
 	 *
 	 * <p>
-	 * The default value is {@link ConstructorPolicy#PERMISSIVE}, which allows for
+	 * The default value is {@link Strategy#PERMISSIVE}, which allows for
 	 * more flexibility in field initialization,
 	 * permitting fields to be optionally set with defaults provided for unset
 	 * fields. Alternatively,
-	 * setting this to {@link ConstructorPolicy#ENFORCED} requires all fields to be
+	 * setting this to {@link Strategy#STRICT} requires all mandatory fields
+	 * to be
 	 * explicitly set, otherwise,
-	 * the builder throws an exception. <br/>
-	 * Setting it to {@link ConstructorPolicy#ENFORCED_ALLOW_NULLS} requires all
+	 * the builder throws an {@link MandatoryFieldMissingException}. <br/>
+	 * Setting it to {@link Strategy#ALLOW_NULLS} requires all
 	 * fields
 	 * to be explicitly set, otherwise the builder throws an exception. But by using
 	 * this policy, null can also be set.
@@ -68,7 +70,7 @@ public @interface Buildable {
 	 *
 	 * @return the constructor policy used by the builder
 	 */
-	ConstructorPolicy constructorPolicy() default ConstructorPolicy.PERMISSIVE;
+	Strategy[] strategy() default Strategy.PERMISSIVE;
 
 	/**
 	 * Marks a constructor as buildable.

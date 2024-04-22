@@ -6,7 +6,7 @@ import java.lang.String;
 public final class DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder implements GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.BuildStep, GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder {
   private int year;
 
-  private final RequiredField<String> make = RequiredField.nullableOfNameWithinType("make", "GenerateStepBuilderWithSingleMandatoryAnnotatedField");
+  private final RequiredField<String> make = RequiredField.notNullableOfNameWithinType("make", "GenerateStepBuilderWithSingleMandatoryAnnotatedField");
 
   private double engineSize;
 

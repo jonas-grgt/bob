@@ -2,9 +2,9 @@ package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
 import io.jonasg.bob.Buildable.Mandatory;
-import io.jonasg.bob.ConstructorPolicy;
+import io.jonasg.bob.Strategy;
 
-@Buildable(constructorPolicy = ConstructorPolicy.ENFORCED_STEPWISE)
+@Buildable(strategy = Strategy.STEP_WISE)
 public class GenerateStepBuilderWithSingleMandatoryAnnotatedField {
 	private int year;
 

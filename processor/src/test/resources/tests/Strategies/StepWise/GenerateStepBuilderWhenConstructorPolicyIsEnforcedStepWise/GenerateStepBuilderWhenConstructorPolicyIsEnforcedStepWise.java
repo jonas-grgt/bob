@@ -1,10 +1,10 @@
 package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
-import io.jonasg.bob.ConstructorPolicy;
+import io.jonasg.bob.Strategy;
 import java.lang.String;
 
-@Buildable(constructorPolicy = ConstructorPolicy.ENFORCED_STEPWISE)
+@Buildable(strategy = Strategy.STEP_WISE)
 public class GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise {
 	private String make;
 
