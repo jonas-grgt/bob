@@ -2,6 +2,7 @@ package io.jonasg.bob;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.lang.model.element.Modifier;
 
@@ -84,7 +85,46 @@ public class TypeSpecInterfaceBuilder {
 
 		}
 
-		record Argument(TypeName typeName, String name) {
+		final class Argument {
+			private final TypeName typeName;
+			private final String name;
+
+			Argument(TypeName typeName, String name) {
+				this.typeName = typeName;
+				this.name = name;
+			}
+
+			public TypeName typeName() {
+				return typeName;
+			}
+
+			public String name() {
+				return name;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				if (obj == this)
+					return true;
+				if (obj == null || obj.getClass() != this.getClass())
+					return false;
+				var that = (Argument) obj;
+				return Objects.equals(this.typeName, that.typeName) &&
+						Objects.equals(this.name, that.name);
+			}
+
+			@Override
+			public int hashCode() {
+				return Objects.hash(typeName, name);
+			}
+
+			@Override
+			public String toString() {
+				return "Argument[" +
+						"typeName=" + typeName + ", " +
+						"name=" + name + ']';
+			}
+
 		}
 	}
 }

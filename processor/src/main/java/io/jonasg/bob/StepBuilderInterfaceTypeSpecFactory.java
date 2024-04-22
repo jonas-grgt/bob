@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
@@ -40,7 +42,45 @@ public class StepBuilderInterfaceTypeSpecFactory {
 		this.packageName = packageName;
 	}
 
-	record BuilderDetails(TypeSpec typeSpec, Set<TypeName> interfaces) {
+	final class BuilderDetails {
+		private final TypeSpec typeSpec;
+		private final Set<TypeName> interfaces;
+
+		BuilderDetails(TypeSpec typeSpec, Set<TypeName> interfaces) {
+			this.typeSpec = typeSpec;
+			this.interfaces = interfaces;
+		}
+
+		public TypeSpec typeSpec() {
+			return typeSpec;
+		}
+
+		public Set<TypeName> interfaces() {
+			return interfaces;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this)
+				return true;
+			if (obj == null || obj.getClass() != this.getClass())
+				return false;
+			var that = (BuilderDetails) obj;
+			return Objects.equals(this.typeSpec, that.typeSpec) &&
+					Objects.equals(this.interfaces, that.interfaces);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(typeSpec, interfaces);
+		}
+
+		@Override
+		public String toString() {
+			return "BuilderDetails[" +
+					"typeSpec=" + typeSpec + ", " +
+					"interfaces=" + interfaces + ']';
+		}
 
 	}
 
@@ -88,7 +128,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 				.stream()
 				.filter(field -> (field.isConstructorArgument() && isEnforcedConstructorPolicy())
 						|| field.isMandatory())
-				.toList();
+				.collect(Collectors.toList());
 		mandatoryFields
 				.subList(0, mandatoryFields.size() - 1)
 				.stream()
