@@ -15,7 +15,7 @@ import io.jonasg.bob.definitions.TypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinitionFactory;
 
 @SupportedAnnotationTypes("io.jonasg.bob.Buildable")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 public final class BuildableProcessor extends AbstractProcessor {
 
 	@Override
@@ -38,4 +38,8 @@ public final class BuildableProcessor extends AbstractProcessor {
 		return true;
 	}
 
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+		return SourceVersion.latestSupported();
+	}
 }
