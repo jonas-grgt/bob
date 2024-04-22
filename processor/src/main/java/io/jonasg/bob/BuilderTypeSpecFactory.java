@@ -65,11 +65,11 @@ public class BuilderTypeSpecFactory {
 	private List<BuildableField> extractBuildableFieldsFrom(TypeDefinition typeDefinition) {
 		var fieldNames = typeDefinition.fields().stream()
 				.map(FieldDefinition::name)
-				.toList();
+				.collect(Collectors.toList());
 		List<ParameterDefinition> eligibleConstructorParams = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
-				.toList();
+				.collect(Collectors.toList());
 		Stream<BuildableField> constructorBuildableFields = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
@@ -84,13 +84,13 @@ public class BuilderTypeSpecFactory {
 							|| p.field().isAnnotatedWith(Buildable.Mandatory.class);
 					return BuildableField.fromSetter(p.field().name(), fieldIsMandatory, p.methodName(), p.type());
 				});
-		return Stream.concat(constructorBuildableFields, setterBuildableFields).toList();
+		return Stream.concat(constructorBuildableFields, setterBuildableFields).collect(Collectors.toList());
 	}
 
 	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
 		var buildableConstructors = typeDefinition.constructors().stream()
 				.filter(c -> c.isAnnotatedWith(Buildable.Constructor.class))
-				.toList();
+				.collect(Collectors.toList());
 		if (buildableConstructors.size() > 1) {
 			throw new IllegalArgumentException("Only one constructor can be annotated with @Buildable.Constructor");
 		}
@@ -132,7 +132,7 @@ public class BuilderTypeSpecFactory {
 		return this.buildableFields.stream()
 				.filter(this::notExcluded)
 				.map(this::generateSetterForField)
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 	protected MethodSpec generateSetterForField(BuildableField field) {
@@ -166,7 +166,7 @@ public class BuilderTypeSpecFactory {
 	private List<FieldSpec> generateFields() {
 		return buildableFields.stream()
 				.map(this::generateField)
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 	protected FieldSpec generateField(BuildableField field) {
@@ -249,21 +249,28 @@ public class BuilderTypeSpecFactory {
 					.build();
 		} else {
 			return CodeBlock.builder()
-					.addStatement("instance.%s(this.%s)".formatted(setterName(field.setterMethodName().orElseThrow()),
-							field.name()))
+					.addStatement(
+							String.format("instance.%s(this.%s)", setterName(field.setterMethodName().orElseThrow()),
+									field.name()))
 					.build();
 		}
 	}
 
 	protected String defaultForType(TypeMirror type) {
-		return switch (type.toString()) {
-			case "int" -> "0";
-			case "long" -> "0L";
-			case "float" -> "0.0f";
-			case "double" -> "0.0d";
-			case "boolean" -> "false";
-			default -> "null";
-		};
+		switch (type.toString()) {
+			case "int":
+				return "0";
+			case "long":
+				return "0L";
+			case "float":
+				return "0.0f";
+			case "double":
+				return "0.0d";
+			case "boolean":
+				return "false";
+			default:
+				return "null";
+		}
 	}
 
 	private MethodSpec of() {

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -141,12 +142,12 @@ public class TypeDefinitionFactory {
 	private List<MethodDefinition> methods() {
 		return ElementFilter.methodsIn(element.getEnclosedElements()).stream()
 				.map(e -> new MethodDefinition(e.getSimpleName().toString(), parameterTypes(e)))
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 	private List<TypeMirror> parameterTypes(ExecutableElement element) {
 		return element.getParameters().stream()
 				.map(VariableElement::asType)
-				.toList();
+				.collect(Collectors.toList());
 	}
 }

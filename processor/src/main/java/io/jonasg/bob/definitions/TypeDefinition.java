@@ -2,6 +2,7 @@ package io.jonasg.bob.definitions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Defines a specific Java Type.
@@ -53,7 +54,7 @@ public class TypeDefinition extends SimpleTypeDefinition {
 		List<SetterMethodDefinition> setters = new ArrayList<>();
 		List<MethodDefinition> methodsWithOneParam = this.methods.stream()
 				.filter(m -> m.parameters().size() == 1)
-				.toList();
+				.collect(Collectors.toList());
 		for (FieldDefinition field : fields) {
 			String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
 			methodsWithOneParam.stream()
@@ -62,7 +63,7 @@ public class TypeDefinition extends SimpleTypeDefinition {
 					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
 			methodsWithOneParam.stream()
-					.filter(m -> m.name().equals("set%s".formatted(name)))
+					.filter(m -> m.name().equals(String.format("set%s", name)))
 					.findFirst()
 					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
