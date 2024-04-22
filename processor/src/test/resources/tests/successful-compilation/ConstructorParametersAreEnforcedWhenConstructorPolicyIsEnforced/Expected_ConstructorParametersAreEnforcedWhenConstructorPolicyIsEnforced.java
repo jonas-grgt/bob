@@ -1,7 +1,6 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
 import io.jonasg.bob.RequiredField;
-import io.jonasg.bob.test.ConstructorParametersAreEnforcedWhenConstructorPolicyIsEnforced;
 import java.lang.Integer;
 import java.lang.String;
 

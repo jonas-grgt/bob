@@ -1,7 +1,6 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
 import io.jonasg.bob.RequiredField;
-import io.jonasg.bob.test.MarkFieldAnnotationThatIndividualFieldsAreMandatoryWhenInPermissiveMode;
 import java.lang.Float;
 import java.lang.Integer;
 import java.lang.String;

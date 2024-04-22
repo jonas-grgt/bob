@@ -1,7 +1,6 @@
-package io.jonasg.bob.test.builder;
+package io.jonasg.bob.test;
 
 import io.jonasg.bob.RequiredField;
-import io.jonasg.bob.test.GenerateStepBuilderWithSingleMandatoryAnnotatedField;
 import java.lang.String;
 
 public final class DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder implements GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.BuildStep, GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder {
