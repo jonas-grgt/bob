@@ -7,7 +7,7 @@ package io.jonasg.bob;
  *            the type of the required field its value
  */
 @SuppressWarnings("unused")
-public class NullableRequiredField<T> implements RequiredField<T> {
+public class NullableValidatableField<T> implements ValidatableField<T> {
 
 	private T fieldValue;
 
@@ -17,7 +17,7 @@ public class NullableRequiredField<T> implements RequiredField<T> {
 
 	private final String typeName;
 
-	public NullableRequiredField(T fieldValue, String fieldName, String typeName) {
+	public NullableValidatableField(T fieldValue, String fieldName, String typeName) {
 		this.fieldValue = fieldValue;
 		this.fieldName = fieldName;
 		this.typeName = typeName;

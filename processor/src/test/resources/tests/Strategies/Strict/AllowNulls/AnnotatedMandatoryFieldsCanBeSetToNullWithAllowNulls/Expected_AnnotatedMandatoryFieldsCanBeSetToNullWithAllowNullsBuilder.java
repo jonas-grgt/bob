@@ -1,21 +1,21 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.RequiredField;
+import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Float;
 import java.lang.Integer;
 import java.lang.String;
 
 public final class AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder {
-  private final RequiredField<String> make = RequiredField.nullableOfNameWithinType("make", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
+  private final ValidatableField<String> make = ValidatableField.ofNullableField("make", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
 
-  private final RequiredField<Integer> year = RequiredField.nullableOfNameWithinType("year", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
+  private final ValidatableField<Integer> year = ValidatableField.ofNullableField("year", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
 
   private double engineSize;
 
-  private final RequiredField<Boolean> isElectric = RequiredField.nullableOfNameWithinType("isElectric", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
+  private final ValidatableField<Boolean> isElectric = ValidatableField.ofNullableField("isElectric", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
 
-  private final RequiredField<Float> fuelEfficiency = RequiredField.nullableOfNameWithinType("fuelEfficiency", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
+  private final ValidatableField<Float> fuelEfficiency = ValidatableField.ofNullableField("fuelEfficiency", "AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNulls");
 
   public AnnotatedMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder() {
   }

@@ -1,21 +1,21 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.RequiredField;
+import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Float;
 import java.lang.Integer;
 import java.lang.String;
 
 public final class FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder {
-  private final RequiredField<String> make = RequiredField.nullableOfNameWithinType("make", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
+  private final ValidatableField<String> make = ValidatableField.ofNullableField("make", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
 
-  private final RequiredField<Integer> year = RequiredField.nullableOfNameWithinType("year", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
+  private final ValidatableField<Integer> year = ValidatableField.ofNullableField("year", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
 
   private double engineSize;
 
-  private final RequiredField<Boolean> isElectric = RequiredField.nullableOfNameWithinType("isElectric", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
+  private final ValidatableField<Boolean> isElectric = ValidatableField.ofNullableField("isElectric", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
 
-  private final RequiredField<Float> fuelEfficiency = RequiredField.nullableOfNameWithinType("fuelEfficiency", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
+  private final ValidatableField<Float> fuelEfficiency = ValidatableField.ofNullableField("fuelEfficiency", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
 
   public FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder() {
   }

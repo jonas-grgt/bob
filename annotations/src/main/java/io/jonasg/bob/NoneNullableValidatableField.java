@@ -8,7 +8,7 @@ package io.jonasg.bob;
  *            the type of the required field its value
  */
 @SuppressWarnings("unused")
-public final class NotNullableRequiredField<T> implements RequiredField<T> {
+public final class NoneNullableValidatableField<T> implements ValidatableField<T> {
 
 	private T fieldValue;
 
@@ -16,7 +16,7 @@ public final class NotNullableRequiredField<T> implements RequiredField<T> {
 
 	private final String typeName;
 
-	NotNullableRequiredField(T fieldValue, String fieldName, String typeName) {
+	NoneNullableValidatableField(T fieldValue, String fieldName, String typeName) {
 		this.fieldValue = fieldValue;
 		this.fieldName = fieldName;
 		this.typeName = typeName;

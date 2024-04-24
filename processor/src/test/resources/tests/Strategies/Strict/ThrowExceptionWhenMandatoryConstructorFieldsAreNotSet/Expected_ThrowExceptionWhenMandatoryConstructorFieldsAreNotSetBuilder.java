@@ -1,13 +1,13 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.RequiredField;
+import io.jonasg.bob.ValidatableField;
 import java.lang.Integer;
 import java.lang.String;
 
 public final class ThrowExceptionWhenMandatoryConstructorFieldsAreNotSetBuilder {
-  private final RequiredField<String> make = RequiredField.notNullableOfNameWithinType("make", "ThrowExceptionWhenMandatoryConstructorFieldsAreNotSet");
+  private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "ThrowExceptionWhenMandatoryConstructorFieldsAreNotSet");
 
-  private final RequiredField<Integer> year = RequiredField.notNullableOfNameWithinType("year", "ThrowExceptionWhenMandatoryConstructorFieldsAreNotSet");
+  private final ValidatableField<Integer> year = ValidatableField.ofNoneNullableField("year", "ThrowExceptionWhenMandatoryConstructorFieldsAreNotSet");
 
   private double engineSize;
 

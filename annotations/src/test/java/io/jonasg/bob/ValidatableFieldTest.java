@@ -5,15 +5,15 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class RequiredFieldTest {
+class ValidatableFieldTest {
 
 	@Nested
-	class NotNullableRequiredFieldTest {
+	class NoneNullableValidatableFieldTest {
 
 		@Test
 		void throwExceptionWhenFieldValueIsNotSet() {
 			// given
-			RequiredField<String> nameField = RequiredField.notNullableOfNameWithinType("name", "Person");
+			ValidatableField<String> nameField = ValidatableField.ofNoneNullableField("name", "Person");
 
 			// when
 			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
@@ -27,7 +27,7 @@ class RequiredFieldTest {
 		@Test
 		void returnFieldValue() {
 			// given
-			RequiredField<String> nameField = RequiredField.notNullableOfNameWithinType("name", "Person");
+			ValidatableField<String> nameField = ValidatableField.ofNoneNullableField("name", "Person");
 			nameField.set("John");
 
 			// when
@@ -41,7 +41,7 @@ class RequiredFieldTest {
 		@Test
 		void throwExceptionWhenNotNullableRequiredFieldSetToNull() {
 			// given
-			RequiredField<String> nameField = RequiredField.notNullableOfNameWithinType("name", "Person");
+			ValidatableField<String> nameField = ValidatableField.ofNoneNullableField("name", "Person");
 			nameField.set(null);
 
 			// when
@@ -55,12 +55,12 @@ class RequiredFieldTest {
 	}
 
 	@Nested
-	class NullableRequiredFieldTest {
+	class NullableValidatableFieldTest {
 
 		@Test
 		void throwExceptionWhenFieldValueIsNotSet() {
 			// given
-			RequiredField<String> nameField = RequiredField.nullableOfNameWithinType("name", "Person");
+			ValidatableField<String> nameField = ValidatableField.ofNullableField("name", "Person");
 
 			// when
 			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
@@ -74,7 +74,7 @@ class RequiredFieldTest {
 		@Test
 		void returnFieldValue() {
 			// given
-			RequiredField<String> nameField = RequiredField.nullableOfNameWithinType("name", "Person");
+			ValidatableField<String> nameField = ValidatableField.ofNullableField("name", "Person");
 			nameField.set("John");
 
 			// when
@@ -88,7 +88,7 @@ class RequiredFieldTest {
 		@Test
 		void returnFieldValueWhenSetToNull() {
 			// given
-			RequiredField<String> nameField = RequiredField.nullableOfNameWithinType("name", "Person");
+			ValidatableField<String> nameField = ValidatableField.ofNullableField("name", "Person");
 			nameField.set(null);
 
 			// when

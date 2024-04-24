@@ -1,12 +1,12 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.RequiredField;
+import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 
 public final class DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder implements GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.BuildStep, GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder {
   private int year;
 
-  private final RequiredField<String> make = RequiredField.notNullableOfNameWithinType("make", "GenerateStepBuilderWithSingleMandatoryAnnotatedField");
+  private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "GenerateStepBuilderWithSingleMandatoryAnnotatedField");
 
   private double engineSize;
 

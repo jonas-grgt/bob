@@ -1,13 +1,13 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.RequiredField;
+import io.jonasg.bob.ValidatableField;
 import java.lang.Integer;
 import java.lang.String;
 
 public final class ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder {
-  private final RequiredField<String> make = RequiredField.nullableOfNameWithinType("make", "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls");
+  private final ValidatableField<String> make = ValidatableField.ofNullableField("make", "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls");
 
-  private final RequiredField<Integer> year = RequiredField.nullableOfNameWithinType("year", "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls");
+  private final ValidatableField<Integer> year = ValidatableField.ofNullableField("year", "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls");
 
   private double engineSize;
 

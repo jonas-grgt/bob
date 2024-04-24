@@ -167,14 +167,14 @@ public class BuilderTypeSpecFactory {
 	protected FieldSpec generateField(BuildableField field) {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
 			String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
-					? "nullableOfNameWithinType"
-					: "notNullableOfNameWithinType";
+					? "ofNullableField"
+					: "ofNoneNullableField";
 			return FieldSpec
-					.builder(ParameterizedTypeName.get(ClassName.get(RequiredField.class),
+					.builder(ParameterizedTypeName.get(ClassName.get(ValidatableField.class),
 							TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
 							Modifier.FINAL)
 					.initializer("$T.$L(\"" + field.name() + "\", \""
-							+ this.typeDefinition.typeName() + "\")", RequiredField.class, methodName)
+							+ this.typeDefinition.typeName() + "\")", ValidatableField.class, methodName)
 					.build();
 		} else {
 			return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)

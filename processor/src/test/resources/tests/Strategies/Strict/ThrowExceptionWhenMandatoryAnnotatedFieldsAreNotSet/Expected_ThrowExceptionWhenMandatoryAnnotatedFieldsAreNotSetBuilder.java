@@ -1,16 +1,16 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.RequiredField;
+import io.jonasg.bob.ValidatableField;
 import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
 
 public final class ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSetBuilder {
-  private final RequiredField<String> make = RequiredField.notNullableOfNameWithinType("make", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
+  private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
 
-  private final RequiredField<Integer> year = RequiredField.notNullableOfNameWithinType("year", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
+  private final ValidatableField<Integer> year = ValidatableField.ofNoneNullableField("year", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
 
-  private final RequiredField<Double> engineSize = RequiredField.notNullableOfNameWithinType("engineSize", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
+  private final ValidatableField<Double> engineSize = ValidatableField.ofNoneNullableField("engineSize", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
 
   private boolean isElectric;
 
