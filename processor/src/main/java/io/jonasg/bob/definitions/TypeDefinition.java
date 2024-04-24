@@ -1,5 +1,6 @@
 package io.jonasg.bob.definitions;
 
+import javax.lang.model.type.TypeKind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,17 +59,26 @@ public class TypeDefinition extends SimpleTypeDefinition {
 		for (FieldDefinition field : fields) {
 			String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
 			methodsWithOneParam.stream()
-					.filter(m -> m.name().equals(field.name()))
+					.filter(m -> m.name().equals(field.name()) ||
+							isABooleanField(field, m))
 					.findFirst()
 					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
 			methodsWithOneParam.stream()
-					.filter(m -> m.name().equals(String.format("set%s", name)))
+					.filter(m -> m.name().equals(String.format("set%s", name))
+							|| (m.name().equals(String.format("set%s", name.substring(2)))
+									&& field.type().getKind().equals(TypeKind.BOOLEAN)))
 					.findFirst()
 					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
 		}
 		return setters;
+	}
+
+	private boolean isABooleanField(FieldDefinition field, MethodDefinition m) {
+		return field.name().startsWith("is")
+				&& m.name().equalsIgnoreCase(field.name().substring(2))
+				&& field.type().getKind().equals(TypeKind.BOOLEAN);
 	}
 
 	public boolean containsSetterMethods() {

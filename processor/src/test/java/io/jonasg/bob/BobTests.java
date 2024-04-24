@@ -68,6 +68,26 @@ public class BobTests {
 	}
 
 	@Test
+	void booleanFieldHasOherNameThanSetter() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/BooleanFieldHasOtherNameThanSetter/BooleanFieldHasOtherNameThanSetter.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile(
+						"io.jonasg.bob.test.BooleanFieldHasOtherNameThanSetterBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/BooleanFieldHasOtherNameThanSetter/Expected_BooleanFieldHasOtherNameThanSetter.java"))
+				.executeTest();
+	}
+
+	@Test
 	void defaultValuesForParamsWithNoneMatchingField() {
 		Cute.blackBoxTest()
 				.given()
