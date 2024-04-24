@@ -105,7 +105,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 		reversedBuildableFields.stream()
 				.filter(this::notExcluded)
 				.filter(field -> (!field.isConstructorArgument()) && !field.isMandatory())
-				.forEach(field -> buildStepInterfaceBuilder.addMethod(MethodSpec.methodBuilder(field.name())
+				.forEach(field -> buildStepInterfaceBuilder.addMethod(MethodSpec.methodBuilder(setterName(field.name()))
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 						.returns(ClassName.get("", "BuildStep"))
 						.addParameter(TypeName.get(field.type()), field.name())
@@ -137,7 +137,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 					String name = String.format("%sStep", capitalize(field.name()));
 					interfaces.add(ClassName.get("", builderInterfaceName + "." + name));
 					return TypeSpecInterfaceBuilder.functionalInterface(name)
-							.methodName(field.name())
+							.methodName(setterName(field.name()))
 							.addArgument(TypeName.get(field.type()), field.name())
 							.returns(ClassName.get("", nextStep.get().name))
 							.build();
@@ -148,7 +148,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 		// the initial field to be built
 		BuildableField buildableField = mandatoryFields
 				.get(mandatoryFields.size() - 1);
-		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(buildableField.name())
+		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(setterName(buildableField.name()))
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 				.addParameter(TypeName.get(buildableField.type()), buildableField.name())
 				.returns(ClassName.get("", nextStep.get().name))
@@ -175,5 +175,13 @@ public class StepBuilderInterfaceTypeSpecFactory {
 			reversedList.add(originalList.get(i));
 		}
 		return reversedList;
+	}
+
+	protected String setterName(String name) {
+		if (buildable.setterPrefix().isEmpty()) {
+			return name;
+		}
+		return Formatter.format("$setterPrefix$name", buildable.setterPrefix(),
+				name.substring(0, 1).toUpperCase() + name.substring(1));
 	}
 }

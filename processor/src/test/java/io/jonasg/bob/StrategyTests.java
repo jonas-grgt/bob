@@ -225,5 +225,32 @@ public class StrategyTests {
 									"/tests/Strategies/StepWise/GenerateStepBuilderWithSingleMandatoryAnnotatedField/Expected_GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.java"))
 					.executeTest();
 		}
+
+		@Test
+		void setterWithCustomPrefix() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/StepWise/SetterWithCustomPrefix/SetterWithCustomPrefix.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.SetterWithCustomPrefixBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/SetterWithCustomPrefix/Expected_SetterWithCustomPrefixBuilder.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.DefaultSetterWithCustomPrefixBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/SetterWithCustomPrefix/Expected_DefaultSetterWithCustomPrefixBuilder.java"))
+					.executeTest();
+		}
 	}
 }

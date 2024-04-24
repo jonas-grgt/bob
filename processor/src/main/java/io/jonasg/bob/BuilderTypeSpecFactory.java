@@ -240,12 +240,12 @@ public class BuilderTypeSpecFactory {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
 			return CodeBlock.builder()
 					.addStatement("instance.$L(this.$L.orElseThrow())",
-							setterName(field.setterMethodName().orElseThrow()), field.name())
+							field.setterMethodName().orElseThrow(), field.name())
 					.build();
 		} else {
 			return CodeBlock.builder()
 					.addStatement(
-							String.format("instance.%s(this.%s)", setterName(field.setterMethodName().orElseThrow()),
+							String.format("instance.%s(this.%s)", field.setterMethodName().orElseThrow(),
 									field.name()))
 					.build();
 		}
