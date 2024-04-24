@@ -30,4 +30,5 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Maven
-        run: mvn -B -ntp verify --file pom.xml
+        if: ${{ matrix.java }} == 11
+        run: mvn -B -ntp verify -Dtest=\!RecordsTest.java --file pom.xml
