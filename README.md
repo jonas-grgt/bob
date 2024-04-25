@@ -5,9 +5,8 @@
 
 ## Why Bob?
 
-Bob serves as a lightweight alternative to Lombok's `@Builder` annotation.
-Its retention policy is `SOURCE`, ensuring it won't clutter your bytecode.
-Bob generates a builder in the form of pure Java source code.
+Bob serves as a lightweight alternative to Lombok's `@Builder` annotation with additional 
+features such as the ability to create Step Builders.
 
 ## Installation
 ### Maven
@@ -98,44 +97,64 @@ Because `brand` and `year` aren't fields the default value for the corresponding
 
 If you want to use a different constructor instead of the default selected one, annotated it with `@Buildable.Constructor`
 
-### Constructor enforcement
+### Builder Strategies
 
-When constructing Java objects,
-ensuring that all necessary constructor parameters are provided is essential
-for maintaining the integrity and proper initialization of the object's state.
-To facilitate strict parameter enforcement and manage the creation process,
-a `ConstructorPolicy` can be utilized.
+The Strategy enumeration defines the strategies by which builders behave.
 
-By default, the constructor policy is quite lenient,
-allowing objects
-to be partially constructed without setting all fields specified in the constructor.
-This default behavior is governed by the `ConstructorPolicy.PERMISSIVE` setting.
+#### Permissive
 
-However, the `ConstructorPolicy` also provides an `ENFORCED` mode.
-When this policy is active,
-it is mandatory to supply all constructor parameters when creating a new object.
-If any required parameters are missing,
-the policy enforces strict compliance by throwing an `MandatoryFieldMissingException`.
-This ensures that every object is fully initialized as intended,
-preventing issues that arise from improperly constructed objects.
+The default strategy,
+allows the creation of an object
+even if not all constructor parameters are set or if some are set to null.
+Fields not explicitly set will default to their inherent values
+(e.g., null for object references, 0 for numeric types, and false for booleans).
+This strategy is suitable when not all fields need explicit initialization,
+allowing more flexibility.
 
 ```java
-@Buildable(constructorPolicy = ENFORCED)
-public class Car {
+@Buildable
+class Car {
 ```
 
-Another `ConstructorPolicy` that also enforces all the parameters to be set, but less strictly is
-`ENFORCED_ALLOW_NULLS`. By using this policy, you enforce all variables to be set, 
-but you can also set them to null, which is not allowed when using `ENFORCED`.
+#### Step Wise
+
+Implements a step builder pattern,
+requiring fields
+to be set in a structured sequence
+defined by the selected constructor's parameters and explicitly marked mandatory fields
+(see [Mandatory Fields](#Mandatory-Fields)).
+Each step must be completed before proceeding to the next,
+ensuring all fields are set before the object can be constructed.
 
 ```java
-@Buildable(constructorPolicy = ENFORCED_ALLOW_NULLS)
-public class Car {
+@Buildable(strategy = STEP_WISE)
+class Car {
 ```
 
+#### Strict
+Requires all mandatory fields to be explicitly set.
+If a field is not set,
+or is set to null, the builder throws a `MandatoryFieldMissingException`.
+This ensures that the object is fully initialized.
+
+```java
+@Buildable(strategy = STRICT)
+class Car {
+```
+
+#### Allow Nulls
+Enables setting mandatory fields to null explicitly,
+combinable with `STRICT` and `STEP_WISE`.
+If a field is omitted, the builder will throw a `MandatoryFieldMissingException`,
+maintaining strict initialization but allowing null values for flexibility.
+
+```java
+@Buildable(strategy = { STRICT, ALLOW_NULLS })
+class Car {
+```
 ### Mandatory Fields
 
-Fields can be designated as mandatory;
+Fields can be marked as mandatory;
 - through the `mandatoryFields` property of `@Buildable`
 - through annotating the field with @Buildable.Mandatory.
  
@@ -165,6 +184,21 @@ The location of the builder can be changed:
 ```java
 @Buildable(packageName = "my.other.garage")
 public class Car {
+```
+
+### Static Factory Method name
+
+The `factoryName` `@Buildable` property allows:
+- `STEP_WISE`: Rename builder starting method (e.g., builder to createProductBuilder).
+- `PERMISSIVE/STRICT`: Add extra name to static factory method (for documentation/avoid conflicts).
+
+```java
+@Buildable(strategy = STEP_WISE, factoryName = "car")
+public class Car {
+```
+Which will generate:
+```java
+CarBuilder.car();
 ```
 
 ### Pickup setter methods as buildable
