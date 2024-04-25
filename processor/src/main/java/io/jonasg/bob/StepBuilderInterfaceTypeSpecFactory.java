@@ -92,7 +92,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 		interfaces.add(ClassName.get(this.packageName, builderInterfaceName));
 
 		// add static newBuilder method
-		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder("newBuilder")
+		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(builderStaticFactoryMethodName())
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
 				.returns(ClassName.get(this.packageName, builderInterfaceName))
 				.addStatement("return new $L()", builderImplName)
@@ -154,6 +154,10 @@ public class StepBuilderInterfaceTypeSpecFactory {
 				.returns(ClassName.get("", nextStep.get().name))
 				.build());
 		return new BuilderDetails(stepBuilderBuilder.build(), interfaces);
+	}
+
+	private String builderStaticFactoryMethodName() {
+		return this.buildable.factoryName().isEmpty() ? "newBuilder" : this.buildable.factoryName();
 	}
 
 	private String capitalize(String value) {

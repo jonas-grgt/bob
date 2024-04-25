@@ -123,6 +123,9 @@ public class BuilderTypeSpecFactory {
 		if (!this.typeDefinition.genericParameters().isEmpty()) {
 			builder.addMethod(of());
 		}
+		if (!this.buildable.factoryName().isEmpty() && !this.strategy().contains(Strategy.STEP_WISE)) {
+			builder.addMethod(addStaticFactoryMethod(this.buildable.factoryName()));
+		}
 		typeSpecs.add(builder.build());
 		return typeSpecs;
 	}
@@ -347,6 +350,14 @@ public class BuilderTypeSpecFactory {
 			typeNames.add(ClassName.get(definition.packageName(), definition.fullTypeName()));
 		}
 		return typeNames;
+	}
+
+	private MethodSpec addStaticFactoryMethod(String name) {
+		return MethodSpec.methodBuilder(name)
+				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+				.returns(this.builderType())
+				.addStatement("return new $T()", this.builderType())
+				.build();
 	}
 
 	protected String setterName(String name) {

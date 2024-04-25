@@ -14,6 +14,26 @@ public class StrategyTests {
 	class PermissiveStrategy {
 
 		@Test
+		void customFactoryMethodName() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Permissive/CustomFactoryMethodName/CustomFactoryMethodName.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.CustomFactoryMethodNameBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Permissive/CustomFactoryMethodName/Expected_CustomFactoryMethodNameBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
 		void failWhenMandatoryAnnotationIsUsedWithPermissiveStrategy() {
 			Cute.blackBoxTest()
 					.given()
@@ -73,6 +93,26 @@ public class StrategyTests {
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/Strategies/Strict/ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet/Expected_ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSetBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		void customFactoryMethodName() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Strict/CustomFactoryMethodName/CustomFactoryMethodName.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.CustomFactoryMethodNameBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Strict/CustomFactoryMethodName/Expected_CustomFactoryMethodNameBuilder.java"))
 					.executeTest();
 		}
 
@@ -144,6 +184,33 @@ public class StrategyTests {
 
 	@Nested
 	class StepWiseStrategy {
+
+		@Test
+		void customFactoryMethodName() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/StepWise/CustomFactoryMethodName/CustomFactoryMethodName.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.DefaultCustomFactoryMethodNameBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/CustomFactoryMethodName/Expected_DefaultCustomFactoryMethodNameBuilder.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.CustomFactoryMethodNameBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/CustomFactoryMethodName/Expected_CustomFactoryMethodNameBuilder.java"))
+					.executeTest();
+		}
 
 		@Test
 		void generateStepBuilderWhenConstructorPolicyIsEnforcedStepWise() {

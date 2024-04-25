@@ -73,6 +73,16 @@ public @interface Buildable {
 	Strategy[] strategy() default Strategy.PERMISSIVE;
 
 	/**
+	 * For Step Builders instigated by the {@link Strategy#STRICT} strategy this
+	 * will
+	 * the static factory name within the Builder interface.
+	 * For others, a static factory method will be added to the Builder class.
+	 * 
+	 * @return the name of the factory method
+	 */
+	String factoryName() default "";
+
+	/**
 	 * Marks a constructor as buildable.
 	 * This means that a builder will be generated
 	 * using the selected constructor as opposed to the one with the most
