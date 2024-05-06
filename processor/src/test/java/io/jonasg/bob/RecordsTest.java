@@ -4,13 +4,16 @@ import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.JavaFileObjectUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.util.List;
 
 public class RecordsTest {
 
 	@Test
-	public void recordsAreBuildable() {
+	@EnabledForJreRange(min = JRE.JAVA_12, disabledReason = "Records do not exist yet")
+	public void recordsAreBuildableWithStepwise() {
 		Cute.blackBoxTest()
 				.given()
 				.processors(List.of(BuildableProcessor.class))
