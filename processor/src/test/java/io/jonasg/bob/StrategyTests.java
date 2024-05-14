@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 public class StrategyTests {
 	@Nested
@@ -113,6 +115,27 @@ public class StrategyTests {
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/Strategies/Strict/CustomFactoryMethodName/Expected_CustomFactoryMethodNameBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		@EnabledForJreRange(min = JRE.JAVA_12, disabledReason = "Records do not exist yet")
+		void recordsAreBuildable() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Strict/RecordsAreBuildable/RecordsAreBuildable.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.RecordsAreBuildableBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Strict/RecordsAreBuildable/Expected_RecordsAreBuildableBuilder.java"))
 					.executeTest();
 		}
 
@@ -317,6 +340,34 @@ public class StrategyTests {
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/Strategies/StepWise/SetterWithCustomPrefix/Expected_DefaultSetterWithCustomPrefixBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		@EnabledForJreRange(min = JRE.JAVA_12, disabledReason = "Records do not exist yet")
+		void recordsAreBuildable() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"tests/Strategies/StepWise/RecordsAreBuildable/RecordsAreBuildable.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.RecordsAreBuildableBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"tests/Strategies/StepWise/RecordsAreBuildable/Expected_RecordsAreBuildableBuilder.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.DefaultRecordsAreBuildableBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"tests/Strategies/StepWise/RecordsAreBuildable/Expected_DefaultRecordsAreBuildableBuilder.java"))
 					.executeTest();
 		}
 	}
