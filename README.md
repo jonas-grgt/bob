@@ -10,20 +10,53 @@ features such as the ability to create Step Builders.
 
 ## Installation
 ### Maven
+Because of [supply chain attacks](https://xdev.software/en/news/detail/discovering-the-perfect-java-supply-chain-attack-vector-and-how-it-got-fixed), 
+as of [Java 23](https://bugs.openjdk.org/browse/JDK-8321319) annotation processors are no longer automatically applied and must be explicitly configured.
 ```xml
-<dependency>
-    <groupId>io.jonasg</groupId>
-    <artifactId>bob-annotations</artifactId>
-    <version>${bob.version}</version>
-    <scope>compile</scope>
-</dependency>
-<dependency>
-    <groupId>io.jonasg</groupId>
-    <artifactId>bob-processor</artifactId>
-    <version>${bob.version}</version>
-    <scope>provided</scope>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>io.jonasg</groupId>
+        <artifactId>bob-annotations</artifactId>
+        <version>${bob.version}</version>
+        <scope>compile</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>io.jonasg</groupId>
+                        <artifactId>bob-processor</artifactId>
+                        <version>${bob.version}</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
 ```
+
+Older java versions can use:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.jonasg</groupId>
+        <artifactId>bob-annotations</artifactId>
+        <version>${bob.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.jonasg</groupId>
+        <artifactId>bob-processor</artifactId>
+        <version>${bob.version}</version>
+    </dependency>
+</dependencies>
+```
+
 ### Gradle
 ```groovy
 dependencies {
