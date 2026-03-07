@@ -46,7 +46,7 @@
 		<maven-spotless-plugin.version>2.41.1</maven-spotless-plugin.version>
 		<maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
 		<maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
-		<flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
+		<flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
 		<surefire-maven-plugin.version>3.5.5</surefire-maven-plugin.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
