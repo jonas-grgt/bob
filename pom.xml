@@ -57,7 +57,7 @@
 		<junit-bom.version>5.10.3</junit-bom.version>
 		<assertj-core.version>3.27.7</assertj-core.version>
 		<mockito-core.version>5.11.0</mockito-core.version>
-		<cute.version>1.3.1</cute.version>
+		<cute.version>1.9.0</cute.version>
 	</properties>
 
 	<scm>
