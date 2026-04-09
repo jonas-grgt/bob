@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import javax.annotation.processing.Filer;
 
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
+import com.palantir.javapoet.JavaFile;
+import com.palantir.javapoet.TypeSpec;
 
 public class TypeWriter {
 	public static void write(Filer filer, String packageName, TypeSpec spec) {
-		JavaFile javaFile = JavaFile.builder(packageName, spec)
+		var javaFile = JavaFile.builder(packageName, spec)
 				.build();
 		try {
 			javaFile.writeTo(filer);

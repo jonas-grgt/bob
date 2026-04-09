@@ -2,7 +2,10 @@ package io.jonasg.bob.test;
 
 import java.lang.String;
 
-public final class DefaultCustomFactoryMethodNameBuilder implements CustomFactoryMethodNameBuilder.BuildStep, CustomFactoryMethodNameBuilder, CustomFactoryMethodNameBuilder.FuelEfficiencyStep, CustomFactoryMethodNameBuilder.IsElectricStep {
+public final class DefaultCustomFactoryMethodNameBuilder implements CustomFactoryMethodNameBuilder.BuildStep,
+    CustomFactoryMethodNameBuilder,
+    CustomFactoryMethodNameBuilder.FuelEfficiencyStep,
+    CustomFactoryMethodNameBuilder.IsElectricStep {
   private double engineSize;
 
   private boolean isElectric;

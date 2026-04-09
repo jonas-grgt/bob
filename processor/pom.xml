@@ -26,19 +26,16 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.squareup</groupId>
+			<groupId>com.palantir.javapoet</groupId>
 			<artifactId>javapoet</artifactId>
-			<version>${java-poet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>${assertj-core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.toolisticon.cute</groupId>
 			<artifactId>cute</artifactId>
-			<version>${cute.version}</version>
 		</dependency>
 	</dependencies>
 

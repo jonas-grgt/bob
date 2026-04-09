@@ -6,9 +6,9 @@ import java.util.Objects;
 
 import javax.lang.model.element.Modifier;
 
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.palantir.javapoet.MethodSpec;
+import com.palantir.javapoet.TypeName;
+import com.palantir.javapoet.TypeSpec;
 
 public class TypeSpecInterfaceBuilder {
 
@@ -85,17 +85,13 @@ public class TypeSpecInterfaceBuilder {
 
 		}
 
-		final class Argument {
+		static final class Argument {
 			private final TypeName typeName;
 			private final String name;
 
 			Argument(TypeName typeName, String name) {
 				this.typeName = typeName;
 				this.name = name;
-			}
-
-			public TypeName typeName() {
-				return typeName;
 			}
 
 			public String name() {

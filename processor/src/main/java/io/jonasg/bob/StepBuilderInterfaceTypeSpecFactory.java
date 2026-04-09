@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeSpec.Builder;
+import com.palantir.javapoet.ClassName;
+import com.palantir.javapoet.MethodSpec;
+import com.palantir.javapoet.TypeName;
+import com.palantir.javapoet.TypeSpec;
+import com.palantir.javapoet.TypeSpec.Builder;
 import io.jonasg.bob.TypeSpecInterfaceBuilder.InterfaceBuilder;
 import io.jonasg.bob.definitions.TypeDefinition;
 
@@ -139,7 +139,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 					return TypeSpecInterfaceBuilder.functionalInterface(name)
 							.methodName(setterName(field.name()))
 							.addArgument(TypeName.get(field.type()), field.name())
-							.returns(ClassName.get("", nextStep.get().name))
+							.returns(ClassName.get("", nextStep.get().name()))
 							.build();
 				})
 				.peek(nextStep::set)
@@ -151,7 +151,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(setterName(buildableField.name()))
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 				.addParameter(TypeName.get(buildableField.type()), buildableField.name())
-				.returns(ClassName.get("", nextStep.get().name))
+				.returns(ClassName.get("", nextStep.get().name()))
 				.build());
 		return new BuilderDetails(stepBuilderBuilder.build(), interfaces);
 	}

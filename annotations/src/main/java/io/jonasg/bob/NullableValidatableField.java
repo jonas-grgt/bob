@@ -7,7 +7,7 @@ package io.jonasg.bob;
  *            the type of the required field its value
  */
 @SuppressWarnings("unused")
-public class NullableValidatableField<T> implements ValidatableField<T> {
+public final class NullableValidatableField<T> implements ValidatableField<T> {
 
 	private T fieldValue;
 

@@ -2,7 +2,12 @@ package io.jonasg.bob.test;
 
 import java.lang.String;
 
-public final class DefaultRecordsAreBuildableBuilder implements RecordsAreBuildableBuilder.BuildStep, RecordsAreBuildableBuilder.EngineSizeStep, RecordsAreBuildableBuilder.IsElectricStep, RecordsAreBuildableBuilder.YearStep, RecordsAreBuildableBuilder.FuelEfficiencyStep, RecordsAreBuildableBuilder {
+public final class DefaultRecordsAreBuildableBuilder implements RecordsAreBuildableBuilder.BuildStep,
+    RecordsAreBuildableBuilder.EngineSizeStep,
+    RecordsAreBuildableBuilder.IsElectricStep,
+    RecordsAreBuildableBuilder.YearStep,
+    RecordsAreBuildableBuilder.FuelEfficiencyStep,
+    RecordsAreBuildableBuilder {
   private String make;
 
   private int year;

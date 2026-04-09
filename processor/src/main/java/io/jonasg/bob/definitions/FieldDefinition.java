@@ -29,10 +29,6 @@ public final class FieldDefinition {
 		return name;
 	}
 
-	public List<? extends AnnotationMirror> annotations() {
-		return annotations;
-	}
-
 	public TypeMirror type() {
 		return type;
 	}

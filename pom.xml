@@ -41,7 +41,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-		<maven-aseembly-plugin.version>3.6.0</maven-aseembly-plugin.version>
+		<maven-aseembly-plugin.version>3.15.0</maven-aseembly-plugin.version>
 		<maven-source-plugin.version>3.4.0</maven-source-plugin.version>
 		<maven-spotless-plugin.version>2.41.1</maven-spotless-plugin.version>
 		<maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
@@ -53,10 +53,10 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<jreleaser.version>1.9.0</jreleaser.version>
-		<java-poet.version>1.13.0</java-poet.version>
+		<java-poet.version>0.14.0</java-poet.version>
 		<junit-bom.version>6.0.3</junit-bom.version>
 		<assertj-core.version>3.27.7</assertj-core.version>
-		<mockito-core.version>5.11.0</mockito-core.version>
+		<mockito-core.version>5.23.0</mockito-core.version>
 		<cute.version>1.9.0</cute.version>
 	</properties>
 
@@ -76,7 +76,7 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.squareup</groupId>
+				<groupId>com.palantir.javapoet</groupId>
 				<artifactId>javapoet</artifactId>
 				<version>${java-poet.version}</version>
 			</dependency>

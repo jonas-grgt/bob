@@ -3,7 +3,6 @@ package io.jonasg.bob.definitions;
 import javax.lang.model.type.TypeKind;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Defines a specific Java Type.
@@ -39,10 +38,6 @@ public class TypeDefinition extends SimpleTypeDefinition {
 		return new ArrayList<>(constructors);
 	}
 
-	public String fullTypeName() {
-		return (parent != null ? parent + "." : "") + typeName;
-	}
-
 	public boolean isNested() {
 		return parent != null;
 	}
@@ -55,7 +50,7 @@ public class TypeDefinition extends SimpleTypeDefinition {
 		List<SetterMethodDefinition> setters = new ArrayList<>();
 		List<MethodDefinition> methodsWithOneParam = this.methods.stream()
 				.filter(m -> m.parameters().size() == 1)
-				.collect(Collectors.toList());
+				.toList();
 		for (FieldDefinition field : fields) {
 			String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
 			methodsWithOneParam.stream()

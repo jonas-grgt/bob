@@ -119,7 +119,6 @@ public class StrategyTests {
 		}
 
 		@Test
-		@EnabledForJreRange(min = JRE.JAVA_12, disabledReason = "Records do not exist yet")
 		void recordsAreBuildable() {
 			Cute.blackBoxTest()
 					.given()
@@ -344,7 +343,6 @@ public class StrategyTests {
 		}
 
 		@Test
-		@EnabledForJreRange(min = JRE.JAVA_12, disabledReason = "Records do not exist yet")
 		void recordsAreBuildable() {
 			Cute.blackBoxTest()
 					.given()

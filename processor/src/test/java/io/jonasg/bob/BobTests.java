@@ -245,7 +245,6 @@ public class BobTests {
 	}
 
 	@Nested
-	@EnabledForJreRange(min = JRE.JAVA_12, disabledReason = "Records do not exist yet")
 	class RecordTests {
 
 		@Test

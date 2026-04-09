@@ -3,7 +3,7 @@ package io.jonasg.bob;
 import javax.annotation.processing.Filer;
 import javax.lang.model.util.Types;
 
-import com.squareup.javapoet.TypeSpec;
+import com.palantir.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
 
 import java.util.List;

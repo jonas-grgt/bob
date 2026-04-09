@@ -2,7 +2,10 @@ package io.jonasg.bob.test;
 
 import java.lang.String;
 
-public final class DefaultSetterWithCustomPrefixBuilder implements SetterWithCustomPrefixBuilder, SetterWithCustomPrefixBuilder.BuildStep, SetterWithCustomPrefixBuilder.FuelEfficiencyStep, SetterWithCustomPrefixBuilder.IsElectricStep {
+public final class DefaultSetterWithCustomPrefixBuilder implements SetterWithCustomPrefixBuilder,
+    SetterWithCustomPrefixBuilder.BuildStep,
+    SetterWithCustomPrefixBuilder.FuelEfficiencyStep,
+    SetterWithCustomPrefixBuilder.IsElectricStep {
   private double engineSize;
 
   private boolean isElectric;

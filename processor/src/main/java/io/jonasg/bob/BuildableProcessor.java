@@ -15,7 +15,7 @@ import io.jonasg.bob.definitions.TypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinitionFactory;
 
 @SupportedAnnotationTypes("io.jonasg.bob.Buildable")
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public final class BuildableProcessor extends AbstractProcessor {
 
 	@Override
