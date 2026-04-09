@@ -1,10 +1,9 @@
 package io.jonasg.bob.definitions;
 
-import java.util.List;
-import java.util.Objects;
-
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.type.TypeMirror;
+import java.util.List;
+import java.util.Objects;
 
 public final class FieldDefinition {
 	private final String name;

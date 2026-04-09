@@ -1,11 +1,10 @@
 package io.jonasg.bob;
 
-import javax.annotation.processing.Filer;
-import javax.lang.model.util.Types;
-
 import com.palantir.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
 
+import javax.annotation.processing.Filer;
+import javax.lang.model.util.Types;
 import java.util.List;
 
 public class BuilderGenerator {

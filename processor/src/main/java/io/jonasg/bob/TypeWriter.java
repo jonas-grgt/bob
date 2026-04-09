@@ -1,11 +1,10 @@
 package io.jonasg.bob;
 
-import java.io.IOException;
-
-import javax.annotation.processing.Filer;
-
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.TypeSpec;
+
+import javax.annotation.processing.Filer;
+import java.io.IOException;
 
 public class TypeWriter {
 	public static void write(Filer filer, String packageName, TypeSpec spec) {

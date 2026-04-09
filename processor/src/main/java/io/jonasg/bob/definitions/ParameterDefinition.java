@@ -1,8 +1,7 @@
 package io.jonasg.bob.definitions;
 
-import java.util.Objects;
-
 import javax.lang.model.type.TypeMirror;
+import java.util.Objects;
 
 public class ParameterDefinition {
 

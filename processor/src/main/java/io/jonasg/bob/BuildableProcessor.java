@@ -1,6 +1,7 @@
 package io.jonasg.bob;
 
-import java.util.Set;
+import io.jonasg.bob.definitions.TypeDefinition;
+import io.jonasg.bob.definitions.TypeDefinitionFactory;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -10,9 +11,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
-
-import io.jonasg.bob.definitions.TypeDefinition;
-import io.jonasg.bob.definitions.TypeDefinitionFactory;
+import java.util.Set;
 
 @SupportedAnnotationTypes("io.jonasg.bob.Buildable")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)

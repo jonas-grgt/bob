@@ -1,14 +1,13 @@
 package io.jonasg.bob;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.lang.model.element.Modifier;
-
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
+
+import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class TypeSpecInterfaceBuilder {
 

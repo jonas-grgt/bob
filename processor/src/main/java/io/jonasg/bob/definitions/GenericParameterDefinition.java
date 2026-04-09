@@ -1,8 +1,7 @@
 package io.jonasg.bob.definitions;
 
-import java.util.List;
-
 import javax.lang.model.type.TypeMirror;
+import java.util.List;
 
 public class GenericParameterDefinition extends ParameterDefinition {
 

@@ -1,18 +1,5 @@
 package io.jonasg.bob;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.lang.model.element.Modifier;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
-
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.FieldSpec;
@@ -29,6 +16,19 @@ import io.jonasg.bob.definitions.GenericParameterDefinition;
 import io.jonasg.bob.definitions.ParameterDefinition;
 import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
+
+import javax.lang.model.element.Modifier;
+import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static io.jonasg.bob.Strategy.PERMISSIVE;
 
 public class BuilderTypeSpecFactory {

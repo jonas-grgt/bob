@@ -1,8 +1,14 @@
 package io.jonasg.bob;
 
-import static io.jonasg.bob.Strategy.STRICT;
-import static io.jonasg.bob.Strategy.STEP_WISE;
+import com.palantir.javapoet.ClassName;
+import com.palantir.javapoet.MethodSpec;
+import com.palantir.javapoet.TypeName;
+import com.palantir.javapoet.TypeSpec;
+import com.palantir.javapoet.TypeSpec.Builder;
+import io.jonasg.bob.TypeSpecInterfaceBuilder.InterfaceBuilder;
+import io.jonasg.bob.definitions.TypeDefinition;
 
+import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,15 +18,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import javax.lang.model.element.Modifier;
-
-import com.palantir.javapoet.ClassName;
-import com.palantir.javapoet.MethodSpec;
-import com.palantir.javapoet.TypeName;
-import com.palantir.javapoet.TypeSpec;
-import com.palantir.javapoet.TypeSpec.Builder;
-import io.jonasg.bob.TypeSpecInterfaceBuilder.InterfaceBuilder;
-import io.jonasg.bob.definitions.TypeDefinition;
+import static io.jonasg.bob.Strategy.STEP_WISE;
+import static io.jonasg.bob.Strategy.STRICT;
 
 public class StepBuilderInterfaceTypeSpecFactory {
 

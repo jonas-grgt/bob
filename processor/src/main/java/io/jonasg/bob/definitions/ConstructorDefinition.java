@@ -1,11 +1,10 @@
 package io.jonasg.bob.definitions;
 
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Modifier;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Modifier;
 
 public final class ConstructorDefinition {
 
