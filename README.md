@@ -207,6 +207,26 @@ public class Car {
     @Buildable.Mandatory
     private String color;
 ```
+
+### Optional Fields
+
+When using the `STRICT` strategy, all constructor-matched fields are enforced by default.
+Fields can be marked as optional using `@Buildable.Optional`,
+allowing them to be omitted during the build process
+and defaulting to their inherent value (e.g., `null` for object references, `0` for numeric types).
+
+```java
+@Buildable(strategy = STRICT)
+public class Car {
+    private String brand;
+
+    @Buildable.Optional
+    private int year;
+```
+
+> **Note:** `@Buildable.Optional` cannot be combined with the `ALLOW_NULLS` strategy.
+> Doing so will result in a compilation error.
+
 ### Change Default Package
     
 A `CarBuilder` class will be generated in the same package as the source class with *builder* as suffix.

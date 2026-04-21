@@ -1,5 +1,7 @@
 package io.jonasg.bob;
 
+import static io.jonasg.bob.Strategy.PERMISSIVE;
+
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.FieldSpec;
@@ -16,11 +18,6 @@ import io.jonasg.bob.definitions.GenericParameterDefinition;
 import io.jonasg.bob.definitions.ParameterDefinition;
 import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
-
-import javax.lang.model.element.Modifier;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -28,8 +25,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static io.jonasg.bob.Strategy.PERMISSIVE;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 
 public class BuilderTypeSpecFactory {
 
@@ -45,7 +44,8 @@ public class BuilderTypeSpecFactory {
 
 	private final String packageName;
 
-	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils,
+	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable,
+			Types typeUtils,
 			String packageName) {
 		this.typeDefinition = typeDefinition;
 		this.buildable = buildable;
@@ -66,7 +66,9 @@ public class BuilderTypeSpecFactory {
 		Stream<BuildableField> constructorBuildableFields = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
-				.map(p -> BuildableField.fromConstructor(p.name(), p.type()));
+				.map(p -> BuildableField.fromConstructor(p.name(), isOptional(p),
+						p.type()));
+
 		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
 				.stream()
 				.filter(setter -> !eligibleConstructorParams
@@ -75,9 +77,17 @@ public class BuilderTypeSpecFactory {
 					boolean fieldIsMandatory = Arrays.stream(this.buildable.mandatoryFields())
 							.anyMatch(f -> Objects.equals(f, p.field().name()))
 							|| p.field().isAnnotatedWith(Buildable.Mandatory.class);
-					return BuildableField.fromSetter(p.field().name(), fieldIsMandatory, p.methodName(), p.type());
+					return BuildableField.fromSetter(p.field().name(), fieldIsMandatory, p.methodName(),
+							p.type());
 				});
-		return Stream.concat(constructorBuildableFields, setterBuildableFields).collect(Collectors.toList());
+		return Stream.concat(constructorBuildableFields, setterBuildableFields)
+				.collect(Collectors.toList());
+	}
+
+	private boolean isOptional(ParameterDefinition p) {
+		return typeDefinition.fields().stream().filter(field -> field.name().equals(p.name()))
+				.anyMatch(
+						fieldDefinition -> fieldDefinition.isAnnotatedWith(Buildable.Optional.class));
 	}
 
 	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
@@ -85,7 +95,8 @@ public class BuilderTypeSpecFactory {
 				.filter(c -> c.isAnnotatedWith(Buildable.Constructor.class))
 				.collect(Collectors.toList());
 		if (buildableConstructors.size() > 1) {
-			throw new IllegalArgumentException("Only one constructor can be annotated with @Buildable.Constructor");
+			throw new IllegalArgumentException(
+					"Only one constructor can be annotated with @Buildable.Constructor");
 		}
 		if (buildableConstructors.isEmpty()) {
 			return typeDefinition.constructors().stream()
@@ -97,7 +108,8 @@ public class BuilderTypeSpecFactory {
 
 	public List<TypeSpec> typeSpecs() {
 		if (Arrays.asList(this.buildable.strategy()).contains(PERMISSIVE) &&
-				this.buildableFields.stream().anyMatch(f -> f.isMandatory() && !f.isConstructorArgument())) {
+				this.buildableFields.stream()
+						.anyMatch(f -> f.isMandatory() && !f.isConstructorArgument())) {
 			throw new StrategyConflictException(
 					"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider "
 							+ "STRICT or STEP_WISE or remove the mandatory fields");
@@ -148,7 +160,11 @@ public class BuilderTypeSpecFactory {
 				.returns(builderType())
 				.addParameter(TypeName.get(field.type()), field.name());
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
-			builder.addStatement("this.$L.set($L)", field.name(), field.name());
+			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
+				builder.addStatement("this.$L = $L", field.name(), field.name());
+			} else {
+				builder.addStatement("this.$L.set($L)", field.name(), field.name());
+			}
 		} else {
 			builder.addStatement("this.$L = $L", field.name(), field.name());
 		}
@@ -169,16 +185,27 @@ public class BuilderTypeSpecFactory {
 
 	protected FieldSpec generateField(BuildableField field) {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
-			String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
-					? "ofNullableField"
-					: "ofNoneNullableField";
-			return FieldSpec
-					.builder(ParameterizedTypeName.get(ClassName.get(ValidatableField.class),
-							TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
-							Modifier.FINAL)
-					.initializer("$T.$L(\"" + field.name() + "\", \""
-							+ this.typeDefinition.typeName() + "\")", ValidatableField.class, methodName)
-					.build();
+			if (strategy().contains(Strategy.STRICT) && strategy().contains(Strategy.ALLOW_NULLS)
+					&& field.isOptional()) {
+				throw new StrategyConflictException(
+						"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy");
+			}
+			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
+				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
+						.build();
+			} else {
+				String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
+						? "ofNullableField"
+						: "ofNoneNullableField";
+				return FieldSpec
+						.builder(ParameterizedTypeName.get(ClassName.get(ValidatableField.class),
+								TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
+								Modifier.FINAL)
+						.initializer("$T.$L(\"" + field.name() + "\", \""
+								+ this.typeDefinition.typeName() + "\")", ValidatableField.class,
+								methodName)
+						.build();
+			}
 		} else {
 			return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 					.build();
@@ -218,11 +245,18 @@ public class BuilderTypeSpecFactory {
 
 	protected String toConstructorCallingStatement(ConstructorDefinition constructorDefinition) {
 		return constructorDefinition.parameters().stream()
-				.map(param -> this.buildableFields.stream().anyMatch(f -> Objects.equals(f.name(), param.name()))
-						? String.format("%s%s", param.name(),
-								isAnEnforcedConstructorPolicy() ? ".orElseThrow()"
-										: "")
-						: defaultForType(param.type()))
+				.map(param -> {
+					var matchingField = this.buildableFields.stream()
+							.filter(f -> Objects.equals(f.name(), param.name()))
+							.findFirst();
+					if (matchingField.isEmpty()) {
+						return defaultForType(param.type());
+					}
+					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
+							&& matchingField.get().isOptional();
+					return String.format("%s%s", param.name(),
+							isAnEnforcedConstructorPolicy() && !isOptionalInStrict ? ".orElseThrow()" : "");
+				})
 				.collect(Collectors.joining(", "));
 	}
 
@@ -329,7 +363,8 @@ public class BuilderTypeSpecFactory {
 			}
 		} else {
 			List<TypeVariableName> genericParameters = toTypeVariableNames(definition);
-			return ParameterizedTypeName.get(ClassName.get(definition.packageName(), definition.fullTypeName()),
+			return ParameterizedTypeName.get(
+					ClassName.get(definition.packageName(), definition.fullTypeName()),
 					genericParameters.toArray(new TypeName[0]));
 		}
 	}
@@ -338,8 +373,9 @@ public class BuilderTypeSpecFactory {
 		List<TypeVariableName> genericParameters = new ArrayList<>();
 		for (GenericParameterDefinition parameterDefinition : definition.genericParameters()) {
 			genericParameters
-					.add(TypeVariableName.get(parameterDefinition.name(), simpleClassNames(parameterDefinition.bounds())
-							.toArray(new TypeName[parameterDefinition.bounds().size()])));
+					.add(TypeVariableName.get(parameterDefinition.name(),
+							simpleClassNames(parameterDefinition.bounds())
+									.toArray(new TypeName[parameterDefinition.bounds().size()])));
 		}
 		return genericParameters;
 	}

@@ -18,17 +18,18 @@ public record BuildableField(
 		String name,
 		boolean isConstructorArgument,
 		boolean isMandatory,
+		boolean isOptional,
 		Optional<String> setterMethodName,
 		TypeMirror type
 ) {
 
-	public static BuildableField fromConstructor(String fieldName, TypeMirror type) {
-		return new BuildableField(fieldName, true, false, Optional.empty(), type);
+	public static BuildableField fromConstructor(String fieldName, boolean isOptional,  TypeMirror type) {
+		return new BuildableField(fieldName, true, false, isOptional, Optional.empty(), type);
 	}
 
 	public static BuildableField fromSetter(String fieldName, boolean fieldIsMandatory, String setterMethodName,
 											TypeMirror type) {
-		return new BuildableField(fieldName, false, fieldIsMandatory, Optional.of(setterMethodName), type);
+		return new BuildableField(fieldName, false, fieldIsMandatory, false, Optional.of(setterMethodName), type);
 	}
 
 

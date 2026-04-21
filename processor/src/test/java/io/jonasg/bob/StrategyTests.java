@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
 
 public class StrategyTests {
 	@Nested
@@ -138,6 +136,26 @@ public class StrategyTests {
 					.executeTest();
 		}
 
+		@Test
+		void optionalConstructorFieldIsNotEnforced() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Strict/OptionalConstructorFieldInStrictStrategy/OptionalConstructorFieldInStrictStrategy.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.OptionalConstructorFieldInStrictStrategyBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Strict/OptionalConstructorFieldInStrictStrategy/Expected_OptionalConstructorFieldInStrictStrategyBuilder.java"))
+					.executeTest();
+		}
+
 		@Nested
 		class AllowNulls {
 
@@ -198,6 +216,24 @@ public class StrategyTests {
 								CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 								JavaFileObjectUtils.readFromResource(
 										"/tests/Strategies/Strict/AllowNulls/FieldsDeclaredInBuildableAnnotationCanBeSetToNull/Expected_FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder.java"))
+						.executeTest();
+			}
+
+			@Test
+			void failWhenOptionalAnnotationIsUsedWithAllowNullsStrategy() {
+				Cute.blackBoxTest()
+						.given()
+						.processors(List.of(BuildableProcessor.class))
+						.andSourceFiles(
+								"/tests/Strategies/Strict/AllowNulls/FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategy/FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategy.java")
+						.whenCompiled()
+						.thenExpectThat()
+						.compilationFails()
+						.andThat()
+						.compilerMessage()
+						.ofKindError()
+						.contains(
+								"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy")
 						.executeTest();
 			}
 

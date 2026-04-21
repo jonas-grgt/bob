@@ -8,10 +8,8 @@ import org.junit.jupiter.api.Test;
 import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.JavaFileObjectUtils;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
 
-public class BobTests {
+class BobTests {
 
 	@Test
 	void failWhenMultipleConstructorsAreAnnotatedWithBuildableConstructor() {
@@ -96,17 +94,36 @@ public class BobTests {
 				.given()
 				.processors(List.of(BuildableProcessor.class))
 				.andSourceFiles(
-						"/tests/AllConstructorParamsAreBuildableIfHavingMatchingField/AllConstructorParamsAreBuildableIfHavingMatchingField.java")
+						"/tests/DefaultValuesForParamsWithNoneMatchingField/DefaultValuesForParamsWithNoneMatchingField.java")
 				.whenCompiled()
 				.thenExpectThat()
 				.compilationSucceeds()
 				.andThat()
 				.generatedSourceFile(
-						"io.jonasg.bob.test.AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder")
+						"io.jonasg.bob.test.DefaultValuesForParamsWithNoneMatchingFieldBuilder")
 				.matches(
 						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 						JavaFileObjectUtils.readFromResource(
-								"/tests/AllConstructorParamsAreBuildableIfHavingMatchingField/Expected_AllConstructorParamsAreBuildableIfHavingMatchingField.java"))
+								"/tests/DefaultValuesForParamsWithNoneMatchingField/Expected_DefaultValuesForParamsWithNoneMatchingField.java"))
+				.executeTest();
+	}
+
+	@Test
+	void excludeFieldsFromBuilder() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/ExcludeFieldsFromBuilder/ExcludeFieldsFromBuilder.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.ExcludeFieldsFromBuilderBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/ExcludeFieldsFromBuilder/Expected_ExcludeFieldsFromBuilder.java"))
 				.executeTest();
 	}
 
@@ -248,7 +265,7 @@ public class BobTests {
 	class RecordTests {
 
 		@Test
-		public void recordsAreBuildable() {
+		void recordsAreBuildable() {
 			Cute.blackBoxTest()
 					.given()
 					.processors(List.of(BuildableProcessor.class))
