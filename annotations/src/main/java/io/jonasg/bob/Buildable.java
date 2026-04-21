@@ -44,6 +44,7 @@ public @interface Buildable {
 	 *
 	 * @return mandatory fields
 	 */
+
 	String[] mandatoryFields() default {};
 
 	/**
@@ -101,6 +102,15 @@ public @interface Buildable {
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
 	@interface Mandatory {
+	}
+
+	/**
+	 * Marks a field as optional. When the field is not set within the building
+	 * process, it will be null
+	 */
+	@Retention(RetentionPolicy.SOURCE)
+	@Target(ElementType.FIELD)
+	@interface Optional {
 	}
 
 }
