@@ -66,7 +66,12 @@ public class BuilderTypeSpecFactory {
 		Stream<BuildableField> constructorBuildableFields = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
-				.map(p -> BuildableField.fromConstructor(p.name(), p.type()));
+				.map(p -> BuildableField.fromConstructor(p.name(),
+						typeDefinition.fields().stream().filter(field -> field.name().equals(p.name()))
+								.anyMatch(
+										fieldDefinition -> fieldDefinition.isAnnotatedWith(Buildable.Optional.class)),
+						p.type()));
+
 		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
 				.stream()
 				.filter(setter -> !eligibleConstructorParams
@@ -148,7 +153,11 @@ public class BuilderTypeSpecFactory {
 				.returns(builderType())
 				.addParameter(TypeName.get(field.type()), field.name());
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
-			builder.addStatement("this.$L.set($L)", field.name(), field.name());
+			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
+				builder.addStatement("this.$L = $L", field.name(), field.name());
+			} else {
+				builder.addStatement("this.$L.set($L)", field.name(), field.name());
+			}
 		} else {
 			builder.addStatement("this.$L = $L", field.name(), field.name());
 		}
@@ -169,16 +178,26 @@ public class BuilderTypeSpecFactory {
 
 	protected FieldSpec generateField(BuildableField field) {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
-			String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
-					? "ofNullableField"
-					: "ofNoneNullableField";
-			return FieldSpec
-					.builder(ParameterizedTypeName.get(ClassName.get(ValidatableField.class),
-							TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
-							Modifier.FINAL)
-					.initializer("$T.$L(\"" + field.name() + "\", \""
-							+ this.typeDefinition.typeName() + "\")", ValidatableField.class, methodName)
-					.build();
+			if (strategy().contains(Strategy.STRICT) && strategy().contains(Strategy.ALLOW_NULLS)
+					&& field.isOptional()) {
+				throw new StrategyConflictException(
+						"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy");
+			}
+			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
+				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
+						.build();
+			} else {
+				String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
+						? "ofNullableField"
+						: "ofNoneNullableField";
+				return FieldSpec
+						.builder(ParameterizedTypeName.get(ClassName.get(ValidatableField.class),
+								TypeName.get(boxedType(field.type()))), field.name(), Modifier.PRIVATE,
+								Modifier.FINAL)
+						.initializer("$T.$L(\"" + field.name() + "\", \""
+								+ this.typeDefinition.typeName() + "\")", ValidatableField.class, methodName)
+						.build();
+			}
 		} else {
 			return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 					.build();
@@ -218,11 +237,18 @@ public class BuilderTypeSpecFactory {
 
 	protected String toConstructorCallingStatement(ConstructorDefinition constructorDefinition) {
 		return constructorDefinition.parameters().stream()
-				.map(param -> this.buildableFields.stream().anyMatch(f -> Objects.equals(f.name(), param.name()))
-						? String.format("%s%s", param.name(),
-								isAnEnforcedConstructorPolicy() ? ".orElseThrow()"
-										: "")
-						: defaultForType(param.type()))
+				.map(param -> {
+					var matchingField = this.buildableFields.stream()
+							.filter(f -> Objects.equals(f.name(), param.name()))
+							.findFirst();
+					if (matchingField.isEmpty()) {
+						return defaultForType(param.type());
+					}
+					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
+							&& matchingField.get().isOptional();
+					return String.format("%s%s", param.name(),
+							isAnEnforcedConstructorPolicy() && !isOptionalInStrict ? ".orElseThrow()" : "");
+				})
 				.collect(Collectors.joining(", "));
 	}
 
