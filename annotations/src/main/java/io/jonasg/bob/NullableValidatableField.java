@@ -30,10 +30,12 @@ public final class NullableValidatableField<T> implements ValidatableField<T> {
 	}
 
 	@Override
-	public T orElseThrow() {
-		if (!this.fieldSet && this.fieldValue == null) {
-			throw new MandatoryFieldMissingException(this.fieldName, this.typeName);
-		}
+	public boolean isValid() {
+		return this.fieldSet || this.fieldValue != null;
+	}
+
+	@Override
+	public T get() {
 		return this.fieldValue;
 	}
 }

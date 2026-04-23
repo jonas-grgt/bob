@@ -12,6 +12,8 @@ public interface ValidatableField<T> {
 
 	void set(T value);
 
-	T orElseThrow();
+	boolean isValid();
+
+	T get();
 
 }

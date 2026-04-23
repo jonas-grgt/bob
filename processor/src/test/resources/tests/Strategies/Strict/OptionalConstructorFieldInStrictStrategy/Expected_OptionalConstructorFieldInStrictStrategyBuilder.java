@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.MandatoryFieldMissingException;
+import io.jonasg.bob.MandatoryFieldsMissingException;
+import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 
@@ -22,6 +25,13 @@ public final class OptionalConstructorFieldInStrictStrategyBuilder {
   }
 
   public OptionalConstructorFieldInStrictStrategy build() {
-    return new OptionalConstructorFieldInStrictStrategy(make.orElseThrow(), year);
+    var missingFields = new java.util.ArrayList<String>();
+    if (!make.isValid()) missingFields.add("make");
+    if (missingFields.size() == 1) {
+      throw new MandatoryFieldMissingException(missingFields.get(0), "OptionalConstructorFieldInStrictStrategy");
+    } else if (!missingFields.isEmpty()) {
+      throw new MandatoryFieldsMissingException(missingFields.stream().map(f -> new MissingField(f, "OptionalConstructorFieldInStrictStrategy")).toList());
+    }
+    return new OptionalConstructorFieldInStrictStrategy(make.get(), year);
   }
 }

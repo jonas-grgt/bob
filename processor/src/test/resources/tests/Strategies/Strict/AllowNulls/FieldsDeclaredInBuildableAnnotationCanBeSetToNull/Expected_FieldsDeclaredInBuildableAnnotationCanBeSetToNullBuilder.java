@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.MandatoryFieldMissingException;
+import io.jonasg.bob.MandatoryFieldsMissingException;
+import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Float;
@@ -47,10 +50,20 @@ public final class FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder {
   }
 
   public FieldsDeclaredInBuildableAnnotationCanBeSetToNull build() {
-    var instance = new FieldsDeclaredInBuildableAnnotationCanBeSetToNull(make.orElseThrow(), year.orElseThrow());
+    var missingFields = new java.util.ArrayList<String>();
+    if (!make.isValid()) missingFields.add("make");
+    if (!year.isValid()) missingFields.add("year");
+    if (!isElectric.isValid()) missingFields.add("isElectric");
+    if (!fuelEfficiency.isValid()) missingFields.add("fuelEfficiency");
+    if (missingFields.size() == 1) {
+      throw new MandatoryFieldMissingException(missingFields.get(0), "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
+    } else if (!missingFields.isEmpty()) {
+      throw new MandatoryFieldsMissingException(missingFields.stream().map(f -> new MissingField(f, "FieldsDeclaredInBuildableAnnotationCanBeSetToNull")).toList());
+    }
+    var instance = new FieldsDeclaredInBuildableAnnotationCanBeSetToNull(make.get(), year.get());
     instance.setEngineSize(this.engineSize);
-    instance.setIsElectric(this.isElectric.orElseThrow());
-    instance.setFuelEfficiency(this.fuelEfficiency.orElseThrow());
+    instance.setIsElectric(this.isElectric.get());
+    instance.setFuelEfficiency(this.fuelEfficiency.get());
     return instance;
   }
 }

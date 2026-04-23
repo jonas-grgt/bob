@@ -223,6 +223,9 @@ public class BuilderTypeSpecFactory {
 		Builder builder = MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC)
 				.returns(className(this.typeDefinition));
+		if (isAnEnforcedConstructorPolicy()) {
+			builder.addCode(generateValidationCode());
+		}
 		if (typeDefinition.containsSetterMethods()) {
 			createConstructorAndSetterAwareBuildMethod(builder);
 		} else {
@@ -233,6 +236,38 @@ public class BuilderTypeSpecFactory {
 							.build())
 					.build());
 		}
+		return builder.build();
+	}
+
+	private CodeBlock generateValidationCode() {
+		var validatableFields = buildableFields.stream()
+				.filter(f -> (f.isConstructorArgument() || f.isMandatory()) && !f.isOptional())
+				.toList();
+
+		if (validatableFields.isEmpty()) {
+			return CodeBlock.builder().build();
+		}
+
+		var builder = CodeBlock.builder();
+
+		builder.addStatement("var missingFields = new java.util.ArrayList<String>()");
+		validatableFields.forEach(field -> {
+			builder.addStatement("if (!$L.isValid()) missingFields.add(\"$L\")", field.name(), field.name());
+		});
+
+		builder.beginControlFlow("if (missingFields.size() == 1)");
+		builder.addStatement("throw new $T(missingFields.get(0), \"$L\")",
+				ClassName.get("io.jonasg.bob", "MandatoryFieldMissingException"),
+				typeDefinition.typeName());
+		builder.nextControlFlow("else if (!missingFields.isEmpty())");
+		builder.addStatement("throw new $T(missingFields.stream()"
+				+ ".map(f -> new $T(f, \"$L\"))"
+				+ ".toList())",
+				ClassName.get("io.jonasg.bob", "MandatoryFieldsMissingException"),
+				ClassName.get("io.jonasg.bob", "MissingField"),
+				typeDefinition.typeName());
+		builder.endControlFlow();
+
 		return builder.build();
 	}
 
@@ -255,7 +290,7 @@ public class BuilderTypeSpecFactory {
 					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
 							&& matchingField.get().isOptional();
 					return String.format("%s%s", param.name(),
-							isAnEnforcedConstructorPolicy() && !isOptionalInStrict ? ".orElseThrow()" : "");
+							isAnEnforcedConstructorPolicy() && !isOptionalInStrict ? ".get()" : "");
 				})
 				.collect(Collectors.joining(", "));
 	}
@@ -276,7 +311,7 @@ public class BuilderTypeSpecFactory {
 	protected CodeBlock generateFieldAssignment(BuildableField field) {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
 			return CodeBlock.builder()
-					.addStatement("instance.$L(this.$L.orElseThrow())",
+					.addStatement("instance.$L(this.$L.get())",
 							field.setterMethodName().orElseThrow(), field.name())
 					.build();
 		} else {

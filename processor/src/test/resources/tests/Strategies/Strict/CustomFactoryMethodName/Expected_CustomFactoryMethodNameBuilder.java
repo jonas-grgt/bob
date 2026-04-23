@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.MandatoryFieldMissingException;
+import io.jonasg.bob.MandatoryFieldsMissingException;
+import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Double;
@@ -46,7 +49,16 @@ public final class CustomFactoryMethodNameBuilder {
   }
 
   public CustomFactoryMethodName build() {
-    var instance = new CustomFactoryMethodName(engineSize.orElseThrow(), isElectric.orElseThrow(), fuelEfficiency.orElseThrow());
+    var missingFields = new java.util.ArrayList<String>();
+    if (!engineSize.isValid()) missingFields.add("engineSize");
+    if (!isElectric.isValid()) missingFields.add("isElectric");
+    if (!fuelEfficiency.isValid()) missingFields.add("fuelEfficiency");
+    if (missingFields.size() == 1) {
+      throw new MandatoryFieldMissingException(missingFields.get(0), "CustomFactoryMethodName");
+    } else if (!missingFields.isEmpty()) {
+      throw new MandatoryFieldsMissingException(missingFields.stream().map(f -> new MissingField(f, "CustomFactoryMethodName")).toList());
+    }
+    var instance = new CustomFactoryMethodName(engineSize.get(), isElectric.get(), fuelEfficiency.get());
     instance.setMake(this.make);
     instance.setYear(this.year);
     return instance;
