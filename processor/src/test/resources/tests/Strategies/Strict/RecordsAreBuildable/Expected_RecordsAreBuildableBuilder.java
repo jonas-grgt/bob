@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.MandatoryFieldMissingException;
+import io.jonasg.bob.MandatoryFieldsMissingException;
+import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Double;
@@ -47,6 +50,17 @@ public final class RecordsAreBuildableBuilder {
   }
 
   public RecordsAreBuildable build() {
-    return new RecordsAreBuildable(make.orElseThrow(), year.orElseThrow(), engineSize.orElseThrow(), isElectric.orElseThrow(), fuelEfficiency.orElseThrow());
+    var missingFields = new java.util.ArrayList<String>();
+    if (!make.isValid()) missingFields.add("make");
+    if (!year.isValid()) missingFields.add("year");
+    if (!engineSize.isValid()) missingFields.add("engineSize");
+    if (!isElectric.isValid()) missingFields.add("isElectric");
+    if (!fuelEfficiency.isValid()) missingFields.add("fuelEfficiency");
+    if (missingFields.size() == 1) {
+      throw new MandatoryFieldMissingException(missingFields.get(0), "RecordsAreBuildable");
+    } else if (!missingFields.isEmpty()) {
+      throw new MandatoryFieldsMissingException(missingFields.stream().map(f -> new MissingField(f, "RecordsAreBuildable")).toList());
+    }
+    return new RecordsAreBuildable(make.get(), year.get(), engineSize.get(), isElectric.get(), fuelEfficiency.get());
   }
 }

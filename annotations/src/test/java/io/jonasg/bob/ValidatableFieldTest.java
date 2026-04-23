@@ -1,9 +1,9 @@
 package io.jonasg.bob;
 
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ValidatableFieldTest {
 
@@ -11,46 +11,34 @@ class ValidatableFieldTest {
 	class NoneNullableValidatableFieldTest {
 
 		@Test
-		void throwExceptionWhenFieldValueIsNotSet() {
-			// given
-			ValidatableField<String> nameField = ValidatableField.ofNoneNullableField("name", "Person");
-
-			// when
-			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
-
-			// then
-			Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
-					.isInstanceOf(MandatoryFieldMissingException.class)
-					.hasMessage("Mandatory field (name) not set when building type (Person)");
+		void isNotValidWhenFieldValueIsNotSet() {
+			var nameField = ValidatableField.ofNoneNullableField("name", "Person");
+			assertThat(nameField.isValid()).isFalse();
 		}
 
 		@Test
-		void returnFieldValue() {
-			// given
-			ValidatableField<String> nameField = ValidatableField.ofNoneNullableField("name", "Person");
+		void isValidWhenFieldValueIsSet() {
+			var nameField = ValidatableField.ofNoneNullableField("name", "Person");
 			nameField.set("John");
 
-			// when
-			String value = nameField.orElseThrow();
-
-			// then
-			Assertions.assertThat(value)
-					.isEqualTo("John");
+			assertThat(nameField.isValid()).isTrue();
 		}
 
 		@Test
-		void throwExceptionWhenNotNullableRequiredFieldSetToNull() {
-			// given
-			ValidatableField<String> nameField = ValidatableField.ofNoneNullableField("name", "Person");
+		void returnValueWhenFieldValueIsSet() {
+			var nameField = ValidatableField.ofNoneNullableField("name", "Person");
+			nameField.set("John");
+
+			assertThat(nameField.get()).isEqualTo("John");
+		}
+
+		@Test
+		void isNotValidWhenSetToNull() {
+			var nameField = ValidatableField.ofNoneNullableField("name", "Person");
 			nameField.set(null);
 
-			// when
-			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
-
-			// then
-			Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
-					.isInstanceOf(MandatoryFieldMissingException.class)
-					.hasMessage("Mandatory field (name) not set when building type (Person)");
+			assertThat(nameField.isValid()).isFalse();
+			assertThat(nameField.get()).isNull();
 		}
 	}
 
@@ -58,45 +46,41 @@ class ValidatableFieldTest {
 	class NullableValidatableFieldTest {
 
 		@Test
-		void throwExceptionWhenFieldValueIsNotSet() {
-			// given
-			ValidatableField<String> nameField = ValidatableField.ofNullableField("name", "Person");
-
-			// when
-			ThrowingCallable whenOrElseThrowIsCalled = nameField::orElseThrow;
-
-			// then
-			Assertions.assertThatThrownBy(whenOrElseThrowIsCalled)
-					.isInstanceOf(MandatoryFieldMissingException.class)
-					.hasMessage("Mandatory field (name) not set when building type (Person)");
+		void isNotValidWhenFieldValueIsNotSet() {
+			var nameField = ValidatableField.ofNullableField("name", "Person");
+			assertThat(nameField.isValid()).isFalse();
 		}
 
 		@Test
-		void returnFieldValue() {
-			// given
-			ValidatableField<String> nameField = ValidatableField.ofNullableField("name", "Person");
+		void isValidWhenFieldValueIsSet() {
+			var nameField = ValidatableField.ofNullableField("name", "Person");
 			nameField.set("John");
 
-			// when
-			String value = nameField.orElseThrow();
-
-			// then
-			Assertions.assertThat(value)
-					.isEqualTo("John");
+			assertThat(nameField.isValid()).isTrue();
 		}
 
 		@Test
-		void returnFieldValueWhenSetToNull() {
-			// given
-			ValidatableField<String> nameField = ValidatableField.ofNullableField("name", "Person");
+		void returnValueWhenFieldValueIsSet() {
+			var nameField = ValidatableField.ofNullableField("name", "Person");
+			nameField.set("John");
+
+			assertThat(nameField.get()).isEqualTo("John");
+		}
+
+		@Test
+		void isValidWhenSetToNull() {
+			var nameField = ValidatableField.ofNullableField("name", "Person");
 			nameField.set(null);
 
-			// when
-			String value = nameField.orElseThrow();
+			assertThat(nameField.isValid()).isTrue();
+		}
 
-			// then
-			Assertions.assertThat(value)
-					.isEqualTo(null);
+		@Test
+		void returnNullWhenSetToNull() {
+			var nameField = ValidatableField.ofNullableField("name", "Person");
+			nameField.set(null);
+
+			assertThat(nameField.get()).isNull();
 		}
 	}
 }

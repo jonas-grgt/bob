@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.MandatoryFieldMissingException;
+import io.jonasg.bob.MandatoryFieldsMissingException;
+import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Integer;
 import java.lang.String;
@@ -47,7 +50,15 @@ public final class ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder
   }
 
   public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls build() {
-    var instance = new ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls(make.orElseThrow(), year.orElseThrow());
+    var missingFields = new java.util.ArrayList<String>();
+    if (!make.isValid()) missingFields.add("make");
+    if (!year.isValid()) missingFields.add("year");
+    if (missingFields.size() == 1) {
+      throw new MandatoryFieldMissingException(missingFields.get(0), "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls");
+    } else if (!missingFields.isEmpty()) {
+      throw new MandatoryFieldsMissingException(missingFields.stream().map(f -> new MissingField(f, "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls")).toList());
+    }
+    var instance = new ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls(make.get(), year.get());
     instance.setEngineSize(this.engineSize);
     instance.setIsElectric(this.isElectric);
     instance.setFuelEfficiency(this.fuelEfficiency);

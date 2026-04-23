@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.MandatoryFieldMissingException;
+import io.jonasg.bob.MandatoryFieldsMissingException;
+import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Double;
 import java.lang.Integer;
@@ -46,8 +49,17 @@ public final class ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSetBuilder {
   }
 
   public ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet build() {
-    var instance = new ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet(make.orElseThrow(), year.orElseThrow());
-    instance.setEngineSize(this.engineSize.orElseThrow());
+    var missingFields = new java.util.ArrayList<String>();
+    if (!make.isValid()) missingFields.add("make");
+    if (!year.isValid()) missingFields.add("year");
+    if (!engineSize.isValid()) missingFields.add("engineSize");
+    if (missingFields.size() == 1) {
+      throw new MandatoryFieldMissingException(missingFields.get(0), "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
+    } else if (!missingFields.isEmpty()) {
+      throw new MandatoryFieldsMissingException(missingFields.stream().map(f -> new MissingField(f, "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet")).toList());
+    }
+    var instance = new ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet(make.get(), year.get());
+    instance.setEngineSize(this.engineSize.get());
     instance.setIsElectric(this.isElectric);
     instance.setFuelEfficiency(this.fuelEfficiency);
     return instance;
