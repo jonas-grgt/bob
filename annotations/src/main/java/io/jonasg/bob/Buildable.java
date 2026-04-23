@@ -1,5 +1,6 @@
 package io.jonasg.bob;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,7 +45,6 @@ public @interface Buildable {
 	 *
 	 * @return mandatory fields
 	 */
-
 	String[] mandatoryFields() default {};
 
 	/**
@@ -105,9 +105,10 @@ public @interface Buildable {
 	}
 
 	/**
-	 * Marks a field as optional. When the field is not set within the building
-	 * process, it will be null
+	 * Marks a field as optional. If not set during the building process,
+	 * the java default value for the field type will be used
 	 */
+	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
 	@interface Optional {
