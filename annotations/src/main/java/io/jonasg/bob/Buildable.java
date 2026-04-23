@@ -110,7 +110,7 @@ public @interface Buildable {
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
-	@Target(ElementType.FIELD)
+	@Target({ ElementType.FIELD, ElementType.PARAMETER })
 	@interface Optional {
 	}
 

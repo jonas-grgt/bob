@@ -98,7 +98,8 @@ public class TypeDefinitionFactory {
 		for (ExecutableElement constructor : ElementFilter.constructorsIn(element.getEnclosedElements())) {
 			List<ParameterDefinition> constructorParams = new ArrayList<>();
 			for (VariableElement param : constructor.getParameters()) {
-				constructorParams.add(new ParameterDefinition(param.asType(), param.getSimpleName().toString()));
+				constructorParams.add(new ParameterDefinition(param.asType(), param.getSimpleName().toString(),
+						param.getAnnotationMirrors()));
 			}
 			definitions.add(new ConstructorDefinition(constructorParams, constructor.getModifiers(),
 					constructor.getAnnotationMirrors()));
