@@ -85,9 +85,19 @@ public class BuilderTypeSpecFactory {
 	}
 
 	private boolean isOptional(ParameterDefinition p) {
-		return typeDefinition.fields().stream().filter(field -> field.name().equals(p.name()))
-				.anyMatch(
-						fieldDefinition -> fieldDefinition.isAnnotatedWith(Buildable.Optional.class));
+		return isFieldAnnotatedOptional(p) || isConstructorParamAnnotatedOptional(p);
+	}
+
+	private boolean isFieldAnnotatedOptional(ParameterDefinition p) {
+		return typeDefinition.fields().stream()
+				.filter(field -> field.name().equals(p.name()))
+				.anyMatch(field -> field.isAnnotatedWith(Buildable.Optional.class));
+	}
+
+	private boolean isConstructorParamAnnotatedOptional(ParameterDefinition p) {
+		return this.constructorDefinition.parameters().stream()
+				.filter(param -> param.name().equals(p.name()))
+				.anyMatch(param -> param.isAnnotatedWith(Buildable.Optional.class));
 	}
 
 	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
