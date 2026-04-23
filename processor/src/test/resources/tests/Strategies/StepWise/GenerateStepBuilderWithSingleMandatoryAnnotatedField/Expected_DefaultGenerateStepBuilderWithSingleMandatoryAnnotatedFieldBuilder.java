@@ -48,7 +48,7 @@ public final class DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBu
   public GenerateStepBuilderWithSingleMandatoryAnnotatedField build() {
     var instance = new GenerateStepBuilderWithSingleMandatoryAnnotatedField();
     instance.setYear(this.year);
-    instance.setMake(this.make.orElseThrow());
+    instance.setMake(this.make.get());
     instance.setEngineSize(this.engineSize);
     instance.setIsElectric(this.isElectric);
     instance.setFuelEfficiency(this.fuelEfficiency);
