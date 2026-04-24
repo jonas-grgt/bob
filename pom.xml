@@ -52,7 +52,7 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
-		<jreleaser.version>1.9.0</jreleaser.version>
+		<jreleaser.version>1.22.0</jreleaser.version>
 		<java-poet.version>0.14.0</java-poet.version>
 		<junit-bom.version>6.0.3</junit-bom.version>
 		<assertj-core.version>3.27.7</assertj-core.version>
@@ -218,7 +218,7 @@
 									</links>
 									<license>APACHE-2.0</license>
 									<authors>Jonas Geiregat</authors>
-									<copyright>2025 Jonas Geiregat</copyright>
+									<copyright>2026 Jonas Geiregat</copyright>
 								</project>
 								<release>
 									<github>
@@ -234,16 +234,13 @@
 								</signing>
 								<deploy>
 									<maven>
-										<nexus2>
-											<maven-central>
+										<mavenCentral>
+											<sonatype>
 												<active>ALWAYS</active>
-												<url>https://s01.oss.sonatype.org/service/local</url>
-												<snapshotUrl>https://s01.oss.sonatype.org/content/repositories/snapshots/</snapshotUrl>
-												<closeRepository>true</closeRepository>
-												<releaseRepository>true</releaseRepository>
+												<url>https://central.sonatype.com/api/v1/publisher</url>
 												<stagingRepositories>target/staging-deploy</stagingRepositories>
-											</maven-central>
-										</nexus2>
+											</sonatype>
+										</mavenCentral>
 									</maven>
 								</deploy>
 							</jreleaser>
