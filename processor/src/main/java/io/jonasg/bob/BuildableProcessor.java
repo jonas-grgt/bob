@@ -25,8 +25,11 @@ public final class BuildableProcessor extends AbstractProcessor {
 		TypeDefinitionFactory typeDefinitionFactory = new TypeDefinitionFactory(elementUtils);
 
 		roundEnv.getElementsAnnotatedWith(Buildable.class)
-				.forEach(element -> {
-					Buildable buildable = element.getAnnotation(Buildable.class);
+        .forEach(element -> {
+            // ADD THIS LINE TO LIST THE TASK:
+            System.out.println("Processing Buildable Task: " + element.getSimpleName());
+
+            Buildable buildable = element.getAnnotation(Buildable.class);
 					TypeDefinition sourceDefinition = typeDefinitionFactory.typeDefinitionForElement(element);
 					try {
 						builderGenerator.generate(sourceDefinition, buildable, processingEnv.getTypeUtils());
