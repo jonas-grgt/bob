@@ -90,7 +90,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 				.addModifiers(Modifier.PUBLIC);
 		interfaces.add(ClassName.get(this.packageName, builderInterfaceName));
 
-		// add static newBuilder method
+		// Add static newBuilder method
 		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(builderStaticFactoryMethodName())
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
 				.returns(ClassName.get(this.packageName, builderInterfaceName))
@@ -99,17 +99,28 @@ public class StepBuilderInterfaceTypeSpecFactory {
 
 		List<BuildableField> reversedBuildableFields = reverseList(this.buildableFields);
 
-		// add final BuildStep containing all none mandatory fields
+		// Determine mandatory fields (excluding optional ones)
+		List<BuildableField> mandatoryFields = reversedBuildableFields
+				.stream()
+				.filter(this::notExcluded)
+				.filter(field -> (field.isConstructorArgument() && isEnforcedConstructorPolicy())
+						|| field.isMandatory())
+				.filter(field -> !field.isOptional())
+				.toList();
+
+		// Generate BuildStep interface containing the build method plus all optional
+		// fields.
+		Set<BuildableField> mandatoryFieldSet = new HashSet<>(mandatoryFields);
 		InterfaceBuilder buildStepInterfaceBuilder = TypeSpecInterfaceBuilder.anInterface("BuildStep");
 		reversedBuildableFields.stream()
 				.filter(this::notExcluded)
-				.filter(field -> (!field.isConstructorArgument()) && !field.isMandatory())
+				.filter(field -> !mandatoryFieldSet.contains(field))
 				.forEach(field -> buildStepInterfaceBuilder.addMethod(MethodSpec.methodBuilder(setterName(field.name()))
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 						.returns(ClassName.get("", "BuildStep"))
 						.addParameter(TypeName.get(field.type()), field.name())
 						.build()));
-		// add terminal build method
+		// Add terminal build method
 		buildStepInterfaceBuilder.addMethod(MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 				.returns(ClassName.get(this.typeDefinition.packageName(), this.typeDefinition.typeName()))
@@ -119,15 +130,10 @@ public class StepBuilderInterfaceTypeSpecFactory {
 		stepBuilderBuilder.addType(buildStep);
 		interfaces.add(ClassName.get("", builderInterfaceName + "." + "BuildStep"));
 
-		// add each mandatory field as a separate interface
-		// skipping the last element because that should be defined as a method within
-		// the interface itself
+		// Add each mandatory field as a separate interface,
+		// Skipping the last field because that should be defined as a method within
+		// the main Builder interface itself.
 		AtomicReference<TypeSpec> nextStep = new AtomicReference<>(buildStep);
-		List<BuildableField> mandatoryFields = reversedBuildableFields
-				.stream()
-				.filter(field -> (field.isConstructorArgument() && isEnforcedConstructorPolicy())
-						|| field.isMandatory())
-				.collect(Collectors.toList());
 		mandatoryFields
 				.subList(0, mandatoryFields.size() - 1)
 				.stream()
@@ -144,7 +150,7 @@ public class StepBuilderInterfaceTypeSpecFactory {
 				.peek(nextStep::set)
 				.forEach(stepBuilderBuilder::addType);
 
-		// the initial field to be built
+		// The initial field to be built
 		BuildableField buildableField = mandatoryFields
 				.get(mandatoryFields.size() - 1);
 		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(setterName(buildableField.name()))

@@ -389,6 +389,34 @@ public class StrategyTests {
 		}
 
 		@Test
+		void optionalFieldInStepWise() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/StepWise/OptionalFieldInStepWise/OptionalFieldInStepWise.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.OptionalFieldInStepWiseBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/OptionalFieldInStepWise/Expected_OptionalFieldInStepWise.java"))
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.DefaultOptionalFieldInStepWiseBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/OptionalFieldInStepWise/Expected_DefaultOptionalFieldInStepWiseBuilder.java"))
+
+					.executeTest();
+		}
+
+		@Test
 		void setterWithCustomPrefix() {
 			Cute.blackBoxTest()
 					.given()

@@ -154,20 +154,60 @@ class Car {
 Implements a step builder pattern,
 requiring fields
 to be set in a structured sequence
-defined by the selected constructor's parameters and explicitly marked mandatory fields
-(see [Mandatory Fields](#Mandatory-Fields)).
+defined by the selected constructor's parameters, explicitly marked mandatory fields
+(see [Mandatory Fields](#Mandatory-Fields)), and excluded optional fields
+(see [Optional Fields](#Optional-Fields)).
+Optional fields are excluded from the mandatory step sequence and appear as optional setters in the `BuildStep` interface.
 Each step must be completed before proceeding to the next,
-ensuring all fields are set before the object can be constructed.
+ensuring all mandatory fields are set before the object can be constructed.
 
 ```java
 @Buildable(strategy = STEP_WISE)
 class Car {
 ```
 
+Example with an optional field in a step-wise builder:
+
+```java
+@Buildable(strategy = Strategy.STEP_WISE)
+public class Car {
+    private String make;
+    private int year;
+    private String color;
+
+    public Car(String make, @Buildable.Optional int year, String color) {
+        this.make = make;
+        this.year = year;
+        this.color = color;
+    }
+}
+```
+
+The generated builder interface excludes the optional `year` field from the mandatory step sequence:
+
+```java
+public interface CarBuilder {
+    static CarBuilder newBuilder() {
+        return new DefaultCarBuilder();
+    }
+
+    ColorStep make(String make);
+
+    interface BuildStep {
+        BuildStep year(int year); // optional field
+
+        Car build();
+    }
+
+    interface ColorStep {
+        BuildStep color(String color);
+    }
+}
+```
+
 #### Strict
-Requires all mandatory fields to be explicitly set.
-If a field is not set,
-or is set to null, the builder throws a `MandatoryFieldMissingException`.
+All fields are considered **mandatory** and need to be explicitly set to a non-null value.
+If a field is not set, or is set to null, the builder throws a `MandatoryFieldMissingException`.
 This ensures that the object is fully initialized.
 
 ```java
@@ -210,10 +250,11 @@ public class Car {
 
 ### Optional Fields
 
-When using the `STRICT` strategy, all constructor-matched fields are enforced by default.
+When using the `STRICT` or `STEP_WISE` strategy, all constructor-matched fields are enforced by default.
 Fields or constructor parameters can be marked as optional using `@Buildable.Optional`,
 allowing them to be omitted during the build process
 and defaulting to their inherent value (e.g., `null` for object references, `0` for numeric types).
+In the `STEP_WISE` strategy, optional fields are excluded from the mandatory step sequence and appear as optional setters in the `BuildStep` interface.
 
 ```java
 @Buildable(strategy = STRICT)
