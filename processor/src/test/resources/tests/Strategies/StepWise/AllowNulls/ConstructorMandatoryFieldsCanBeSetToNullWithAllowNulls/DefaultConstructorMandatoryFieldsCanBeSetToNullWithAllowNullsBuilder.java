@@ -1,12 +1,12 @@
 package io.jonasg.bob.test;
 
-import java.lang.integer;
+import java.lang.Integer;
 import java.lang.String;
 
 public final class DefaultConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder implements ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder.YearStep, ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder.BuildStep, ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder {
   private String make;
 
-  private integer year;
+  private Integer year;
 
   private double engineSize;
 
@@ -23,7 +23,7 @@ public final class DefaultConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls
     return this;
   }
 
-  public DefaultConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder year(integer year) {
+  public DefaultConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder year(Integer year) {
     this.year = year;
     return this;
   }

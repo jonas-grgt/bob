@@ -4,11 +4,11 @@ import io.jonasg.bob.Buildable;
 import io.jonasg.bob.Strategy;
 import java.lang.String;
 
-@Buildable(strategy = Strategy.STEP_WISE, Strategy.ALLOW_NULLS)
-public class ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls {
+@Buildable(strategy = {Strategy.STEP_WISE, Strategy.ALLOW_NULLS})
+public class ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls {
 	private String make;
 
-	private integer year;
+	private Integer year;
 
 	private double engineSize;
 
@@ -16,35 +16,35 @@ public class ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls {
 
 	private float fuelEfficiency;
 
-	public ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls() {
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls() {
 	}
 
-	public GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise(String make, integer year) {
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls(String make, Integer year) {
 		this.make = make;
 		this.year = year;
 	}
 
-	public ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls setEngineSize(double engineSize) {
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls setEngineSize(double engineSize) {
 		this.engineSize = engineSize;
 		return this;
 	}
 
-	public ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls setIsElectric(boolean isElectric) {
-		isElectric = isElectric;
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls setIsElectric(boolean isElectric) {
+		this.isElectric = isElectric;
 		return this;
 	}
 
-	public ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls setFuelEfficiency(float fuelEfficiency) {
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls setFuelEfficiency(float fuelEfficiency) {
 		this.fuelEfficiency = fuelEfficiency;
 		return this;
 	}
 
-	public ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls setMake(String make) {
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls setMake(String make) {
 		this.make = make;
 		return this;
 	}
 
-	public ConstructorMandatoryFieldsCanBeSetToNullWIthAllowNulls setYear(integer year) {
+	public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls setYear(Integer year) {
 		this.year = year;
 		return this;
 	}

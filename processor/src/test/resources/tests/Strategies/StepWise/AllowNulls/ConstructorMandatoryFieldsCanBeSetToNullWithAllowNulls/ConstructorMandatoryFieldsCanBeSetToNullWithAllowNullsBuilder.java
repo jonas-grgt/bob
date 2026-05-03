@@ -1,6 +1,6 @@
 package io.jonasg.bob.test;
 
-import java.lang.integer;
+import java.lang.Integer;
 import java.lang.String;
 
 public interface ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder {
@@ -21,6 +21,6 @@ public interface ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder {
   }
 
   interface YearStep {
-    BuildStep year(integer year);
+    BuildStep year(Integer year);
   }
 }

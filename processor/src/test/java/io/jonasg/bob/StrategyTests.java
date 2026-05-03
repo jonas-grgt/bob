@@ -482,7 +482,7 @@ public class StrategyTests {
 								"/tests/Strategies/StepWise/AllowNulls/ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls/ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls.java")
 						.whenCompiled()
 						.thenExpectThat()
-						.compilateionSucceeds()
+						.compilationSucceeds()
 						.executeTest();
 						
 			}
