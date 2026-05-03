@@ -469,5 +469,23 @@ public class StrategyTests {
 									"tests/Strategies/StepWise/RecordsAreBuildable/Expected_DefaultRecordsAreBuildableBuilder.java"))
 					.executeTest();
 		}
+
+		@Nested
+		class AllowNulls {
+
+			@Test
+			void constructorMandatoryFieldsCanBeSetToNullWithAllowNulls() {
+				Cute.blackBoxTest()
+						.given()
+						.processors(List.of(BuildableProcessor.class))
+						.andSourceFiles(
+								"/tests/Strategies/StepWise/AllowNulls/ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls/ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls.java")
+						.whenCompiled()
+						.thenExpectThat()
+						.compilationSucceeds()
+						.executeTest();
+						
+			}
+		}
 	}
 }
