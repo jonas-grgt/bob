@@ -3,6 +3,7 @@ package io.jonasg.bob;
 import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.JavaFileObjectUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +48,81 @@ public class StrategyTests {
 					.ofKindError()
 					.contains(
 							"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider STRICT or STEP_WISE or remove the mandatory fields")
+					.executeTest();
+		}
+
+		@Test
+		void withDefaultsAsInnerClass() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Permissive/WithDefaultsAsInnerClass/WithDefaultsAsInnerClass.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.WithDefaultsAsInnerClassBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Permissive/WithDefaultsAsInnerClass/Expected_WithDefaultsAsInnerClass.java"))
+					.executeTest();
+		}
+
+		@Test
+		void withDefaultsAsTopLevelClasWithoutDefaultedClass() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Permissive/WithDefaultsAsTopLevelClasWithoutDefaultedClass/WithDefaultsAsTopLevelClasWithoutDefaultedClass.java",
+							"/tests/Strategies/Permissive/WithDefaultsAsTopLevelClasWithoutDefaultedClass/DefaultsClass.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.exceptionIsThrown(IllegalStateException.class,
+							ex -> Assertions.assertThat(ex.getMessage()).isEqualTo(
+									"@Buildable.Defaults must be defined as inner class of a buildable type or have an explicit buildable type set (through value parameter)"))
+					.executeTest();
+		}
+
+		@Test
+		void withDefaultsAsInnerClassWithoutBuildableTopLevelClass() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Permissive/WithDefaultsAsInnerClassWithoutBuildableTopLevelClass/WithDefaultsAsInnerClassWithoutBuildableTopLevelClass.java",
+							"/tests/Strategies/Permissive/WithDefaultsAsInnerClassWithoutBuildableTopLevelClass/DummyBuildable.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.exceptionIsThrown(IllegalStateException.class,
+							ex -> Assertions.assertThat(ex.getMessage()).isEqualTo(
+									"@Buildable.Defaults without explicit Buildable type set (through value parameter) "
+											+
+											"must be inner class of a @Buildable class"))
+					.executeTest();
+		}
+
+		@Test
+		void withDefaultsAsTopLevelClass() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Permissive/WithDefaultsAsTopLevelClass/WithDefaultsAsTopLevelClass.java",
+							"/tests/Strategies/Permissive/WithDefaultsAsTopLevelClass/DefaultsClass.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.WithDefaultsAsTopLevelClassBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Permissive/WithDefaultsAsTopLevelClass/Expected_WithDefaultsAsTopLevelClass.java"))
 					.executeTest();
 		}
 
@@ -172,6 +248,26 @@ public class StrategyTests {
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/Strategies/Strict/OptionalConstructorParamInStrictStrategy/Expected_OptionalConstructorParamInStrictStrategyBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		void withDefaultsAsInnerClass() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Strict/WithDefaultsAsInnerClass/WithDefaultsAsInnerClass.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.WithDefaultsAsInnerClassBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Strict/WithDefaultsAsInnerClass/Expected_WithDefaultsAsInnerClass.java"))
 					.executeTest();
 		}
 

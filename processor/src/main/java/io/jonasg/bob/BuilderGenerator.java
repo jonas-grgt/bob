@@ -4,26 +4,43 @@ import com.palantir.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.Element;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.List;
+import java.util.Map;
 
 public class BuilderGenerator {
 
 	private final Filer filer;
 
-	public BuilderGenerator(Filer filer) {
+	private final Map<TypeMirror, Element> defaultsForBuildable;
+
+	public BuilderGenerator(Filer filer, Map<TypeMirror, Element> defaultsForBuildable) {
 		this.filer = filer;
+		this.defaultsForBuildable = defaultsForBuildable;
 	}
 
-	public void generate(TypeDefinition typeDefinition, Buildable buildable, Types typeUtils) {
+	public void generate(TypeDefinition typeDefinition,
+			Buildable buildable,
+			Types typeUtils) {
 		String packageName = getPackageName(typeDefinition, buildable);
-		var abstractTypeSpecFactory = new BuilderTypeSpecFactory(typeDefinition, buildable, typeUtils, packageName);
-		List<TypeSpec> typeSpecs = abstractTypeSpecFactory.typeSpecs();
+		var builderTypeSpecFactory = new BuilderTypeSpecFactory(
+				typeDefinition,
+				buildable,
+				typeUtils,
+				packageName);
+
+		var defaults = this.defaultsForBuildable.get(typeDefinition.buildableTypeMirror());
+		if (defaults != null) {
+			builderTypeSpecFactory.setDefaults(defaults);
+		}
+
+		List<TypeSpec> typeSpecs = builderTypeSpecFactory.typeSpecs();
 		typeSpecs.forEach(t -> TypeWriter.write(filer, packageName, t));
 	}
 
 	private String getPackageName(TypeDefinition typeDefinition, Buildable buildable) {
-
 		if (!buildable.packageName().isEmpty()) {
 			return buildable.packageName();
 		}

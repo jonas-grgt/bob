@@ -43,6 +43,7 @@ public class TypeDefinitionFactory {
 				.enclosedIn(outerFullTypeName())
 				.fields(fields())
 				.constructors(constructors(element))
+				.buildableTypeMirror(element.asType())
 				.build();
 	}
 

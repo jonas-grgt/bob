@@ -114,4 +114,17 @@ public @interface Buildable {
 	@interface Optional {
 	}
 
+	interface DefaultsAsInnerClass {
+	}
+
+	/**
+	 * Marks a class as a container for default values.
+	 */
+	@Documented
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ ElementType.TYPE })
+	@interface Defaults {
+		Class<?> value() default DefaultsAsInnerClass.class;
+	}
+
 }

@@ -23,9 +23,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
@@ -44,7 +48,10 @@ public class BuilderTypeSpecFactory {
 
 	private final String packageName;
 
-	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition, Buildable buildable,
+	private Element defaults;
+
+	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition,
+			Buildable buildable,
 			Types typeUtils,
 			String packageName) {
 		this.typeDefinition = typeDefinition;
@@ -55,14 +62,58 @@ public class BuilderTypeSpecFactory {
 		this.packageName = packageName;
 	}
 
+	public List<TypeSpec> typeSpecs() {
+		if (Arrays.asList(this.buildable.strategy()).contains(PERMISSIVE) &&
+				this.buildableFields.stream()
+						.anyMatch(f -> f.isMandatory() && !f.isConstructorArgument())) {
+			throw new StrategyConflictException(
+					"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider "
+							+ "STRICT or STEP_WISE or remove the mandatory fields");
+		}
+		List<TypeSpec> typeSpecs = new ArrayList<>();
+
+		String builderName = builderTypeName(this.typeDefinition);
+		TypeSpec.Builder builder = TypeSpec.classBuilder(builderName)
+				.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
+		if (this.strategy().contains(Strategy.STEP_WISE)) {
+			var factory = new StepBuilderInterfaceTypeSpecFactory(this.typeDefinition, this.buildable,
+					this.buildableFields, this.packageName);
+			BuilderDetails builderDetails = factory.typeSpec(builderName);
+			typeSpecs.add(builderDetails.typeSpec());
+			builderDetails.interfaces().forEach(builder::addSuperinterface);
+		}
+
+		if (!this.typeDefinition.genericParameters().isEmpty()) {
+			builder.addTypeVariables(toTypeVariableNames(this.typeDefinition));
+		}
+
+		builder.addMethods(generateSetters());
+		builder.addFields(generateFields());
+		builder.addMethod(generateBuildMethod());
+		builder.addMethod(generateConstructor());
+
+		if (!this.typeDefinition.genericParameters().isEmpty()) {
+			builder.addMethod(of());
+		}
+
+		if (!this.buildable.factoryName().isEmpty() && !this.strategy().contains(Strategy.STEP_WISE)) {
+			builder.addMethod(addStaticFactoryMethod(this.buildable.factoryName()));
+		}
+
+		typeSpecs.add(builder.build());
+
+		return typeSpecs;
+	}
+
 	private List<BuildableField> extractBuildableFieldsFrom(TypeDefinition typeDefinition) {
 		var fieldNames = typeDefinition.fields().stream()
 				.map(FieldDefinition::name)
-				.collect(Collectors.toList());
+				.toList();
 		List<ParameterDefinition> eligibleConstructorParams = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
-				.collect(Collectors.toList());
+				.toList();
 		Stream<BuildableField> constructorBuildableFields = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
@@ -103,7 +154,7 @@ public class BuilderTypeSpecFactory {
 	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
 		var buildableConstructors = typeDefinition.constructors().stream()
 				.filter(c -> c.isAnnotatedWith(Buildable.Constructor.class))
-				.collect(Collectors.toList());
+				.toList();
 		if (buildableConstructors.size() > 1) {
 			throw new IllegalArgumentException(
 					"Only one constructor can be annotated with @Buildable.Constructor");
@@ -114,42 +165,6 @@ public class BuilderTypeSpecFactory {
 		} else {
 			return buildableConstructors.get(0);
 		}
-	}
-
-	public List<TypeSpec> typeSpecs() {
-		if (Arrays.asList(this.buildable.strategy()).contains(PERMISSIVE) &&
-				this.buildableFields.stream()
-						.anyMatch(f -> f.isMandatory() && !f.isConstructorArgument())) {
-			throw new StrategyConflictException(
-					"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider "
-							+ "STRICT or STEP_WISE or remove the mandatory fields");
-		}
-		List<TypeSpec> typeSpecs = new ArrayList<>();
-		String builderName = builderTypeName(this.typeDefinition);
-		TypeSpec.Builder builder = TypeSpec.classBuilder(builderName)
-				.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-		if (this.strategy().contains(Strategy.STEP_WISE)) {
-			var factory = new StepBuilderInterfaceTypeSpecFactory(this.typeDefinition, this.buildable,
-					this.buildableFields, this.packageName);
-			BuilderDetails builderDetails = factory.typeSpec(builderName);
-			typeSpecs.add(builderDetails.typeSpec());
-			builderDetails.interfaces().forEach(builder::addSuperinterface);
-		}
-		if (!this.typeDefinition.genericParameters().isEmpty()) {
-			builder.addTypeVariables(toTypeVariableNames(this.typeDefinition));
-		}
-		builder.addMethods(generateSetters());
-		builder.addFields(generateFields());
-		builder.addMethod(generateBuildMethod());
-		builder.addMethod(generateConstructor());
-		if (!this.typeDefinition.genericParameters().isEmpty()) {
-			builder.addMethod(of());
-		}
-		if (!this.buildable.factoryName().isEmpty() && !this.strategy().contains(Strategy.STEP_WISE)) {
-			builder.addMethod(addStaticFactoryMethod(this.buildable.factoryName()));
-		}
-		typeSpecs.add(builder.build());
-		return typeSpecs;
 	}
 
 	private List<Strategy> strategy() {
@@ -190,16 +205,19 @@ public class BuilderTypeSpecFactory {
 	private List<FieldSpec> generateFields() {
 		return buildableFields.stream()
 				.map(this::generateField)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	protected FieldSpec generateField(BuildableField field) {
 		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
+
 			if (strategy().contains(Strategy.STRICT) && strategy().contains(Strategy.ALLOW_NULLS)
 					&& field.isOptional()) {
 				throw new StrategyConflictException(
-						"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy");
+						"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the " +
+								"optional annotation or remove the ALLOW_NULLS strategy");
 			}
+
 			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
 				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 						.build();
@@ -217,9 +235,38 @@ public class BuilderTypeSpecFactory {
 						.build();
 			}
 		} else {
-			return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
-					.build();
+			return generatePermissiveField(field);
 		}
+	}
+
+	private FieldSpec generatePermissiveField(BuildableField field) {
+		if (this.defaults != null) {
+			Optional<VariableElement> defaultField = getDefaultField(field);
+			if (defaultField.isPresent()) {
+				// TODO test
+				if (!defaultField.get().getModifiers().contains(Modifier.STATIC)) {
+					throw new IllegalStateException("Default field declared without static modifier.");
+				}
+				if (!defaultField.get().getModifiers().contains(Modifier.PUBLIC)) {
+					throw new IllegalStateException("Default field declared without public modifier.");
+				}
+
+				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
+						.initializer("$T.$L", TypeName.get(defaults.asType()), field.name())
+						.build();
+			}
+		}
+
+		return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
+				.build();
+	}
+
+	private Optional<VariableElement> getDefaultField(BuildableField field) {
+		return defaults.getEnclosedElements().stream()
+				.filter(e -> e.getKind() == ElementKind.FIELD)
+				.map(VariableElement.class::cast)
+				.filter(f -> f.getSimpleName().contentEquals(field.name()))
+				.findFirst();
 	}
 
 	protected TypeMirror boxedType(TypeMirror type) {
@@ -261,9 +308,8 @@ public class BuilderTypeSpecFactory {
 		var builder = CodeBlock.builder();
 
 		builder.addStatement("var missingFields = new java.util.ArrayList<String>()");
-		validatableFields.forEach(field -> {
-			builder.addStatement("if (!$L.isValid()) missingFields.add(\"$L\")", field.name(), field.name());
-		});
+		validatableFields.forEach(field -> builder.addStatement("if (!$L.isValid()) missingFields.add(\"$L\")",
+				field.name(), field.name()));
 
 		builder.beginControlFlow("if (missingFields.size() == 1)");
 		builder.addStatement("throw new $T(missingFields.get(0), \"$L\")",
@@ -334,20 +380,14 @@ public class BuilderTypeSpecFactory {
 	}
 
 	protected String defaultForType(TypeMirror type) {
-		switch (type.toString()) {
-			case "int":
-				return "0";
-			case "long":
-				return "0L";
-			case "float":
-				return "0.0f";
-			case "double":
-				return "0.0d";
-			case "boolean":
-				return "false";
-			default:
-				return "null";
-		}
+		return switch (type.toString()) {
+			case "int" -> "0";
+			case "long" -> "0L";
+			case "float" -> "0.0f";
+			case "double" -> "0.0d";
+			case "boolean" -> "false";
+			default -> "null";
+		};
 	}
 
 	private MethodSpec of() {
@@ -465,5 +505,9 @@ public class BuilderTypeSpecFactory {
 			name = "Default" + name;
 		}
 		return name;
+	}
+
+	public void setDefaults(Element defaults) {
+		this.defaults = defaults;
 	}
 }

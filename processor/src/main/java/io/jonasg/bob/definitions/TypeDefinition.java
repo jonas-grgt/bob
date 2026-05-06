@@ -1,6 +1,7 @@
 package io.jonasg.bob.definitions;
 
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class TypeDefinition extends SimpleTypeDefinition {
 	private List<GenericParameterDefinition> genericParameters = new ArrayList<>();
 
 	private List<MethodDefinition> methods;
+
+	private TypeMirror buildableTypeMirror;
 
 	public TypeDefinition() {
 		super();
@@ -80,6 +83,13 @@ public class TypeDefinition extends SimpleTypeDefinition {
 		return !getSetterMethods().isEmpty();
 	}
 
+	/**
+	 * The TypeMirror of the class that is Buildable
+	 */
+	public TypeMirror buildableTypeMirror() {
+		return buildableTypeMirror;
+	}
+
 	public static class Builder {
 		private TypeDefinition instance = new TypeDefinition();
 
@@ -115,6 +125,11 @@ public class TypeDefinition extends SimpleTypeDefinition {
 
 		public Builder genericParameters(List<GenericParameterDefinition> generics) {
 			instance.genericParameters = generics;
+			return this;
+		}
+
+		public Builder buildableTypeMirror(TypeMirror type) {
+			instance.buildableTypeMirror = type;
 			return this;
 		}
 
