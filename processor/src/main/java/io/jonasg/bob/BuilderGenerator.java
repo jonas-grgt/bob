@@ -4,19 +4,18 @@ import com.palantir.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.List;
 import java.util.Map;
 
-public class BuilderGenerator {
+class BuilderGenerator {
 
 	private final Filer filer;
 
-	private final Map<TypeMirror, Element> defaultsForBuildable;
+	private final Map<TypeMirror, DefaultValues> defaultsForBuildable;
 
-	public BuilderGenerator(Filer filer, Map<TypeMirror, Element> defaultsForBuildable) {
+	public BuilderGenerator(Filer filer, Map<TypeMirror, DefaultValues> defaultsForBuildable) {
 		this.filer = filer;
 		this.defaultsForBuildable = defaultsForBuildable;
 	}

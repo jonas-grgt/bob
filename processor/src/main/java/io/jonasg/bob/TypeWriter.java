@@ -6,7 +6,7 @@ import com.palantir.javapoet.TypeSpec;
 import javax.annotation.processing.Filer;
 import java.io.IOException;
 
-public class TypeWriter {
+class TypeWriter {
 	public static void write(Filer filer, String packageName, TypeSpec spec) {
 		var javaFile = JavaFile.builder(packageName, spec)
 				.build();

@@ -36,14 +36,15 @@ public final class BuildableProcessor extends AbstractProcessor {
 				.getTypeElement(Buildable.DefaultsAsInnerClass.class.getCanonicalName())
 				.asType();
 
-		Map<TypeMirror, Element> defaultsForBuildable = roundEnv.getElementsAnnotatedWith(Buildable.Defaults.class)
+		Map<TypeMirror, DefaultValues> defaultValuesForBuildable = roundEnv
+				.getElementsAnnotatedWith(Buildable.Defaults.class)
 				.stream()
 				.map(e -> this.mapDefaults(e, types, defaultsAsInnerClassMarker))
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,
-						e -> types.asElement(e.getValue())));
+						e -> new DefaultValues(types.asElement(e.getValue()))));
 
-		var builderGenerator = new BuilderGenerator(processingEnv.getFiler(), defaultsForBuildable);
+		var builderGenerator = new BuilderGenerator(processingEnv.getFiler(), defaultValuesForBuildable);
 
 		roundEnv.getElementsAnnotatedWith(Buildable.class)
 				.forEach(element -> {

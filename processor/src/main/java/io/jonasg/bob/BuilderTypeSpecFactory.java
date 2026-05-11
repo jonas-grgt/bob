@@ -1,7 +1,5 @@
 package io.jonasg.bob;
 
-import static io.jonasg.bob.Strategy.PERMISSIVE;
-
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.FieldSpec;
@@ -19,6 +17,11 @@ import io.jonasg.bob.definitions.ParameterDefinition;
 import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
 
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -27,15 +30,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 
-public class BuilderTypeSpecFactory {
+import static io.jonasg.bob.Strategy.PERMISSIVE;
+
+class BuilderTypeSpecFactory {
 
 	protected final ConstructorDefinition constructorDefinition;
 
@@ -49,7 +47,7 @@ public class BuilderTypeSpecFactory {
 
 	private final String packageName;
 
-	private Element defaults;
+	private DefaultValues defaultValues;
 
 	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition,
 			Buildable buildable,
@@ -169,14 +167,14 @@ public class BuilderTypeSpecFactory {
 	}
 
 	private List<Strategy> strategy() {
-		return Arrays.stream(this.buildable.strategy()).collect(Collectors.toList());
+		return Arrays.stream(this.buildable.strategy()).toList();
 	}
 
 	private List<MethodSpec> generateSetters() {
 		return this.buildableFields.stream()
 				.filter(this::notExcluded)
 				.map(this::generateSetterForField)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	protected MethodSpec generateSetterForField(BuildableField field) {
@@ -247,20 +245,31 @@ public class BuilderTypeSpecFactory {
 	}
 
 	private FieldSpec generateSimpleField(BuildableField field) {
-		if (this.defaults != null) {
+		if (this.defaultValues != null) {
 			Optional<VariableElement> defaultField = getFieldDefault(field);
 			if (defaultField.isPresent()) {
 				if (!defaultField.get().getModifiers().contains(Modifier.STATIC)) {
 					throw new IllegalStateException(
 							"Default field (%s) declared without static modifier.".formatted(field.name()));
 				}
-				if (!defaultField.get().getModifiers().contains(Modifier.PUBLIC)) {
-					throw new IllegalStateException(
-							"Default field (%s) declared without public modifier.".formatted(field.name()));
+
+				var defaultsPackageName = this.defaultValues.packageName();
+				if (defaultsPackageName.equals(this.packageName)) {
+					if (defaultField.get().getModifiers().contains(Modifier.PRIVATE)) {
+						throw new IllegalStateException(
+								"Default private field not accessible (%s) should be declared as public or package private."
+										.formatted(field.name()));
+					}
+				} else {
+					if (!defaultField.get().getModifiers().contains(Modifier.PUBLIC)) {
+						throw new IllegalStateException(
+								"Default field not accessible (%s) as not public and within same package as buildable type"
+										.formatted(field.name()));
+					}
 				}
 
 				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
-						.initializer("$T.$L", TypeName.get(defaults.asType()), field.name())
+						.initializer("$T.$L", TypeName.get(defaultValues.asType()), field.name())
 						.build();
 			}
 		}
@@ -270,14 +279,10 @@ public class BuilderTypeSpecFactory {
 	}
 
 	private Optional<VariableElement> getFieldDefault(BuildableField field) {
-		if (this.defaults == null) {
+		if (this.defaultValues == null) {
 			return Optional.empty();
 		}
-		return defaults.getEnclosedElements().stream()
-				.filter(e -> e.getKind() == ElementKind.FIELD)
-				.map(VariableElement.class::cast)
-				.filter(f -> f.getSimpleName().contentEquals(field.name()))
-				.findFirst();
+		return this.defaultValues.forField(field.name());
 	}
 
 	protected TypeMirror boxedType(TypeMirror type) {
@@ -523,7 +528,7 @@ public class BuilderTypeSpecFactory {
 		return name;
 	}
 
-	public void setDefaults(Element defaults) {
-		this.defaults = defaults;
+	public void setDefaults(DefaultValues defaultValues) {
+		this.defaultValues = defaultValues;
 	}
 }

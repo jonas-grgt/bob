@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class TypeSpecInterfaceBuilder {
+class TypeSpecInterfaceBuilder {
 
 	public static FunctionalInterfaceBuilder functionalInterface(String name) {
 		return new FunctionalInterfaceBuilder(name);

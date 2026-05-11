@@ -270,24 +270,140 @@ public class StrategyTests {
 					.executeTest();
 		}
 
-		@Test
-		void withDefaultsAsInnerClass() {
-			Cute.blackBoxTest()
-					.given()
-					.processors(List.of(BuildableProcessor.class))
-					.andSourceFiles(
-							"/tests/Strategies/Strict/WithDefaultsAsInnerClass/WithDefaultsAsInnerClass.java")
-					.whenCompiled()
-					.thenExpectThat()
-					.compilationSucceeds()
-					.andThat()
-					.generatedSourceFile(
-							"io.jonasg.bob.test.WithDefaultsAsInnerClassBuilder")
-					.matches(
-							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-							JavaFileObjectUtils.readFromResource(
-									"/tests/Strategies/Strict/WithDefaultsAsInnerClass/Expected_WithDefaultsAsInnerClass.java"))
-					.executeTest();
+		@Nested
+		class WithDefaults {
+
+			@Test
+			void asInnerClass() {
+				Cute.blackBoxTest()
+						.given()
+						.processors(List.of(BuildableProcessor.class))
+						.andSourceFiles(
+								"/tests/Strategies/Strict/WithDefaults/AsInnerClass/WithDefaultsAsInnerClass.java")
+						.whenCompiled()
+						.thenExpectThat()
+						.compilationSucceeds()
+						.andThat()
+						.generatedSourceFile(
+								"io.jonasg.bob.test.WithDefaultsAsInnerClassBuilder")
+						.matches(
+								CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+								JavaFileObjectUtils.readFromResource(
+										"/tests/Strategies/Strict/WithDefaults/AsInnerClass/Expected_WithDefaultsAsInnerClass.java"))
+						.executeTest();
+			}
+
+			@Nested
+			class AsTopLevelClass {
+
+				@Nested
+				class WithinSamePackage {
+					@Test
+					void withPublicStaticModifier() {
+						Cute.blackBoxTest()
+								.given()
+								.processors(List.of(BuildableProcessor.class))
+								.andSourceFiles(
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier/WithPublicStaticModifier.java",
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier/DefaultsClass.java")
+								.whenCompiled()
+								.thenExpectThat()
+								.compilationSucceeds()
+								.andThat()
+								.generatedSourceFile(
+										"io.jonasg.bob.test.WithPublicStaticModifierBuilder")
+								.matches(
+										CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+										JavaFileObjectUtils.readFromResource(
+												"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier/Expected_WithPublicStaticModifier.java"))
+								.executeTest();
+					}
+
+					@Test
+					void withPackagePrivateModifier() {
+						Cute.blackBoxTest()
+								.given()
+								.processors(List.of(BuildableProcessor.class))
+								.andSourceFiles(
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier/WithPackagePrivateModifier.java",
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier/DefaultsClass.java")
+								.whenCompiled()
+								.thenExpectThat()
+								.compilationSucceeds()
+								.andThat()
+								.generatedSourceFile(
+										"io.jonasg.bob.test.WithPackagePrivateModifierBuilder")
+								.matches(
+										CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+										JavaFileObjectUtils.readFromResource(
+												"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier/Expected_WithPackagePrivateModifier.java"))
+								.executeTest();
+					}
+				}
+
+				@Nested
+				class WithinDifferentPackage {
+
+					@Test
+					void withPublicStaticModifier() {
+						Cute.blackBoxTest()
+								.given()
+								.processors(List.of(BuildableProcessor.class))
+								.andSourceFiles(
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier/WithPublicStaticModifier.java",
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier/DefaultsClass.java")
+								.whenCompiled()
+								.thenExpectThat()
+								.compilationSucceeds()
+								.andThat()
+								.generatedSourceFile(
+										"io.jonasg.bob.test.WithPublicStaticModifierBuilder")
+								.matches(
+										CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+										JavaFileObjectUtils.readFromResource(
+												"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier/Expected_WithPublicStaticModifier.java"))
+								.executeTest();
+					}
+
+					@Test
+					void withPackagePrivateModifier() {
+						Cute.blackBoxTest()
+								.given()
+								.processors(List.of(BuildableProcessor.class))
+								.andSourceFiles(
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPackagePrivateModifier/WithPackagePrivateModifier.java",
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPackagePrivateModifier/DefaultsClass.java")
+								.whenCompiled()
+								.thenExpectThat()
+								.compilationFails()
+								.andThat()
+								.compilerMessage()
+								.ofKindError()
+								.contains(
+										"Default field not accessible (engineSize) as not public and within same package as buildable type")
+								.executeTest();
+					}
+				}
+
+				@Test
+				void withPrivateModifier() {
+					Cute.blackBoxTest()
+							.given()
+							.processors(List.of(BuildableProcessor.class))
+							.andSourceFiles(
+									"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithPrivateModifier/WithPrivateModifier.java",
+									"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithPrivateModifier/DefaultsClass.java")
+							.whenCompiled()
+							.thenExpectThat()
+							.compilationFails()
+							.andThat()
+							.compilerMessage()
+							.ofKindError()
+							.contains(
+									"Default private field not accessible (engineSize) should be declared as public or package private.")
+							.executeTest();
+				}
+			}
 		}
 
 		@Nested
@@ -388,7 +504,6 @@ public class StrategyTests {
 								"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy")
 						.executeTest();
 			}
-
 		}
 	}
 
@@ -527,7 +642,6 @@ public class StrategyTests {
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/Strategies/StepWise/OptionalFieldInStepWise/Expected_DefaultOptionalFieldInStepWiseBuilder.java"))
-
 					.executeTest();
 		}
 

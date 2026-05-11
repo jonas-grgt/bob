@@ -14,7 +14,7 @@ import java.util.Optional;
  * access the field.
  * {@link BuildableField#type} the type of the field
  */
-public record BuildableField(
+record BuildableField(
 		String name,
 		boolean isConstructorArgument,
 		boolean isMandatory,

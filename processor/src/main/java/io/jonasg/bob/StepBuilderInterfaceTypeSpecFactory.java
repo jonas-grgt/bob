@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.jonasg.bob.Strategy.STEP_WISE;
 import static io.jonasg.bob.Strategy.STRICT;
 
-public class StepBuilderInterfaceTypeSpecFactory {
+class StepBuilderInterfaceTypeSpecFactory {
 
 	private final Buildable buildable;
 
