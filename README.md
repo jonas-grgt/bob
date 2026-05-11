@@ -313,9 +313,7 @@ CarBuilder.car();
 When Bob encounters setters (with or without the set prefix)
 and a corresponding field it will add the fields to the final builder.
 
-In the below example,
-if though `color` is not part of the constructor it will be part of the final generated Builder
-because there is a setter available, which will be used.
+In the bellow example the `color` field will be added to the builder.
 
 ```java
 @Buildable
@@ -332,6 +330,8 @@ public class Car {
     }
 }
 ```
+
+Not that when using the `STRICT` strategy, the `color` field would not be considered as mandatory.
             
 ### Field exclusion
 

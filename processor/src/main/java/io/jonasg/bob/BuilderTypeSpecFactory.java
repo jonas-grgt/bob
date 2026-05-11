@@ -18,6 +18,7 @@ import io.jonasg.bob.definitions.GenericParameterDefinition;
 import io.jonasg.bob.definitions.ParameterDefinition;
 import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -184,7 +185,11 @@ public class BuilderTypeSpecFactory {
 				.addModifiers(Modifier.PUBLIC)
 				.returns(builderType())
 				.addParameter(TypeName.get(field.type()), field.name());
-		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
+
+		Optional<VariableElement> defaultField = getFieldDefault(field);
+
+		if ((field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) &&
+				defaultField.isEmpty()) {
 			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
 				builder.addStatement("this.$L = $L", field.name(), field.name());
 			} else {
@@ -209,7 +214,9 @@ public class BuilderTypeSpecFactory {
 	}
 
 	protected FieldSpec generateField(BuildableField field) {
-		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
+		Optional<VariableElement> defaultField = getFieldDefault(field);
+		if ((field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory())
+				&& defaultField.isEmpty()) {
 
 			if (strategy().contains(Strategy.STRICT) && strategy().contains(Strategy.ALLOW_NULLS)
 					&& field.isOptional()) {
@@ -235,20 +242,21 @@ public class BuilderTypeSpecFactory {
 						.build();
 			}
 		} else {
-			return generatePermissiveField(field);
+			return generateSimpleField(field);
 		}
 	}
 
-	private FieldSpec generatePermissiveField(BuildableField field) {
+	private FieldSpec generateSimpleField(BuildableField field) {
 		if (this.defaults != null) {
-			Optional<VariableElement> defaultField = getDefaultField(field);
+			Optional<VariableElement> defaultField = getFieldDefault(field);
 			if (defaultField.isPresent()) {
-				// TODO test
 				if (!defaultField.get().getModifiers().contains(Modifier.STATIC)) {
-					throw new IllegalStateException("Default field declared without static modifier.");
+					throw new IllegalStateException(
+							"Default field (%s) declared without static modifier.".formatted(field.name()));
 				}
 				if (!defaultField.get().getModifiers().contains(Modifier.PUBLIC)) {
-					throw new IllegalStateException("Default field declared without public modifier.");
+					throw new IllegalStateException(
+							"Default field (%s) declared without public modifier.".formatted(field.name()));
 				}
 
 				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
@@ -261,7 +269,10 @@ public class BuilderTypeSpecFactory {
 				.build();
 	}
 
-	private Optional<VariableElement> getDefaultField(BuildableField field) {
+	private Optional<VariableElement> getFieldDefault(BuildableField field) {
+		if (this.defaults == null) {
+			return Optional.empty();
+		}
 		return defaults.getEnclosedElements().stream()
 				.filter(e -> e.getKind() == ElementKind.FIELD)
 				.map(VariableElement.class::cast)
@@ -308,8 +319,12 @@ public class BuilderTypeSpecFactory {
 		var builder = CodeBlock.builder();
 
 		builder.addStatement("var missingFields = new java.util.ArrayList<String>()");
-		validatableFields.forEach(field -> builder.addStatement("if (!$L.isValid()) missingFields.add(\"$L\")",
-				field.name(), field.name()));
+		validatableFields.stream()
+				.filter(field -> getFieldDefault(field).isEmpty())
+				.forEach(field -> {
+					builder.addStatement("if (!$L.isValid()) missingFields.add(\"$L\")",
+							field.name(), field.name());
+				});
 
 		builder.beginControlFlow("if (missingFields.size() == 1)");
 		builder.addStatement("throw new $T(missingFields.get(0), \"$L\")",
@@ -346,7 +361,8 @@ public class BuilderTypeSpecFactory {
 					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
 							&& matchingField.get().isOptional();
 					return String.format("%s%s", param.name(),
-							isAnEnforcedConstructorPolicy() && !isOptionalInStrict ? ".get()" : "");
+							isAnEnforcedConstructorPolicy() && !isOptionalInStrict
+									&& getFieldDefault(matchingField.get()).isEmpty() ? ".get()" : "");
 				})
 				.collect(Collectors.joining(", "));
 	}
