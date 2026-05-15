@@ -1,17 +1,44 @@
 # 👷‍Bob [![Maven Central](https://img.shields.io/maven-central/v/io.jonasg/bob-annotations.svg)](https://search.maven.org/artifact/io.jonasg/bob-annotations) [![License](https://img.shields.io/github/license/jonas-grgt/bob.svg)](https://opensource.org/licenses/Apache-2.0)
 
+🪶 Lightweight Builder generator for Java. A lightweight alternative to Lombok's `@Builder` with support for **step builders**, **strict validation**, and more.
 
-🪶Lightweight Builder generator for Java
+## Quick start
 
-## Why Bob?
+Annotate a class with `@Buildable` and Bob generates a fluent builder at compile time:
 
-Bob serves as a lightweight alternative to Lombok's `@Builder` annotation with additional 
-features such as the ability to create Step Builders.
+```java
+package my.garage;
+
+@Buildable
+public class Car {
+    private String color;
+    private int year;
+
+    public Car(String color, int year) {
+        this.color = color;
+        this.year = year;
+    }
+}
+```
+
+Use it right away:
+
+```java
+Car car = new CarBuilder()
+    .color("red")
+    .year(2024)
+    .build();
+```
+
+The builder is generated in the same package as your class (e.g. `my.garage.CarBuilder`).
 
 ## Installation
-### Maven
-Because of [supply chain attacks](https://xdev.software/en/news/detail/discovering-the-perfect-java-supply-chain-attack-vector-and-how-it-got-fixed), 
-as of [Java 23](https://bugs.openjdk.org/browse/JDK-8321319) annotation processors are no longer automatically applied and must be explicitly configured.
+
+<details>
+<summary>Maven (Java 23+)</summary>
+
+Since Java 23, [annotation processors require explicit configuration](https://bugs.openjdk.org/browse/JDK-8321319) to prevent [supply chain attacks](https://xdev.software/en/news/detail/discovering-the-perfect-java-supply-chain-attack-vector-and-how-it-got-fixed).
+
 ```xml
 <dependencies>
     <dependency>
@@ -40,8 +67,11 @@ as of [Java 23](https://bugs.openjdk.org/browse/JDK-8321319) annotation processo
     </plugins>
 </build>
 ```
+</details>
 
-Older java versions can use:
+<details>
+<summary>Maven (Java 22 and earlier)</summary>
+
 ```xml
 <dependencies>
     <dependency>
@@ -56,120 +86,66 @@ Older java versions can use:
     </dependency>
 </dependencies>
 ```
+</details>
 
-### Gradle
+<details>
+<summary>Gradle</summary>
+
 ```groovy
 dependencies {
-  annotationProcessor "io.jonasg:bob-processor:" + bobVersion
-  compileOnly "io.jonasg:bob-annotations:" + bobVersion
+    annotationProcessor "io.jonasg:bob-processor:" + bobVersion
+    compileOnly "io.jonasg:bob-annotations:" + bobVersion
 }
 ```
+</details>
 
-## Getting Started
+## @Buildable reference
 
-Annotate the class with `@Buildable` to generate a builder for it.
-    
-```java
-package my.garage;
+| Attribute | Type | Default | Description |
+|---|---|---|---|
+| `strategy` | `Strategy[]` | `PERMISSIVE` | Controls builder behavior (see [Strategies](#strategies)) |
+| `mandatoryFields` | `String[]` | `{}` | Field names that must be set before `build()` |
+| `excludeFields` | `String[]` | `{}` | Fields to exclude from the generated builder |
+| `setterPrefix` | `String` | `""` | Prefix for setter methods (e.g. `"with"` → `.withColor(...)`) |
+| `packageName` | `String` | `""` | Override the package for the generated builder |
+| `factoryName` | `String` | `""` | Name for the static factory method on the builder |
 
-@Buildable
-public class Car {
-	
-    private Brand brand;
-    private String color;
-    private BigDecimal price;
-	
-    public Car(Brand brand, String color, BigDecimal price) {
-        this.brand = brand;
-        this.color = color;
-        this.price = price;
-    }
-}
-```
+## How it works
 
-## Usage
+Bob selects the constructor with the most parameters and creates a setter for each parameter whose name matches a field. Parameters without a matching field receive a default value (`null` for objects, `0` for numbers, `false` for booleans). If multiple constructors tie for most parameters, the first one wins. Use `@Buildable.Constructor` to pick a different one.
 
-### Basic Usage
+Public setter methods (matching a field name, with or without `set`/`with` prefix) are also detected and added to the builder.
 
-By default,
-Bob will look for the constructor with the most parameters
-and will create setters for all parameters that have a matching field name. 
-For parameters
-that do not have a corresponding field, the default value for that type will be used.
-In example `null` for `Integer` and zero for `int`.
+## Strategies
 
-If your class contains multiple constructors that tie for having the most parameters,
-the first one will be selected. 
-See `@Buildable.Constructor` if you want to change this behavior.
+| Strategy | Behavior                                                                                     |
+|---|----------------------------------------------------------------------------------------------|
+| `PERMISSIVE` (default) | Any field can be left unset and automatically defaults to `null`, `0`, or `false`            |
+| `STRICT` | All fields must be explicitly set; throws `MandatoryFieldMissingException` if not            |
+| `STEP_WISE` | Generates a step-builder interface that enforces constructor parameter order at compile time |
+| `ALLOW_NULLS` | Companion to `STRICT`/`STEP_WISE`, allows setting mandatory fields to `null`               |
 
 ```java
-@Buildable
-public class Car {
-    private String color;
-    private BigDecimal price;
-    
-    public Car(Brand brand, int year, String color, BigDecimal price) {
-        this.color = color;
-        this.price = price;
-    }
-    
-}
+@Buildable(strategy = STRICT)
+class Car { ... }
 ```
-
-When building a car instance in this way `new CarBuilder().color("red").price(BigDecimal.ZERO).build();`
-The car will be instantiated with the following constructor call:
 
 ```java
-new Car(null, 0, "red", BigDecimal.ZERO);
+@Buildable(strategy = { STRICT, ALLOW_NULLS })
+class Car { ... }
 ```
-
-Because `brand` and `year` aren't fields the default value for the corresponding types are used.
-
-
-### Different constructor
-
-If you want to use a different constructor instead of the default selected one, annotated it with `@Buildable.Constructor`
-
-### Builder Strategies
-
-The Strategy enumeration defines the strategies by which builders behave.
-
-#### Permissive
-
-The default strategy,
-allows the creation of an object
-even if not all constructor parameters are set or if some are set to null.
-Fields not explicitly set will default to their inherent values
-(e.g., null for object references, 0 for numeric types, and false for booleans).
-This strategy is suitable when not all fields need explicit initialization,
-allowing more flexibility.
-
-```java
-@Buildable
-class Car {
-```
-
-#### Step Wise
-
-Implements a step builder pattern,
-requiring fields
-to be set in a structured sequence
-defined by the selected constructor's parameters, explicitly marked mandatory fields
-(see [Mandatory Fields](#Mandatory-Fields)), and excluded optional fields
-(see [Optional Fields](#Optional-Fields)).
-Optional fields are excluded from the mandatory step sequence and appear as optional setters in the `BuildStep` interface.
-Each step must be completed before proceeding to the next,
-ensuring all mandatory fields are set before the object can be constructed.
 
 ```java
 @Buildable(strategy = STEP_WISE)
-class Car {
+class Car { ... }
 ```
 
-Example with an optional field in a step-wise builder:
+### STEP_WISE in detail
+
+Constructor parameters become ordered steps. Optional fields (see below) are excluded from the step chain and appear as extra setters in a `BuildStep` interface:
 
 ```java
-@Buildable(strategy = Strategy.STEP_WISE)
+@Buildable(strategy = STEP_WISE)
 public class Car {
     private String make;
     private int year;
@@ -183,78 +159,21 @@ public class Car {
 }
 ```
 
-The generated builder interface excludes the optional `year` field from the mandatory step sequence:
+Usage enforces the parameter order, `make` → `color` → optionally `year` → `build()`:
 
 ```java
-public interface CarBuilder {
-    static CarBuilder newBuilder() {
-        return new DefaultCarBuilder();
-    }
-
-    ColorStep make(String make);
-
-    interface BuildStep {
-        BuildStep year(int year); // optional field
-
-        Car build();
-    }
-
-    interface ColorStep {
-        BuildStep color(String color);
-    }
-}
+CarBuilder.newBuilder()
+    .make("Tesla")
+    .color("red")
+    .year(2024)     // optional, can be omitted
+    .build();
 ```
 
-#### Strict
-All fields are considered **mandatory** and need to be explicitly set to a non-null value.
-If a field is not set, or is set to null, the builder throws a `MandatoryFieldMissingException`.
-This ensures that the object is fully initialized.
+## Mandatory & Optional fields
 
-```java
-@Buildable(strategy = STRICT)
-class Car {
-```
+With `STRICT` or `STEP_WISE`, all constructor-matched fields are mandatory by default. Mark fields as optional to opt out.
 
-#### Allow Nulls
-Enables setting mandatory fields to null explicitly,
-combinable with `STRICT` and `STEP_WISE`.
-If a field is omitted, the builder will throw a `MandatoryFieldMissingException`,
-maintaining strict initialization but allowing null values for flexibility.
-
-```java
-@Buildable(strategy = { STRICT, ALLOW_NULLS })
-class Car {
-```
-### Mandatory Fields
-
-Fields can be marked as mandatory;
-- through the `mandatoryFields` property of `@Buildable`
-- through annotating the field with @Buildable.Mandatory.
- 
-Similar to the constructor parameters in the ENFORCED mode,
-the omission of these required fields when building an object will trigger a MandatoryFieldMissingException.
-This mechanism ensures that all necessary fields are set before an object is finalized.
-
-```java
-@Buildable(mandatoryFields = {"color"})
-public class Car {
-    private String color;
-```
-
-```java
-@Buildable
-public class Car {
-    @Buildable.Mandatory
-    private String color;
-```
-
-### Optional Fields
-
-When using the `STRICT` or `STEP_WISE` strategy, all constructor-matched fields are enforced by default.
-Fields or constructor parameters can be marked as optional using `@Buildable.Optional`,
-allowing them to be omitted during the build process
-and defaulting to their inherent value (e.g., `null` for object references, `0` for numeric types).
-In the `STEP_WISE` strategy, optional fields are excluded from the mandatory step sequence and appear as optional setters in the `BuildStep` interface.
+**On a field:**
 
 ```java
 @Buildable(strategy = STRICT)
@@ -263,57 +182,146 @@ public class Car {
 
     @Buildable.Optional
     private int year;
+}
 ```
+
+**On a constructor parameter:**
 
 ```java
 @Buildable(strategy = STRICT)
 public class Car {
     private String brand;
-
     private int year;
-    
+
     public Car(String brand, @Buildable.Optional int year) {
         this.brand = brand;
         this.year = year;
     }
+}
 ```
 
-> **Note:** `@Buildable.Optional` cannot be combined with the `ALLOW_NULLS` strategy.
-> Doing so will result in a compilation error.
+**Additional mandatory fields** beyond constructor parameters can be declared via annotation attributes or field annotations:
 
-### Change Default Package
-    
-A `CarBuilder` class will be generated in the same package as the source class with *builder* as suffix.
-For the car example this will be `my.garage.CarBuilder`
+```java
+@Buildable(mandatoryFields = {"color"})
+public class Car {
+    @Buildable.Mandatory
+    private String color;
+```
 
-The location of the builder can be changed:
+> **Note:** `@Buildable.Optional` and `ALLOW_NULLS` cannot be combined — doing so causes a compilation error.
+
+## Features
+
+### Default field values
+
+Initialize builder fields with non-zero defaults using `@Buildable.Defaults`:
+
+```java
+@Buildable
+public class Car {
+    private String make;
+    private int year;
+
+    public Car(String make, int year) {
+        this.make = make;
+        this.year = year;
+    }
+
+    @Buildable.Defaults
+    public static class Defaults {
+        public static int year = 1985;
+    }
+}
+```
+
+The generated builder pre-initializes `year` to `1985` instead of `0`:
+
+```java
+new CarBuilder()
+    .make("Tesla")
+    // year already starts at 1985, only override if needed
+    .build();
+```
+
+**As a top-level class** (specify which buildable type the defaults belong to):
+
+```java
+@Buildable.Defaults(Car.class)
+public class CarDefaults {
+    public static int year = 1985;
+}
+```
+
+**With `STRICT`:** fields with defaults are excluded from mandatory enforcement — the default satisfies the requirement.
+
+> Defaults class fields must be `static`. If the defaults class is in a different package from the buildable type, fields must be `public`.
+
+
+### Records
+
+```java
+@Buildable
+public record Record(String name, int age) {}
+```
+
+### Generics
+
+```java
+@Buildable
+public class Cup<T, R extends String> {
+    private T contents;
+    private R topping;
+}
+
+Cup<BigDecimal, String> cup = new CupBuilder<BigDecimal, String>()
+    .topping("cream")
+    .contents(BigDecimal.ZERO)
+    .build();
+
+// or with type tokens:
+CupBuilder.of(BigDecimal.class, String.class)
+    .topping("cream")
+    .contents(BigDecimal.ZERO)
+    .build();
+```
+
+### Setter prefix
+
+```java
+@Buildable(setterPrefix = "with")
+public class Car { ... }
+// → new CarBuilder().withColor("red")
+```
+
+### Field exclusion
+
+```java
+@Buildable(excludeFields = {"brand", "color"})
+public class Car { ... }
+```
+
+### Custom package
 
 ```java
 @Buildable(packageName = "my.other.garage")
-public class Car {
+public class Car { ... }
+// → my.other.garage.CarBuilder
 ```
 
-### Static Factory Method name
-
-The `factoryName` `@Buildable` property allows:
-- `STEP_WISE`: Rename builder starting method (e.g., builder to createProductBuilder).
-- `PERMISSIVE/STRICT`: Add extra name to static factory method (for documentation/avoid conflicts).
+### Static factory method
 
 ```java
 @Buildable(strategy = STEP_WISE, factoryName = "car")
-public class Car {
-```
-Which will generate:
-```java
-CarBuilder.car();
+public class Car { ... }
+// → CarBuilder.car().make("...")...
 ```
 
-### Pickup setter methods as buildable
+For `PERMISSIVE`/`STRICT`, the factory name adds a static method (useful for documentation or avoiding name conflicts).
 
-When Bob encounters setters (with or without the set prefix)
-and a corresponding field it will add the fields to the final builder.
+### Setter pickup
 
-In the bellow example the `color` field will be added to the builder.
+Bob detects methods that match a field name (with or without `set`/`with` prefix) and adds them to the builder:
 
 ```java
 @Buildable
@@ -324,66 +332,26 @@ public class Car {
     public Car(Brand brand) {
         this.brand = brand;
     }
-	
+
     public void color(String color) {
         this.color = color;
     }
 }
+// → new CarBuilder().brand(...).color(...).build()
 ```
 
-Not that when using the `STRICT` strategy, the `color` field would not be considered as mandatory.
-            
-### Field exclusion
+> Note: setter-picked fields are never mandatory, even under `STRICT` strategy.
 
-```java
-@Buildable(excludeFields = {"brand", "color"})
-public class Car {
-```
+### Different constructor
 
-### Setter prefix
-      
-By default Bob will generated setter methods consisting out of *new style setters* (`name(String name)` instead of `setName(String name)` or the default builder pattern setter style `withName(String name)`)
-If you want to change the prefix of those setter methods you can:
-
-```java
-@Buildable(setterPrefix = "with")
-public class Car {
-```
-
-### Records
-
-Bob can work with Records and function just as normal java classes
+If Bob picks the wrong constructor, annotate the one you want:
 
 ```java
 @Buildable
-public record Record(String name, int age) {
+public class Car {
+    public Car() { ... }
+
+    @Buildable.Constructor
+    public Car(String color, int year) { ... }
 }
-```
-
-### Generics
-
-Bob is not afraid of generics
-
-```java
-@Buildable
-public class Cup<T, R extends String> {
-    private T contents;
-    private R topping;
-```
-
-Can be used as:
-    
-```java
-Cup<BigDecimal, String> string = new CupBuilder<BigDecimal, String>().topping("cream")
-    .contents(BigDecimal.ZERO)
-    .build();
-```
-
-or alternatively:
-
-```java
-CupBuilder.of(BigDecimal.class, String.class)
-    .topping("cream")
-    .contents(BigDecimal.ZERO)
-    .build();
 ```
