@@ -261,26 +261,21 @@ class BobTests {
 				.executeTest();
 	}
 
-	@Nested
-	class RecordTests {
-
-		@Test
-		void recordsAreBuildable() {
-			Cute.blackBoxTest()
-					.given()
-					.processors(List.of(BuildableProcessor.class))
-					.andSourceFiles("/tests/RecordsAreBuildable/RecordsAreBuildable.java")
-					.whenCompiled()
-					.thenExpectThat()
-					.compilationSucceeds()
-					.andThat()
-					.generatedSourceFile("io.jonasg.bob.test.RecordsAreBuildableBuilder")
-					.matches(
-							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-							JavaFileObjectUtils.readFromResource(
-									"/tests/RecordsAreBuildable/Expected_RecordsAreBuildable.java"))
-					.executeTest();
-		}
-
+	@Test
+	void recordsAreBuildable() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles("/tests/Strategies/Permissive/RecordsAreBuildable/RecordsAreBuildable.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.RecordsAreBuildableBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/Strategies/Permissive/RecordsAreBuildable/Expected_RecordsAreBuildable.java"))
+				.executeTest();
 	}
 }

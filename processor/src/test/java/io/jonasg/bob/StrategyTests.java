@@ -9,8 +9,50 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class StrategyTests {
+	enum Variant {
+		CLASS, RECORD
+	}
+
+	static Stream<Arguments> classAndRecord() {
+		return Stream.of(
+				Arguments.of(Variant.CLASS, ""),
+				Arguments.of(Variant.RECORD, "record/"));
+	}
+
+	private void runCompilationSuccess(
+			String basePath,
+			String subdir,
+			String primarySourceFile,
+			String... extraSourceFiles) {
+		String className = primarySourceFile.replace(".java", "");
+		String[] allSourceFiles = new String[1 + extraSourceFiles.length];
+		allSourceFiles[0] = basePath + "/" + subdir + primarySourceFile;
+		for (int i = 0; i < extraSourceFiles.length; i++) {
+			allSourceFiles[1 + i] = basePath + "/" + extraSourceFiles[i];
+		}
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(allSourceFiles)
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test." + className + "Builder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								basePath + "/" + subdir + "Expected_" + className + ".java"))
+				.executeTest();
+	}
+
 	@Nested
 	class PermissiveStrategy {
 
@@ -273,24 +315,13 @@ public class StrategyTests {
 		@Nested
 		class WithDefaults {
 
-			@Test
-			void asInnerClass() {
-				Cute.blackBoxTest()
-						.given()
-						.processors(List.of(BuildableProcessor.class))
-						.andSourceFiles(
-								"/tests/Strategies/Strict/WithDefaults/AsInnerClass/WithDefaultsAsInnerClass.java")
-						.whenCompiled()
-						.thenExpectThat()
-						.compilationSucceeds()
-						.andThat()
-						.generatedSourceFile(
-								"io.jonasg.bob.test.WithDefaultsAsInnerClassBuilder")
-						.matches(
-								CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-								JavaFileObjectUtils.readFromResource(
-										"/tests/Strategies/Strict/WithDefaults/AsInnerClass/Expected_WithDefaultsAsInnerClass.java"))
-						.executeTest();
+			@ParameterizedTest(name = "{0}")
+			@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+			void asInnerClass(Variant variant, String subdir) {
+				runCompilationSuccess(
+						"/tests/Strategies/Strict/WithDefaults/AsInnerClass",
+						subdir,
+						"WithDefaultsAsInnerClass.java");
 			}
 
 			@Nested
@@ -298,71 +329,39 @@ public class StrategyTests {
 
 				@Nested
 				class WithinSamePackage {
-					@Test
-					void withPublicStaticModifier() {
-						Cute.blackBoxTest()
-								.given()
-								.processors(List.of(BuildableProcessor.class))
-								.andSourceFiles(
-										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier/WithPublicStaticModifier.java",
-										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier/DefaultsClass.java")
-								.whenCompiled()
-								.thenExpectThat()
-								.compilationSucceeds()
-								.andThat()
-								.generatedSourceFile(
-										"io.jonasg.bob.test.WithPublicStaticModifierBuilder")
-								.matches(
-										CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-										JavaFileObjectUtils.readFromResource(
-												"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier/Expected_WithPublicStaticModifier.java"))
-								.executeTest();
+
+					@ParameterizedTest(name = "{0}")
+					@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+					void withPublicStaticModifier(Variant variant, String subdir) {
+						runCompilationSuccess(
+								"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPublicStaticModifier",
+								subdir,
+								"WithPublicStaticModifier.java",
+								"DefaultsClass.java");
 					}
 
-					@Test
-					void withPackagePrivateModifier() {
-						Cute.blackBoxTest()
-								.given()
-								.processors(List.of(BuildableProcessor.class))
-								.andSourceFiles(
-										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier/WithPackagePrivateModifier.java",
-										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier/DefaultsClass.java")
-								.whenCompiled()
-								.thenExpectThat()
-								.compilationSucceeds()
-								.andThat()
-								.generatedSourceFile(
-										"io.jonasg.bob.test.WithPackagePrivateModifierBuilder")
-								.matches(
-										CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-										JavaFileObjectUtils.readFromResource(
-												"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier/Expected_WithPackagePrivateModifier.java"))
-								.executeTest();
+					@ParameterizedTest(name = "{0}")
+					@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+					void withPackagePrivateModifier(Variant variant, String subdir) {
+						runCompilationSuccess(
+								"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinSamePackage/WithPackagePrivateModifier",
+								subdir,
+								"WithPackagePrivateModifier.java",
+								"DefaultsClass.java");
 					}
 				}
 
 				@Nested
 				class WithinDifferentPackage {
 
-					@Test
-					void withPublicStaticModifier() {
-						Cute.blackBoxTest()
-								.given()
-								.processors(List.of(BuildableProcessor.class))
-								.andSourceFiles(
-										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier/WithPublicStaticModifier.java",
-										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier/DefaultsClass.java")
-								.whenCompiled()
-								.thenExpectThat()
-								.compilationSucceeds()
-								.andThat()
-								.generatedSourceFile(
-										"io.jonasg.bob.test.WithPublicStaticModifierBuilder")
-								.matches(
-										CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-										JavaFileObjectUtils.readFromResource(
-												"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier/Expected_WithPublicStaticModifier.java"))
-								.executeTest();
+					@ParameterizedTest(name = "{0}")
+					@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+					void withPublicStaticModifier(Variant variant, String subdir) {
+						runCompilationSuccess(
+								"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPublicStaticModifier",
+								subdir,
+								"WithPublicStaticModifier.java",
+								"DefaultsClass.java");
 					}
 
 					@Test
@@ -383,6 +382,25 @@ public class StrategyTests {
 										"Default field not accessible (engineSize) as not public and within same package as buildable type")
 								.executeTest();
 					}
+
+					@Test
+					void withPackagePrivateModifierForRecord() {
+						Cute.blackBoxTest()
+								.given()
+								.processors(List.of(BuildableProcessor.class))
+								.andSourceFiles(
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPackagePrivateModifier/record/WithPackagePrivateModifier.java",
+										"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithinDifferentPackage/WithPackagePrivateModifier/DefaultsClass.java")
+								.whenCompiled()
+								.thenExpectThat()
+								.compilationFails()
+								.andThat()
+								.compilerMessage()
+								.ofKindError()
+								.contains(
+										"Default field not accessible (year) as not public and within same package as buildable type")
+								.executeTest();
+					}
 				}
 
 				@Test
@@ -401,6 +419,25 @@ public class StrategyTests {
 							.ofKindError()
 							.contains(
 									"Default private field not accessible (engineSize) should be declared as public or package private.")
+							.executeTest();
+				}
+
+				@Test
+				void withPrivateModifierForRecord() {
+					Cute.blackBoxTest()
+							.given()
+							.processors(List.of(BuildableProcessor.class))
+							.andSourceFiles(
+									"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithPrivateModifier/record/WithPrivateModifier.java",
+									"/tests/Strategies/Strict/WithDefaults/AsTopLevelClass/WithPrivateModifier/DefaultsClass.java")
+							.whenCompiled()
+							.thenExpectThat()
+							.compilationFails()
+							.andThat()
+							.compilerMessage()
+							.ofKindError()
+							.contains(
+									"Default private field not accessible (year) should be declared as public or package private.")
 							.executeTest();
 				}
 			}
