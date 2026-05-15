@@ -260,6 +260,8 @@ public class CarDefaults {
 
 ### Records
 
+All strategies and features also work with records:
+
 ```java
 @Buildable
 public record Record(String name, int age) {}
