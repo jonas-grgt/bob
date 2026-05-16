@@ -45,15 +45,19 @@ class BuilderTypeSpecFactory {
 
 	private final String packageName;
 
+	private final boolean isInNullMarkedScope;
+
 	private DefaultValues defaultValues;
 
 	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition,
 			Buildable buildable,
 			Types typeUtils,
-			String packageName) {
+			String packageName,
+			boolean isInNullMarkedScope) {
 		this.typeDefinition = typeDefinition;
 		this.buildable = buildable;
 		this.constructorDefinition = extractConstructorDefinitionFrom(typeDefinition);
+		this.isInNullMarkedScope = isInNullMarkedScope;
 		this.buildableFields = extractBuildableFieldsFrom(typeDefinition);
 		this.typeUtils = typeUtils;
 		this.packageName = packageName;
@@ -108,6 +112,7 @@ class BuilderTypeSpecFactory {
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
 				.map(p -> BuildableField.fromConstructor(p.name(), isMandatory(p), isOptional(p),
+						isNullableField(p),
 						p.type()));
 
 		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
@@ -118,11 +123,39 @@ class BuilderTypeSpecFactory {
 					boolean fieldIsMandatory = Arrays.stream(this.buildable.mandatoryFields())
 							.anyMatch(f -> Objects.equals(f, p.field().name()))
 							|| p.field().isAnnotatedWith(Buildable.Mandatory.class);
-					return BuildableField.fromSetter(p.field().name(), fieldIsMandatory, p.methodName(),
-							p.type());
+					return BuildableField.fromSetter(p.field().name(), fieldIsMandatory,
+							isNullableField(p.field()),
+							p.methodName(), p.type());
 				});
 		return Stream.concat(constructorBuildableFields, setterBuildableFields)
 				.collect(Collectors.toList());
+	}
+
+	private boolean isNullableField(ParameterDefinition p) {
+		boolean paramHasNullable = this.constructorDefinition.parameters().stream()
+				.filter(param -> param.name().equals(p.name()))
+				.anyMatch(param -> param.hasAnnotation("org.jspecify.annotations.Nullable"));
+		if (paramHasNullable)
+			return true;
+		boolean fieldHasNullable = this.typeDefinition.fields().stream()
+				.filter(field -> field.name().equals(p.name()))
+				.anyMatch(field -> field.hasAnnotation("org.jspecify.annotations.Nullable"));
+		if (fieldHasNullable)
+			return true;
+		boolean fieldHasNonNull = this.typeDefinition.fields().stream()
+				.filter(field -> field.name().equals(p.name()))
+				.anyMatch(field -> field.hasAnnotation("org.jspecify.annotations.NonNull"));
+		if (fieldHasNonNull)
+			return false;
+		return this.isInNullMarkedScope ? false : this.strategy().contains(Strategy.ALLOW_NULLS);
+	}
+
+	private boolean isNullableField(FieldDefinition field) {
+		if (field.hasAnnotation("org.jspecify.annotations.Nullable"))
+			return true;
+		if (field.hasAnnotation("org.jspecify.annotations.NonNull"))
+			return false;
+		return this.isInNullMarkedScope ? false : this.strategy().contains(Strategy.ALLOW_NULLS);
 	}
 
 	private boolean isOptional(ParameterDefinition p) {
@@ -227,7 +260,7 @@ class BuilderTypeSpecFactory {
 				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 						.build();
 			} else {
-				String methodName = this.strategy().contains(Strategy.ALLOW_NULLS)
+				String methodName = field.isNullable()
 						? "ofNullableField"
 						: "ofNoneNullableField";
 				return FieldSpec

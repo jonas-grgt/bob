@@ -22,13 +22,15 @@ class BuilderGenerator {
 
 	public void generate(TypeDefinition typeDefinition,
 			Buildable buildable,
-			Types typeUtils) {
+			Types typeUtils,
+			boolean isInNullMarkedScope) {
 		String packageName = getPackageName(typeDefinition, buildable);
 		var builderTypeSpecFactory = new BuilderTypeSpecFactory(
 				typeDefinition,
 				buildable,
 				typeUtils,
-				packageName);
+				packageName,
+				isInNullMarkedScope);
 
 		var defaults = this.defaultsForBuildable.get(typeDefinition.buildableTypeMirror());
 		if (defaults != null) {

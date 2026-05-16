@@ -24,6 +24,11 @@ public final class FieldDefinition {
 						a.getAnnotationType().asElement().asType().toString()));
 	}
 
+	public boolean hasAnnotation(String qualifiedName) {
+		return annotations.stream()
+				.anyMatch(a -> qualifiedName.equals(a.getAnnotationType().asElement().asType().toString()));
+	}
+
 	public String name() {
 		return name;
 	}

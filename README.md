@@ -101,29 +101,33 @@ dependencies {
 
 ## @Buildable reference
 
-| Attribute | Type | Default | Description |
-|---|---|---|---|
-| `strategy` | `Strategy[]` | `PERMISSIVE` | Controls builder behavior (see [Strategies](#strategies)) |
-| `mandatoryFields` | `String[]` | `{}` | Field names that must be set before `build()` |
-| `excludeFields` | `String[]` | `{}` | Fields to exclude from the generated builder |
-| `setterPrefix` | `String` | `""` | Prefix for setter methods (e.g. `"with"` → `.withColor(...)`) |
-| `packageName` | `String` | `""` | Override the package for the generated builder |
-| `factoryName` | `String` | `""` | Name for the static factory method on the builder |
+| Attribute         | Type         | Default      | Description                                                   |
+|-------------------|--------------|--------------|---------------------------------------------------------------|
+| `strategy`        | `Strategy[]` | `PERMISSIVE` | Controls builder behavior (see [Strategies](#strategies))     |
+| `mandatoryFields` | `String[]`   | `{}`         | Field names that must be set before `build()`                 |
+| `excludeFields`   | `String[]`   | `{}`         | Fields to exclude from the generated builder                  |
+| `setterPrefix`    | `String`     | `""`         | Prefix for setter methods (e.g. `"with"` → `.withColor(...)`) |
+| `packageName`     | `String`     | `""`         | Override the package for the generated builder                |
+| `factoryName`     | `String`     | `""`         | Name for the static factory method on the builder             |
 
 ## How it works
 
-Bob selects the constructor with the most parameters and creates a setter for each parameter whose name matches a field. Parameters without a matching field receive a default value (`null` for objects, `0` for numbers, `false` for booleans). If multiple constructors tie for most parameters, the first one wins. Use `@Buildable.Constructor` to pick a different one.
+Bob selects the constructor with the most parameters and creates a setter for each parameter whose name matches a field.
+Parameters without a matching field receive a default value (`null` for objects, `0` for numbers, `false` for booleans).
+If multiple constructors tie for most parameters, the first one wins. Use `@Buildable.Constructor` to pick a different
+one.
 
-Public setter methods (matching a field name, with or without `set`/`with` prefix) are also detected and added to the builder.
+Public setter methods (matching a field name, with or without `set`/`with` prefix) are also detected and added to the
+builder.
 
 ## Strategies
 
-| Strategy | Behavior                                                                                     |
-|---|----------------------------------------------------------------------------------------------|
+| Strategy               | Behavior                                                                                     |
+|------------------------|----------------------------------------------------------------------------------------------|
 | `PERMISSIVE` (default) | Any field can be left unset and automatically defaults to `null`, `0`, or `false`            |
-| `STRICT` | All fields must be explicitly set; throws `MandatoryFieldMissingException` if not            |
-| `STEP_WISE` | Generates a step-builder interface that enforces constructor parameter order at compile time |
-| `ALLOW_NULLS` | Companion to `STRICT`/`STEP_WISE`, allows setting mandatory fields to `null`               |
+| `STRICT`               | All fields must be explicitly set; throws `MandatoryFieldMissingException` if not            |
+| `STEP_WISE`            | Generates a step-builder interface that enforces constructor parameter order at compile time |
+| `ALLOW_NULLS`          | Companion to `STRICT`/`STEP_WISE`, allows setting mandatory fields to `null`                 |
 
 ```java
 @Buildable(strategy = STRICT)
@@ -142,7 +146,8 @@ class Car { ... }
 
 ### STEP_WISE in detail
 
-Constructor parameters become ordered steps. Optional fields (see below) are excluded from the step chain and appear as extra setters in a `BuildStep` interface:
+Constructor parameters become ordered steps. Optional fields (see below) are excluded from the step chain and appear as
+extra setters in a `BuildStep` interface:
 
 ```java
 @Buildable(strategy = STEP_WISE)
@@ -176,6 +181,7 @@ With `STRICT` or `STEP_WISE`, all constructor-matched fields are mandatory by de
 **On a field:**
 
 ```java
+
 @Buildable(strategy = STRICT)
 public class Car {
     private String brand;
@@ -200,7 +206,8 @@ public class Car {
 }
 ```
 
-**Additional mandatory fields** beyond constructor parameters can be declared via annotation attributes or field annotations, and work with all strategies:
+**Additional mandatory fields** beyond constructor parameters can be declared via annotation attributes or field
+annotations, and work with all strategies:
 
 ```java
 @Buildable(mandatoryFields = {"color"})
@@ -209,9 +216,92 @@ public class Car {
     private String color;
 ```
 
-In `PERMISSIVE` mode, `@Mandatory` fields are enforced at runtime, the builder throws `MandatoryFieldMissingException` if not set. `@Mandatory` also applies to record components.
+In `PERMISSIVE` mode, `@Mandatory` fields are enforced at runtime, the builder throws `MandatoryFieldMissingException`
+if not set. `@Mandatory` also applies to record components.
 
-> **Note:** `@Buildable.Optional` and `ALLOW_NULLS` cannot be combined — doing so causes a compilation error.
+> **Note:** `@Buildable.Optional` and `ALLOW_NULLS` cannot be combined - doing so causes a compilation error.
+
+## JSpecify support
+
+Bob respects [JSpecify](https://jspecify.dev/) nullness annotations for per-field nullability decisions, giving you
+finer control than the blanket `ALLOW_NULLS` strategy.
+
+### `@Nullable`
+
+When a field or constructor parameter is annotated with `@Nullable`, the generated builder will allow `null` as a valid
+value, even when the strategy doesn't include `ALLOW_NULLS`.
+
+```java
+
+@Buildable(strategy = STRICT)
+public class Car {
+	private String make;
+	private @Nullable String model;
+
+	public Car(String make, String model) {
+		this.make = make;
+		this.model = model;
+	}
+}
+```
+
+`make` is enforced as non-null (`ofNoneNullableField`), while `model` accepts null (`ofNullableField`).
+
+Works on constructor parameters directly:
+
+```java
+public Car(String make, @Nullable String model) { ...}
+```
+
+And on record components:
+
+```java
+
+@Buildable(strategy = STRICT)
+public record Car(String make, @Nullable String model) {
+}
+```
+
+> `@Nullable` only affects fields that are wrapped in `ValidatableField` i.e., constructor args in 
+> `STRICT`/`ALLOW_NULLS` or fields annotated with `@Mandatory`. In `PERMISSIVE`, constructor args are plain fields 
+> (always nullable) so `@Nullable` is a no-op unless combined with `@Mandatory`.
+
+### `@NullMarked`
+
+Mark a class or package with `@NullMarked` to indicate that unannotated types are non-null by default. Bob respects this
+when deciding the nullability of each field, even under `ALLOW_NULLS`.
+
+```java
+
+@Buildable(strategy = {STRICT, ALLOW_NULLS})
+@NullMarked
+public class Car {
+	private String make;
+	private @Nullable String model;
+
+	public Car(String make, String model) {
+		this.make = make;
+		this.model = model;
+	}
+}
+```
+
+Without `@NullMarked`, `ALLOW_NULLS` would make both `make` and `model` nullable. With `@NullMarked`, only explicitly
+`@Nullable` fields (here `model`) are nullable, `make` stays non-null.
+
+`@NullUnmarked` nesting is also respected: a `@NullUnmarked` class inside a `@NullMarked` package restores unspecified
+nullness for that class.
+
+### How does this relate to `@Mandatory` / `@Optional`?
+
+| Concern                         | Bob annotation                   | JSpecify annotation                     |
+|---------------------------------|----------------------------------|-----------------------------------------|
+| Whether a field must be set     | `@Mandatory` / `@Optional`       | —                                       |
+| Whether `null` is a valid value | `ALLOW_NULLS` strategy (blanket) | `@Nullable` / `@NullMarked` (per-field) |
+
+They compose: `@Mandatory` + `@Nullable` = "must be set, but null is fine" (generates `NullableValidatableField`).
+Without `@Nullable`, `ALLOW_NULLS` was the only way to permit null, and it applied to *all* mandatory fields, JSpecify
+gives you per-field control.
 
 ## Features
 
@@ -222,18 +312,18 @@ Initialize builder fields with non-zero defaults using `@Buildable.Defaults`:
 ```java
 @Buildable
 public class Car {
-    private String make;
-    private int year;
+	private String make;
+	private int year;
 
-    public Car(String make, int year) {
-        this.make = make;
-        this.year = year;
-    }
+	public Car(String make, int year) {
+		this.make = make;
+		this.year = year;
+	}
 
-    @Buildable.Defaults
-    public static class Defaults {
-        public static int year = 1985;
-    }
+	@Buildable.Defaults
+	public static class Defaults {
+		public static int year = 1985;
+	}
 }
 ```
 
@@ -241,9 +331,13 @@ The generated builder pre-initializes `year` to `1985` instead of `0`:
 
 ```java
 new CarBuilder()
-    .make("Tesla")
-    // year already starts at 1985, only override if needed
-    .build();
+    .
+
+make("Tesla")
+// year already starts at 1985, only override if needed
+    .
+
+build();
 ```
 
 **As a top-level class** (specify which buildable type the defaults belong to):
@@ -251,14 +345,14 @@ new CarBuilder()
 ```java
 @Buildable.Defaults(Car.class)
 public class CarDefaults {
-    public static int year = 1985;
+	public static int year = 1985;
 }
 ```
 
 **With `STRICT`:** fields with defaults are excluded from mandatory enforcement, the default satisfies the requirement.
 
-> Defaults class fields must be `static`. If the defaults class is in a different package from the buildable type, fields must be `public`.
-
+> Defaults class fields must be `static`. If the defaults class is in a different package from the buildable type,
+> fields must be `public`.
 
 ### Records
 
@@ -266,7 +360,7 @@ All strategies and features also work with records:
 
 ```java
 @Buildable
-public record Record(String name, int age) {}
+public record Record(String name, int age) { }
 ```
 
 ### Generics
@@ -279,9 +373,9 @@ public class Cup<T, R extends String> {
 }
 
 Cup<BigDecimal, String> cup = new CupBuilder<BigDecimal, String>()
-    .topping("cream")
-    .contents(BigDecimal.ZERO)
-    .build();
+		.topping("cream")
+		.contents(BigDecimal.ZERO)
+		.build();
 
 // or with type tokens:
 CupBuilder.of(BigDecimal.class, String.class)

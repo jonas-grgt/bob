@@ -50,13 +50,39 @@ public final class BuildableProcessor extends AbstractProcessor {
 				.forEach(element -> {
 					Buildable buildable = element.getAnnotation(Buildable.class);
 					TypeDefinition sourceDefinition = typeDefinitionFactory.typeDefinitionForElement(element);
+					boolean isInNullMarkedScope = isInNullMarkedScope(element);
 					try {
-						builderGenerator.generate(sourceDefinition, buildable, processingEnv.getTypeUtils());
+						builderGenerator.generate(sourceDefinition, buildable, processingEnv.getTypeUtils(),
+								isInNullMarkedScope);
 					} catch (Exception e) {
 						processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), element);
 					}
 				});
 		return true;
+	}
+
+	static boolean isInNullMarkedScope(Element element) {
+		Element current = element;
+		while (current != null && current.getKind() != javax.lang.model.element.ElementKind.PACKAGE) {
+			boolean hasNullMarked = hasAnnotation(current, "org.jspecify.annotations.NullMarked");
+			boolean hasNullUnmarked = hasAnnotation(current, "org.jspecify.annotations.NullUnmarked");
+			if (hasNullMarked && !hasNullUnmarked)
+				return true;
+			if (hasNullUnmarked && !hasNullMarked)
+				return false;
+			current = current.getEnclosingElement();
+		}
+		if (current != null && current.getKind() == javax.lang.model.element.ElementKind.PACKAGE) {
+			return hasAnnotation(current, "org.jspecify.annotations.NullMarked")
+					&& !hasAnnotation(current, "org.jspecify.annotations.NullUnmarked");
+		}
+		return false;
+	}
+
+	private static boolean hasAnnotation(Element element, String qualifiedName) {
+		return element.getAnnotationMirrors().stream()
+				.anyMatch(a -> qualifiedName.equals(
+						a.getAnnotationType().asElement().asType().toString()));
 	}
 
 	@Override

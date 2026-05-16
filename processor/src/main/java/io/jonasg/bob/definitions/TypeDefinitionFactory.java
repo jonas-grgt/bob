@@ -1,5 +1,6 @@
 package io.jonasg.bob.definitions;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -88,7 +89,10 @@ public class TypeDefinitionFactory {
 	private List<FieldDefinition> fields(List<VariableElement> fields) {
 		List<FieldDefinition> definitions = new ArrayList<>();
 		for (VariableElement field : fields) {
-			definitions.add(new FieldDefinition(field.getSimpleName().toString(), field.getAnnotationMirrors(),
+			var allAnnotations = new ArrayList<AnnotationMirror>();
+			allAnnotations.addAll(field.getAnnotationMirrors());
+			allAnnotations.addAll(field.asType().getAnnotationMirrors());
+			definitions.add(new FieldDefinition(field.getSimpleName().toString(), allAnnotations,
 					field.asType()));
 		}
 		return definitions;
@@ -99,8 +103,11 @@ public class TypeDefinitionFactory {
 		for (ExecutableElement constructor : ElementFilter.constructorsIn(element.getEnclosedElements())) {
 			List<ParameterDefinition> constructorParams = new ArrayList<>();
 			for (VariableElement param : constructor.getParameters()) {
+				var allAnnotations = new ArrayList<AnnotationMirror>();
+				allAnnotations.addAll(param.getAnnotationMirrors());
+				allAnnotations.addAll(param.asType().getAnnotationMirrors());
 				constructorParams.add(new ParameterDefinition(param.asType(), param.getSimpleName().toString(),
-						param.getAnnotationMirrors()));
+						allAnnotations));
 			}
 			definitions.add(new ConstructorDefinition(constructorParams, constructor.getModifiers(),
 					constructor.getAnnotationMirrors()));

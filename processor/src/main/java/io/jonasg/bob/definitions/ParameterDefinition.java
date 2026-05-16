@@ -39,6 +39,11 @@ public class ParameterDefinition {
 						a.getAnnotationType().asElement().asType().toString()));
 	}
 
+	public boolean hasAnnotation(String qualifiedName) {
+		return annotations.stream()
+				.anyMatch(a -> qualifiedName.equals(a.getAnnotationType().asElement().asType().toString()));
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)

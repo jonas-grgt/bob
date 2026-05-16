@@ -213,6 +213,26 @@ public class StrategyTests {
 		}
 
 		@Test
+		void mandatoryAnnotatedFieldDeclaration() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Strict/MandatoryAnnotatedFieldDeclaration/MandatoryAnnotatedFieldDeclaration.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.MandatoryAnnotatedFieldDeclarationBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/Strict/MandatoryAnnotatedFieldDeclaration/Expected_MandatoryAnnotatedFieldDeclaration.java"))
+					.executeTest();
+		}
+
+		@Test
 		void customFactoryMethodName() {
 			Cute.blackBoxTest()
 					.given()
@@ -521,6 +541,28 @@ public class StrategyTests {
 								"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy")
 						.executeTest();
 			}
+		}
+	}
+
+	@Nested
+	class JSpecifySupport {
+
+		@ParameterizedTest(name = "{0}")
+		@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+		void nullableFieldInStrictStrategy(Variant variant, String subdir) {
+			runCompilationSuccess(
+					"/tests/JSpecify/NullableFieldInStrictStrategy",
+					subdir,
+					"JSpecifyNullableFieldInStrictStrategy.java");
+		}
+
+		@ParameterizedTest(name = "{0}")
+		@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+		void nullMarkedClassWithAllowNulls(Variant variant, String subdir) {
+			runCompilationSuccess(
+					"/tests/JSpecify/NullMarkedClassWithAllowNulls",
+					subdir,
+					"JSpecifyNullMarkedClassWithAllowNulls.java");
 		}
 	}
 

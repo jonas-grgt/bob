@@ -19,17 +19,18 @@ record BuildableField(
 		boolean isConstructorArgument,
 		boolean isMandatory,
 		boolean isOptional,
+		boolean isNullable,
 		Optional<String> setterMethodName,
 		TypeMirror type
 ) {
 
-	public static BuildableField fromConstructor(String fieldName, boolean isMandatory, boolean isOptional, TypeMirror type) {
-		return new BuildableField(fieldName, true, isMandatory, isOptional, Optional.empty(), type);
+	public static BuildableField fromConstructor(String fieldName, boolean isMandatory, boolean isOptional, boolean isNullable, TypeMirror type) {
+		return new BuildableField(fieldName, true, isMandatory, isOptional, isNullable, Optional.empty(), type);
 	}
 
-	public static BuildableField fromSetter(String fieldName, boolean fieldIsMandatory, String setterMethodName,
+	public static BuildableField fromSetter(String fieldName, boolean fieldIsMandatory, boolean isNullable, String setterMethodName,
 											TypeMirror type) {
-		return new BuildableField(fieldName, false, fieldIsMandatory, false, Optional.of(setterMethodName), type);
+		return new BuildableField(fieldName, false, fieldIsMandatory, false, isNullable, Optional.of(setterMethodName), type);
 	}
 
 
@@ -39,6 +40,8 @@ record BuildableField(
 			   "name=" + name + ", " +
 			   "isConstructorArgument=" + isConstructorArgument + ", " +
 			   "isMandatory=" + isMandatory + ", " +
+			   "isOptional=" + isOptional + ", " +
+			   "isNullable=" + isNullable + ", " +
 			   "setterMethodName=" + setterMethodName + ", " +
 			   "type=" + type + ']';
 	}
