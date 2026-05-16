@@ -25,8 +25,9 @@ public enum Strategy {
 	 * It is suitable for scenarios where not all fields require explicit values,
 	 * allowing for more flexible object creation.
 	 * <p>
-	 * This strategy is not combinable with the usage of {@link Buildable.Mandatory}
-	 * and will throw an Exception in that case.
+	 * When a field is annotated with {@link Buildable.Mandatory} in this mode,
+	 * the builder will enforce the field at runtime and throw a
+	 * {@link MandatoryFieldMissingException} if not set.
 	 * </p>
 	 */
 	PERMISSIVE,

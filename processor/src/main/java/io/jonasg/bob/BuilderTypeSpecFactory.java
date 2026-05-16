@@ -31,8 +31,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.jonasg.bob.Strategy.PERMISSIVE;
-
 class BuilderTypeSpecFactory {
 
 	protected final ConstructorDefinition constructorDefinition;
@@ -62,13 +60,6 @@ class BuilderTypeSpecFactory {
 	}
 
 	public List<TypeSpec> typeSpecs() {
-		if (Arrays.asList(this.buildable.strategy()).contains(PERMISSIVE) &&
-				this.buildableFields.stream()
-						.anyMatch(f -> f.isMandatory() && !f.isConstructorArgument())) {
-			throw new StrategyConflictException(
-					"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider "
-							+ "STRICT or STEP_WISE or remove the mandatory fields");
-		}
 		List<TypeSpec> typeSpecs = new ArrayList<>();
 
 		String builderName = builderTypeName(this.typeDefinition);
@@ -116,7 +107,7 @@ class BuilderTypeSpecFactory {
 		Stream<BuildableField> constructorBuildableFields = this.constructorDefinition.parameters()
 				.stream()
 				.filter(p -> fieldNames.contains(p.name()))
-				.map(p -> BuildableField.fromConstructor(p.name(), isOptional(p),
+				.map(p -> BuildableField.fromConstructor(p.name(), isMandatory(p), isOptional(p),
 						p.type()));
 
 		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
@@ -148,6 +139,15 @@ class BuilderTypeSpecFactory {
 		return this.constructorDefinition.parameters().stream()
 				.filter(param -> param.name().equals(p.name()))
 				.anyMatch(param -> param.isAnnotatedWith(Buildable.Optional.class));
+	}
+
+	private boolean isMandatory(ParameterDefinition p) {
+		return this.typeDefinition.fields().stream()
+				.filter(field -> field.name().equals(p.name()))
+				.anyMatch(field -> field.isAnnotatedWith(Buildable.Mandatory.class))
+				|| this.constructorDefinition.parameters().stream()
+						.filter(param -> param.name().equals(p.name()))
+						.anyMatch(param -> param.isAnnotatedWith(Buildable.Mandatory.class));
 	}
 
 	private ConstructorDefinition extractConstructorDefinitionFrom(TypeDefinition typeDefinition) {
@@ -296,7 +296,9 @@ class BuilderTypeSpecFactory {
 		Builder builder = MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC)
 				.returns(className(this.typeDefinition));
-		if (isAnEnforcedConstructorPolicy()) {
+		if (isAnEnforcedConstructorPolicy()
+				|| (!strategy().contains(Strategy.STEP_WISE)
+						&& buildableFields.stream().anyMatch(BuildableField::isMandatory))) {
 			builder.addCode(generateValidationCode());
 		}
 		if (typeDefinition.containsSetterMethods()) {
@@ -314,7 +316,8 @@ class BuilderTypeSpecFactory {
 
 	private CodeBlock generateValidationCode() {
 		var validatableFields = buildableFields.stream()
-				.filter(f -> (f.isConstructorArgument() || f.isMandatory()) && !f.isOptional())
+				.filter(f -> (isAnEnforcedConstructorPolicy() && f.isConstructorArgument() || f.isMandatory())
+						&& !f.isOptional())
 				.toList();
 
 		if (validatableFields.isEmpty()) {
@@ -366,7 +369,8 @@ class BuilderTypeSpecFactory {
 					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
 							&& matchingField.get().isOptional();
 					return String.format("%s%s", param.name(),
-							isAnEnforcedConstructorPolicy() && !isOptionalInStrict
+							(isAnEnforcedConstructorPolicy() || matchingField.get().isMandatory())
+									&& !isOptionalInStrict
 									&& getFieldDefault(matchingField.get()).isEmpty() ? ".get()" : "");
 				})
 				.collect(Collectors.joining(", "));

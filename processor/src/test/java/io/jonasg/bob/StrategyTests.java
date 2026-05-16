@@ -76,42 +76,22 @@ public class StrategyTests {
 					.executeTest();
 		}
 
-		@Test
-		void failWhenMandatoryAnnotationIsUsedWithPermissiveStrategy() {
-			Cute.blackBoxTest()
-					.given()
-					.processors(List.of(BuildableProcessor.class))
-					.andSourceFiles(
-							"/tests/Strategies/Permissive/FailWhenMandatoryAnnotationIsUsedWithPermissiveStrategy/FailWhenMandatoryAnnotationIsUsedWithPermissiveStrategy.java")
-					.whenCompiled()
-					.thenExpectThat()
-					.compilationFails()
-					.andThat()
-					.compilerMessage()
-					.ofKindError()
-					.contains(
-							"PERMISSIVE (default) strategy cannot be combined with Mandatory fields, consider STRICT or STEP_WISE or remove the mandatory fields")
-					.executeTest();
+		@ParameterizedTest(name = "{0}")
+		@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+		void mandatoryAnnotationWithPermissiveStrategy(Variant variant, String subdir) {
+			runCompilationSuccess(
+					"/tests/Strategies/Permissive/MandatoryAnnotationWithPermissiveStrategy",
+					subdir,
+					"MandatoryAnnotationWithPermissiveStrategy.java");
 		}
 
-		@Test
-		void withDefaultsAsInnerClass() {
-			Cute.blackBoxTest()
-					.given()
-					.processors(List.of(BuildableProcessor.class))
-					.andSourceFiles(
-							"/tests/Strategies/Permissive/WithDefaultsAsInnerClass/WithDefaultsAsInnerClass.java")
-					.whenCompiled()
-					.thenExpectThat()
-					.compilationSucceeds()
-					.andThat()
-					.generatedSourceFile(
-							"io.jonasg.bob.test.WithDefaultsAsInnerClassBuilder")
-					.matches(
-							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
-							JavaFileObjectUtils.readFromResource(
-									"/tests/Strategies/Permissive/WithDefaultsAsInnerClass/Expected_WithDefaultsAsInnerClass.java"))
-					.executeTest();
+		@ParameterizedTest(name = "{0}")
+		@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+		void withDefaultsAsInnerClass(Variant variant, String subdir) {
+			runCompilationSuccess(
+					"/tests/Strategies/Permissive/WithDefaultsAsInnerClass",
+					subdir,
+					"WithDefaultsAsInnerClass.java");
 		}
 
 		@Test

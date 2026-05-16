@@ -200,7 +200,7 @@ public class Car {
 }
 ```
 
-**Additional mandatory fields** beyond constructor parameters can be declared via annotation attributes or field annotations:
+**Additional mandatory fields** beyond constructor parameters can be declared via annotation attributes or field annotations, and work with all strategies:
 
 ```java
 @Buildable(mandatoryFields = {"color"})
@@ -208,6 +208,8 @@ public class Car {
     @Buildable.Mandatory
     private String color;
 ```
+
+In `PERMISSIVE` mode, `@Mandatory` fields are enforced at runtime, the builder throws `MandatoryFieldMissingException` if not set. `@Mandatory` also applies to record components.
 
 > **Note:** `@Buildable.Optional` and `ALLOW_NULLS` cannot be combined — doing so causes a compilation error.
 
@@ -253,7 +255,7 @@ public class CarDefaults {
 }
 ```
 
-**With `STRICT`:** fields with defaults are excluded from mandatory enforcement — the default satisfies the requirement.
+**With `STRICT`:** fields with defaults are excluded from mandatory enforcement, the default satisfies the requirement.
 
 > Defaults class fields must be `static`. If the defaults class is in a different package from the buildable type, fields must be `public`.
 
