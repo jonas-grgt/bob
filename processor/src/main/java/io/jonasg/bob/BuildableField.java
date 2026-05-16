@@ -23,8 +23,8 @@ record BuildableField(
 		TypeMirror type
 ) {
 
-	public static BuildableField fromConstructor(String fieldName, boolean isOptional,  TypeMirror type) {
-		return new BuildableField(fieldName, true, false, isOptional, Optional.empty(), type);
+	public static BuildableField fromConstructor(String fieldName, boolean isMandatory, boolean isOptional, TypeMirror type) {
+		return new BuildableField(fieldName, true, isMandatory, isOptional, Optional.empty(), type);
 	}
 
 	public static BuildableField fromSetter(String fieldName, boolean fieldIsMandatory, String setterMethodName,

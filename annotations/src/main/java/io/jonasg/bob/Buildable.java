@@ -100,7 +100,7 @@ public @interface Buildable {
 	 * an {@link MandatoryFieldMissingException} will be thrown.
 	 */
 	@Retention(RetentionPolicy.SOURCE)
-	@Target(ElementType.FIELD)
+	@Target({ ElementType.FIELD, ElementType.PARAMETER })
 	@interface Mandatory {
 	}
 
