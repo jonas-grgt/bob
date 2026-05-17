@@ -141,17 +141,21 @@ class BuilderTypeSpecFactory {
 	private List<String> collectInvalidStrategyCombinations() {
 		List<Strategy> strategies = this.strategy();
 		List<String> errors = new ArrayList<>();
-		if (!strategies.contains(Strategy.PERMISSIVE)) {
-			return errors;
+		if (strategies.contains(Strategy.ALLOW_NULLS)
+				&& !strategies.contains(Strategy.STRICT)
+				&& !strategies.contains(Strategy.STEP_WISE)) {
+			errors.add("ALLOW_NULLS strategy requires STRICT or STEP_WISE to be combined with");
 		}
-		if (strategies.contains(Strategy.STRICT)) {
-			errors.add("Incompatible strategy combination: PERMISSIVE and STRICT cannot be combined");
-		}
-		if (strategies.contains(Strategy.STEP_WISE)) {
-			errors.add("Incompatible strategy combination: PERMISSIVE and STEP_WISE cannot be combined");
-		}
-		if (strategies.contains(Strategy.ALLOW_NULLS)) {
-			errors.add("Incompatible strategy combination: PERMISSIVE and ALLOW_NULLS cannot be combined");
+		if (strategies.contains(Strategy.PERMISSIVE)) {
+			if (strategies.contains(Strategy.STRICT)) {
+				errors.add("Incompatible strategy combination: PERMISSIVE and STRICT cannot be combined");
+			}
+			if (strategies.contains(Strategy.STEP_WISE)) {
+				errors.add("Incompatible strategy combination: PERMISSIVE and STEP_WISE cannot be combined");
+			}
+			if (strategies.contains(Strategy.ALLOW_NULLS)) {
+				errors.add("Incompatible strategy combination: PERMISSIVE and ALLOW_NULLS cannot be combined");
+			}
 		}
 		return errors;
 	}

@@ -242,6 +242,23 @@ public class StrategyTests {
 					.contains("PERMISSIVE and ALLOW_NULLS cannot be combined")
 					.executeTest();
 		}
+
+		@Test
+		void allowNullsWithoutStrictOrStepWise() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/InvalidStrategyCombinations/AllowNullsStandalone/AllowNullsStandalone.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("ALLOW_NULLS strategy requires STRICT or STEP_WISE")
+					.executeTest();
+		}
 	}
 
 	@Nested
