@@ -219,6 +219,12 @@ public class Car {
 In `PERMISSIVE` mode, `@Mandatory` fields are enforced at runtime, the builder throws `MandatoryFieldMissingException`
 if not set. `@Mandatory` also applies to record components.
 
+In `STRICT` strategy, all constructor parameters are mandatory by default, so placing `@Mandatory` on a constructor
+parameter is redundant — a compiler warning is emitted.
+
+> `@Mandatory` and `@Buildable.Defaults` cannot be combined on the same field — doing so causes a compilation error.
+> A mandatory field must be explicitly set; a default value for it is contradictory.
+
 > **Note:** `@Buildable.Optional` and `ALLOW_NULLS` cannot be combined - doing so causes a compilation error.
 
 ## JSpecify support
@@ -349,10 +355,15 @@ public class CarDefaults {
 }
 ```
 
-**With `STRICT`:** fields with defaults are excluded from mandatory enforcement, the default satisfies the requirement.
-
 > Defaults class fields must be `static`. If the defaults class is in a different package from the buildable type,
 > fields must be `public`.
+
+**With `STRICT`:** fields with defaults are excluded from mandatory enforcement (i.e., constructor-arg-based
+enforcement), the default satisfies the requirement.
+
+> Fields explicitly marked with `@Mandatory` or set through the `@Buildable.mandatoryFields` property 
+> **and** also having a default value via `@Buildable.Defaults` is contradictory, doing so causes a compilation error. 
+> A field cannot be both mandatory and defaulted.
 
 ### Records
 

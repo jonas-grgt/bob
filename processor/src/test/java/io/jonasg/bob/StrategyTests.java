@@ -170,6 +170,49 @@ public class StrategyTests {
 	}
 
 	@Nested
+	class ConflictingAnnotations {
+
+		@ParameterizedTest(name = "{0}")
+		@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+		void mandatoryAnnotationWithDefaults(Variant variant, String subdir) {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/ConflictingAnnotations/MandatoryAnnotationWithDefaults/" + subdir
+									+ "MandatoryAnnotationWithDefaults.java",
+							"/tests/ConflictingAnnotations/MandatoryAnnotationWithDefaults/" + subdir
+									+ "CarDefaults.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("annotated with @Mandatory but also has a default value")
+					.executeTest();
+		}
+
+		@Test
+		void mandatoryFieldsAttributeWithDefaults() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/ConflictingAnnotations/MandatoryFieldsWithDefaults/MandatoryFieldsWithDefaults.java",
+							"/tests/ConflictingAnnotations/MandatoryFieldsWithDefaults/CarDefaults.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("Field 'model' is listed in mandatoryFields but also has a default value")
+					.executeTest();
+		}
+	}
+
+	@Nested
 	class StrictStrategy {
 
 		@Test
@@ -189,6 +232,23 @@ public class StrategyTests {
 							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
 							JavaFileObjectUtils.readFromResource(
 									"/tests/Strategies/Strict/ThrowExceptionWhenMandatoryConstructorFieldsAreNotSet/Expected_ThrowExceptionWhenMandatoryConstructorFieldsAreNotSetBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		void redundantMandatoryAnnotationOnConstructorParam() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/Strict/RedundantMandatoryAnnotationOnConstructorParam/RedundantMandatoryAnnotationOnConstructorParam.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.compilerMessage()
+					.ofKindWarning()
+					.contains("@Mandatory is redundant for constructor parameter")
 					.executeTest();
 		}
 

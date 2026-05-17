@@ -44,7 +44,8 @@ public final class BuildableProcessor extends AbstractProcessor {
 						Map.Entry::getKey,
 						e -> new DefaultValues(types.asElement(e.getValue()))));
 
-		var builderGenerator = new BuilderGenerator(processingEnv.getFiler(), defaultValuesForBuildable);
+		var builderGenerator = new BuilderGenerator(processingEnv.getFiler(), processingEnv.getMessager(),
+				defaultValuesForBuildable);
 
 		roundEnv.getElementsAnnotatedWith(Buildable.class)
 				.forEach(element -> {
@@ -53,7 +54,7 @@ public final class BuildableProcessor extends AbstractProcessor {
 					boolean isInNullMarkedScope = isInNullMarkedScope(element);
 					try {
 						builderGenerator.generate(sourceDefinition, buildable, processingEnv.getTypeUtils(),
-								isInNullMarkedScope);
+								isInNullMarkedScope, element);
 					} catch (Exception e) {
 						processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), element);
 					}
