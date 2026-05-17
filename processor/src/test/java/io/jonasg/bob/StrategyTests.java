@@ -95,7 +95,6 @@ public class StrategyTests {
 		}
 
 		@Test
-		@Disabled
 		void withDefaultsNoneStaticFields() {
 			Cute.blackBoxTest()
 					.given()
@@ -208,6 +207,28 @@ public class StrategyTests {
 					.compilerMessage()
 					.ofKindError()
 					.contains("Field 'model' is listed in mandatoryFields but also has a default value")
+					.executeTest();
+		}
+
+		@Test
+		void multipleMandatoryFieldsWithDefaultsAreAllReported() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/ConflictingAnnotations/MultipleMandatoryFieldsWithDefaults/MultipleMandatoryFieldsWithDefaults.java",
+							"/tests/ConflictingAnnotations/MultipleMandatoryFieldsWithDefaults/CarDefaults.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("Field 'make' is annotated with @Mandatory but also has a default value")
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("Field 'model' is annotated with @Mandatory but also has a default value")
 					.executeTest();
 		}
 	}

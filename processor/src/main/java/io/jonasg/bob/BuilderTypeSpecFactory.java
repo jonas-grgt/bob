@@ -17,14 +17,11 @@ import io.jonasg.bob.definitions.ParameterDefinition;
 import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
 
-import javax.annotation.processing.Messager;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -50,19 +47,13 @@ class BuilderTypeSpecFactory {
 
 	private final boolean isInNullMarkedScope;
 
-	private final Messager messager;
-
-	private final Element buildableElement;
-
 	private DefaultValues defaultValues;
 
 	protected BuilderTypeSpecFactory(TypeDefinition typeDefinition,
 			Buildable buildable,
 			Types typeUtils,
 			String packageName,
-			boolean isInNullMarkedScope,
-			Messager messager,
-			Element buildableElement) {
+			boolean isInNullMarkedScope) {
 		this.typeDefinition = typeDefinition;
 		this.buildable = buildable;
 		this.constructorDefinition = extractConstructorDefinitionFrom(typeDefinition);
@@ -70,15 +61,16 @@ class BuilderTypeSpecFactory {
 		this.buildableFields = extractBuildableFieldsFrom(typeDefinition);
 		this.typeUtils = typeUtils;
 		this.packageName = packageName;
-		this.messager = messager;
-		this.buildableElement = buildableElement;
 	}
 
 	public List<TypeSpec> typeSpecs() {
-		List<TypeSpec> typeSpecs = new ArrayList<>();
+		List<String> errors = collectConflictingMandatoryAndDefaults();
+		List<String> warnings = collectRedundantMandatoryAnnotations();
+		if (!errors.isEmpty() || !warnings.isEmpty()) {
+			throw new BuilderValidationException(errors, warnings);
+		}
 
-		validateNoConflictingMandatoryAndDefaults();
-		warnIfRedundantMandatoryAnnotation();
+		List<TypeSpec> typeSpecs = new ArrayList<>();
 
 		String builderName = builderTypeName(this.typeDefinition);
 		TypeSpec.Builder builder = TypeSpec.classBuilder(builderName)
@@ -145,21 +137,20 @@ class BuilderTypeSpecFactory {
 				.collect(Collectors.toList());
 	}
 
-	private void validateNoConflictingMandatoryAndDefaults() {
+	private List<String> collectConflictingMandatoryAndDefaults() {
 		if (this.defaultValues == null) {
-			return;
+			return List.of();
 		}
+		List<String> errors = new ArrayList<>();
 		Arrays.stream(this.buildable.mandatoryFields())
 				.filter(mandatoryField -> this.defaultValues.forField(mandatoryField).isPresent())
-				.forEach(mandatoryField -> {
-					throw new IllegalStateException(
-							"Field '%s' is listed in mandatoryFields but also has a default value set via @Buildable.Defaults. Remove the field from mandatoryFields or remove its default value."
-									.formatted(mandatoryField));
-				});
+				.forEach(mandatoryField -> errors.add(
+						"Field '%s' is listed in mandatoryFields but also has a default value set via @Buildable.Defaults. Remove the field from mandatoryFields or remove its default value."
+								.formatted(mandatoryField)));
 		for (FieldDefinition field : this.typeDefinition.fields()) {
 			if (field.isAnnotatedWith(Buildable.Mandatory.class)
 					&& this.defaultValues.forField(field.name()).isPresent()) {
-				throw new IllegalStateException(
+				errors.add(
 						"Field '%s' is annotated with @Mandatory but also has a default value set via @Buildable.Defaults. Remove @Mandatory or the default value."
 								.formatted(field.name()));
 			}
@@ -167,31 +158,31 @@ class BuilderTypeSpecFactory {
 		for (ParameterDefinition param : this.constructorDefinition.parameters()) {
 			if (param.isAnnotatedWith(Buildable.Mandatory.class)
 					&& this.defaultValues.forField(param.name()).isPresent()) {
-				throw new IllegalStateException(
-						"Parameter '%s' is annotated with @Mandatory but also has a default value set via @Buildable.Defaults. "
-								+ "Remove @Mandatory or the default value."
-										.formatted(param.name()));
+				errors.add(
+						"Parameter '%s' is annotated with @Mandatory but also has a default value set via @Buildable.Defaults. Remove @Mandatory or the default value."
+								.formatted(param.name()));
 			}
 		}
+		return errors;
 	}
 
-	private void warnIfRedundantMandatoryAnnotation() {
+	private List<String> collectRedundantMandatoryAnnotations() {
 		if (!this.strategy().contains(Strategy.STRICT)) {
-			return;
+			return List.of();
 		}
+		List<String> warnings = new ArrayList<>();
 		for (ParameterDefinition param : this.constructorDefinition.parameters()) {
 			boolean fieldHasMandatory = this.typeDefinition.fields().stream()
 					.filter(f -> f.name().equals(param.name()))
 					.anyMatch(f -> f.isAnnotatedWith(Buildable.Mandatory.class));
 			boolean paramHasMandatory = param.isAnnotatedWith(Buildable.Mandatory.class);
 			if (fieldHasMandatory || paramHasMandatory) {
-				this.messager.printMessage(
-						Diagnostic.Kind.WARNING,
+				warnings.add(
 						"@Mandatory is redundant for constructor parameter '%s' — all constructor parameters are mandatory in STRICT strategy"
-								.formatted(param.name()),
-						this.buildableElement);
+								.formatted(param.name()));
 			}
 		}
+		return warnings;
 	}
 
 	private boolean isNullableField(ParameterDefinition p) {
@@ -218,7 +209,7 @@ class BuilderTypeSpecFactory {
 			return true;
 		if (field.hasAnnotation("org.jspecify.annotations.NonNull"))
 			return false;
-		return this.isInNullMarkedScope ? false : this.strategy().contains(Strategy.ALLOW_NULLS);
+		return !this.isInNullMarkedScope && this.strategy().contains(Strategy.ALLOW_NULLS);
 	}
 
 	private boolean isOptional(ParameterDefinition p) {
