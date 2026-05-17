@@ -169,6 +169,82 @@ public class StrategyTests {
 	}
 
 	@Nested
+	class InvalidStrategyCombinations {
+
+		@Test
+		void permissiveAndStrict() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/InvalidStrategyCombinations/PermissiveAndStrict/PermissiveAndStrict.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("PERMISSIVE and STRICT cannot be combined")
+					.executeTest();
+		}
+
+		@Test
+		void permissiveAndStepWise() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/InvalidStrategyCombinations/PermissiveAndStepWise/PermissiveAndStepWise.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("PERMISSIVE and STEP_WISE cannot be combined")
+					.executeTest();
+		}
+
+		@Test
+		void permissiveAndAllowNulls() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/InvalidStrategyCombinations/PermissiveAndAllowNulls/PermissiveAndAllowNulls.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("PERMISSIVE and ALLOW_NULLS cannot be combined")
+					.executeTest();
+		}
+
+		@Test
+		void permissiveWithMultipleConflictsReportsAll() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/InvalidStrategyCombinations/PermissiveWithMultipleConflicts/PermissiveWithMultipleConflicts.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("PERMISSIVE and STRICT cannot be combined")
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains("PERMISSIVE and ALLOW_NULLS cannot be combined")
+					.executeTest();
+		}
+	}
+
+	@Nested
 	class ConflictingAnnotations {
 
 		@ParameterizedTest(name = "{0}")

@@ -64,7 +64,8 @@ class BuilderTypeSpecFactory {
 	}
 
 	public List<TypeSpec> typeSpecs() {
-		List<String> errors = collectConflictingMandatoryAndDefaults();
+		List<String> errors = collectInvalidStrategyCombinations();
+		errors.addAll(collectConflictingMandatoryAndDefaults());
 		List<String> warnings = collectRedundantMandatoryAnnotations();
 		if (!errors.isEmpty() || !warnings.isEmpty()) {
 			throw new BuilderValidationException(errors, warnings);
@@ -137,11 +138,29 @@ class BuilderTypeSpecFactory {
 				.collect(Collectors.toList());
 	}
 
-	private List<String> collectConflictingMandatoryAndDefaults() {
-		if (this.defaultValues == null) {
-			return List.of();
-		}
+	private List<String> collectInvalidStrategyCombinations() {
+		List<Strategy> strategies = this.strategy();
 		List<String> errors = new ArrayList<>();
+		if (!strategies.contains(Strategy.PERMISSIVE)) {
+			return errors;
+		}
+		if (strategies.contains(Strategy.STRICT)) {
+			errors.add("Incompatible strategy combination: PERMISSIVE and STRICT cannot be combined");
+		}
+		if (strategies.contains(Strategy.STEP_WISE)) {
+			errors.add("Incompatible strategy combination: PERMISSIVE and STEP_WISE cannot be combined");
+		}
+		if (strategies.contains(Strategy.ALLOW_NULLS)) {
+			errors.add("Incompatible strategy combination: PERMISSIVE and ALLOW_NULLS cannot be combined");
+		}
+		return errors;
+	}
+
+	private List<String> collectConflictingMandatoryAndDefaults() {
+		List<String> errors = new ArrayList<>();
+		if (this.defaultValues == null) {
+			return errors;
+		}
 		Arrays.stream(this.buildable.mandatoryFields())
 				.filter(mandatoryField -> this.defaultValues.forField(mandatoryField).isPresent())
 				.forEach(mandatoryField -> errors.add(
