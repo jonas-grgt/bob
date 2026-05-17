@@ -449,8 +449,6 @@ public class Car {
 // → new CarBuilder().brand(...).color(...).build()
 ```
 
-> Note: setter-picked fields are never mandatory, even under `STRICT` strategy.
-
 ### Different constructor
 
 If Bob picks the wrong constructor, annotate the one you want:

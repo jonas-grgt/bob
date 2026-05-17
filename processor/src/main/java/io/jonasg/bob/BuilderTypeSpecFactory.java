@@ -66,6 +66,7 @@ class BuilderTypeSpecFactory {
 	public List<TypeSpec> typeSpecs() {
 		List<String> errors = collectInvalidStrategyCombinations();
 		errors.addAll(collectConflictingMandatoryAndDefaults());
+		errors.addAll(collectUnknownMandatoryFields());
 		List<String> warnings = collectRedundantMandatoryAnnotations();
 		if (!errors.isEmpty() || !warnings.isEmpty()) {
 			throw new BuilderValidationException(errors, warnings);
@@ -206,6 +207,19 @@ class BuilderTypeSpecFactory {
 			}
 		}
 		return warnings;
+	}
+
+	private List<String> collectUnknownMandatoryFields() {
+		List<String> errors = new ArrayList<>();
+		List<String> knownFields = this.typeDefinition.fields().stream()
+				.map(FieldDefinition::name)
+				.toList();
+		Arrays.stream(this.buildable.mandatoryFields())
+				.filter(f -> !knownFields.contains(f))
+				.forEach(f -> errors.add(
+						"mandatoryFields contains '%s' which is not a declared field of %s"
+								.formatted(f, this.typeDefinition.typeName())));
+		return errors;
 	}
 
 	private boolean isNullableField(ParameterDefinition p) {

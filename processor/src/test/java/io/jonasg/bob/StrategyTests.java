@@ -259,6 +259,24 @@ public class StrategyTests {
 					.contains("ALLOW_NULLS strategy requires STRICT or STEP_WISE")
 					.executeTest();
 		}
+
+		@Test
+		void unknownMandatoryField() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/InvalidStrategyCombinations/UnknownMandatoryField/UnknownMandatoryField.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationFails()
+					.andThat()
+					.compilerMessage()
+					.ofKindError()
+					.contains(
+							"mandatoryFields contains 'unknownField' which is not a declared field of UnknownMandatoryField")
+					.executeTest();
+		}
 	}
 
 	@Nested
