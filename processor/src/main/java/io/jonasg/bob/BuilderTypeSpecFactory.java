@@ -326,13 +326,6 @@ class BuilderTypeSpecFactory {
 		if ((field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory())
 				&& defaultField.isEmpty()) {
 
-			if (strategy().contains(Strategy.STRICT) && strategy().contains(Strategy.ALLOW_NULLS)
-					&& field.isOptional()) {
-				throw new StrategyConflictException(
-						"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the " +
-								"optional annotation or remove the ALLOW_NULLS strategy");
-			}
-
 			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
 				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
 						.build();

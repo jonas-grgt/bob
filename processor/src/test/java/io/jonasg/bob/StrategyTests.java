@@ -681,7 +681,7 @@ public class StrategyTests {
 			}
 
 			@Test
-			void failWhenOptionalAnnotationIsUsedWithAllowNullsStrategy() {
+			void optionalFieldWithAllowNullsStrategy() {
 				Cute.blackBoxTest()
 						.given()
 						.processors(List.of(BuildableProcessor.class))
@@ -689,17 +689,19 @@ public class StrategyTests {
 								"/tests/Strategies/Strict/AllowNulls/FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategy/FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategy.java")
 						.whenCompiled()
 						.thenExpectThat()
-						.compilationFails()
+						.compilationSucceeds()
 						.andThat()
-						.compilerMessage()
-						.ofKindError()
-						.contains(
-								"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy")
+						.generatedSourceFile(
+								"io.jonasg.bob.test.FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategyBuilder")
+						.matches(
+								CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+								JavaFileObjectUtils.readFromResource(
+										"/tests/Strategies/Strict/AllowNulls/FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategy/Expected_FailWhenOptionalAnnotationIsUsedWithAllowNullsStrategyBuilder.java"))
 						.executeTest();
 			}
 
 			@Test
-			void failWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategy() {
+			void optionalParamWithAllowNullsStrategy() {
 				Cute.blackBoxTest()
 						.given()
 						.processors(List.of(BuildableProcessor.class))
@@ -707,12 +709,14 @@ public class StrategyTests {
 								"/tests/Strategies/Strict/AllowNulls/FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategy/FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategy.java")
 						.whenCompiled()
 						.thenExpectThat()
-						.compilationFails()
+						.compilationSucceeds()
 						.andThat()
-						.compilerMessage()
-						.ofKindError()
-						.contains(
-								"ALLOW_NULLS strategy cannot be combined with optional fields, consider removing the optional annotation or remove the ALLOW_NULLS strategy")
+						.generatedSourceFile(
+								"io.jonasg.bob.test.FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategyBuilder")
+						.matches(
+								CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+								JavaFileObjectUtils.readFromResource(
+										"/tests/Strategies/Strict/AllowNulls/FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategy/Expected_FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategyBuilder.java"))
 						.executeTest();
 			}
 		}
