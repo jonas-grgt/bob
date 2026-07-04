@@ -54,7 +54,7 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
-		<jreleaser.version>1.24.0</jreleaser.version>
+		<jreleaser.version>1.25.0</jreleaser.version>
 		<java-poet.version>0.17.0</java-poet.version>
 		<junit-bom.version>6.1.1</junit-bom.version>
 		<assertj-core.version>3.27.7</assertj-core.version>
