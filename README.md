@@ -336,14 +336,10 @@ public class Car {
 The generated builder pre-initializes `year` to `1985` instead of `0`:
 
 ```java
+// year is already set to1985, only override if needed
 new CarBuilder()
-    .
-
-make("Tesla")
-// year already starts at 1985, only override if needed
-    .
-
-build();
+    .make("Tesla")
+    .build();
 ```
 
 **As a top-level class** (specify which buildable type the defaults belong to):
