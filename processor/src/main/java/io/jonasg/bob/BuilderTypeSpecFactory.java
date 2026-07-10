@@ -318,7 +318,11 @@ class BuilderTypeSpecFactory {
 				builder.addStatement("this.$L.set($L)", field.name(), field.name());
 			}
 		} else {
-			builder.addStatement("this.$L = $L", field.name(), field.name());
+			if (getSupplierTypeArgument(field).isPresent()) {
+				builder.addStatement("this.$L = () -> $L", field.name(), field.name());
+			} else {
+				builder.addStatement("this.$L = $L", field.name(), field.name());
+			}
 		}
 		return builder.addStatement("return this")
 				.build();
@@ -385,7 +389,11 @@ class BuilderTypeSpecFactory {
 					}
 				}
 
-				return FieldSpec.builder(TypeName.get(field.type()), field.name(), Modifier.PRIVATE)
+				TypeName fieldType = getSupplierTypeArgument(field)
+						.map(arg -> (TypeName) ParameterizedTypeName.get(
+								ClassName.get("java.util.function", "Supplier"), TypeName.get(arg)))
+						.orElseGet(() -> TypeName.get(field.type()));
+				return FieldSpec.builder(fieldType, field.name(), Modifier.PRIVATE)
 						.initializer("$T.$L", TypeName.get(defaultValues.asType()), field.name())
 						.build();
 			}
@@ -400,6 +408,13 @@ class BuilderTypeSpecFactory {
 			return Optional.empty();
 		}
 		return this.defaultValues.forField(field.name());
+	}
+
+	private Optional<TypeMirror> getSupplierTypeArgument(BuildableField field) {
+		if (this.defaultValues == null) {
+			return Optional.empty();
+		}
+		return this.defaultValues.supplierTypeArgument(field.name());
 	}
 
 	protected TypeMirror boxedType(TypeMirror type) {
@@ -485,10 +500,11 @@ class BuilderTypeSpecFactory {
 					}
 					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
 							&& matchingField.get().isOptional();
-					return String.format("%s%s", param.name(),
-							(isAnEnforcedConstructorPolicy() || matchingField.get().isMandatory())
+					boolean isSupplier = getSupplierTypeArgument(matchingField.get()).isPresent()
+							|| ((isAnEnforcedConstructorPolicy() || matchingField.get().isMandatory())
 									&& !isOptionalInStrict
-									&& getFieldDefault(matchingField.get()).isEmpty() ? ".get()" : "");
+									&& getFieldDefault(matchingField.get()).isEmpty());
+					return String.format("%s%s", param.name(), isSupplier ? ".get()" : "");
 				})
 				.collect(Collectors.joining(", "));
 	}
@@ -513,10 +529,11 @@ class BuilderTypeSpecFactory {
 							field.setterMethodName().orElseThrow(), field.name())
 					.build();
 		} else {
+			String suffix = getSupplierTypeArgument(field).isPresent() ? ".get()" : "";
 			return CodeBlock.builder()
 					.addStatement(
-							String.format("instance.%s(this.%s)", field.setterMethodName().orElseThrow(),
-									field.name()))
+							String.format("instance.%s(this.%s" + suffix + ")",
+									field.setterMethodName().orElseThrow(), field.name()))
 					.build();
 		}
 	}

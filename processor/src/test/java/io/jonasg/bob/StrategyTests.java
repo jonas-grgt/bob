@@ -94,6 +94,15 @@ public class StrategyTests {
 					"WithDefaultsAsInnerClass.java");
 		}
 
+		@ParameterizedTest(name = "{0}")
+		@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+		void withSupplierDefault(Variant variant, String subdir) {
+			runCompilationSuccess(
+					"/tests/Strategies/Permissive/WithSupplierDefault",
+					subdir,
+					"WithSupplierDefault.java");
+		}
+
 		@Test
 		void withDefaultsNoneStaticFields() {
 			Cute.blackBoxTest()
@@ -514,6 +523,15 @@ public class StrategyTests {
 						"/tests/Strategies/Strict/WithDefaults/AsInnerClass",
 						subdir,
 						"WithDefaultsAsInnerClass.java");
+			}
+
+			@ParameterizedTest(name = "{0}")
+			@MethodSource("io.jonasg.bob.StrategyTests#classAndRecord")
+			void asInnerClassWithSupplier(Variant variant, String subdir) {
+				runCompilationSuccess(
+						"/tests/Strategies/Strict/WithSupplierDefault/AsInnerClass",
+						subdir,
+						"WithSupplierDefault.java");
 			}
 
 			@Nested
