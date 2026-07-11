@@ -361,6 +361,44 @@ enforcement), the default satisfies the requirement.
 > **and** also having a default value via `@Buildable.Defaults` is contradictory, doing so causes a compilation error. 
 > A field cannot be both mandatory and defaulted.
 
+#### Lazy default values
+
+Defaults declared as `Supplier<T>` are evaluated lazily at `build()` time, not when the builder is constructed.
+This is useful when the default depends on runtime values like timestamps or UUIDs:
+
+```java
+@Buildable
+public class Order {
+	private String id;
+
+	public Order(String id) {
+		this.id = id;
+	}
+
+	@Buildable.Defaults
+	public static class Defaults {
+		public static Supplier<String> id = () -> UUID.randomUUID().toString();
+	}
+}
+```
+
+The generated builder stores the `Supplier` and calls `.get()` only when `build()` is invoked:
+
+```java
+Order order = new OrderBuilder()
+    .build();  // UUID generated here
+```
+
+If the caller explicitly provides a value via the setter, it is wrapped in a supplier internally:
+
+```java
+Order order = new OrderBuilder()
+    .id("123")  // defaults are overridden
+    .build();
+```
+
+This also works with `STRICT` — a `Supplier<T>` default satisfies the mandatory check and the field is excluded from enforcement.
+
 ### Records
 
 All strategies and features also work with records:
