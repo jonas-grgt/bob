@@ -653,9 +653,23 @@ class BuilderTypeSpecFactory {
 	}
 
 	private MethodSpec generateConstructor() {
-		return MethodSpec.constructorBuilder()
-				.addModifiers(Modifier.PUBLIC)
-				.build();
+		TypeDefinition def = this.typeDefinition;
+		ClassName rawClassName = def.isNested()
+				? ClassName.get(def.packageName(), def.nestedIn()).nestedClass(def.typeName())
+				: ClassName.get(def.packageName(), def.fullTypeName());
+		var constructorBuilder = MethodSpec.constructorBuilder()
+				.addModifiers(Modifier.PUBLIC);
+		if (this.buildable.setterPrefix().isEmpty()) {
+			constructorBuilder.addStatement("$T.applyDefaults(this, $T.class)",
+					TestDefaultsResolver.class,
+					rawClassName);
+		} else {
+			constructorBuilder.addStatement("$T.applyDefaults(this, $T.class, $S)",
+					TestDefaultsResolver.class,
+					rawClassName,
+					this.buildable.setterPrefix());
+		}
+		return constructorBuilder.build();
 	}
 
 	private String builderTypeName(TypeDefinition source) {

@@ -3,6 +3,7 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
+import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 
@@ -12,6 +13,7 @@ public final class OptionalConstructorParamInStrictStrategyBuilder {
   private int year;
 
   public OptionalConstructorParamInStrictStrategyBuilder() {
+    TestDefaultsResolver.applyDefaults(this, OptionalConstructorParamInStrictStrategy.class);
   }
 
   public OptionalConstructorParamInStrictStrategyBuilder make(String make) {

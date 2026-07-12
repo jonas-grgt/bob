@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder {
@@ -10,6 +11,7 @@ public final class AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder 
   private boolean isElectric;
 
   public AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder() {
+    TestDefaultsResolver.applyDefaults(this, AllConstructorParamsAreBuildableIfHavingMatchingField.class);
   }
 
   public AllConstructorParamsAreBuildableIfHavingMatchingFieldBuilder make(String make) {

@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class UseConstructorAnnotatedWithBuildableConstructorBuilder {
@@ -8,6 +9,7 @@ public final class UseConstructorAnnotatedWithBuildableConstructorBuilder {
   private int year;
 
   public UseConstructorAnnotatedWithBuildableConstructorBuilder() {
+    TestDefaultsResolver.applyDefaults(this, UseConstructorAnnotatedWithBuildableConstructor.class);
   }
 
   public UseConstructorAnnotatedWithBuildableConstructorBuilder make(String make) {

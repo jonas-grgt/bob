@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class DefaultOptionalFieldInStepWiseBuilder implements OptionalFieldInStepWiseBuilder.ColorStep, OptionalFieldInStepWiseBuilder, OptionalFieldInStepWiseBuilder.BuildStep {
@@ -10,6 +11,7 @@ public final class DefaultOptionalFieldInStepWiseBuilder implements OptionalFiel
   private String color;
 
   public DefaultOptionalFieldInStepWiseBuilder() {
+    TestDefaultsResolver.applyDefaults(this, OptionalFieldInStepWise.class);
   }
 
   public DefaultOptionalFieldInStepWiseBuilder make(String make) {

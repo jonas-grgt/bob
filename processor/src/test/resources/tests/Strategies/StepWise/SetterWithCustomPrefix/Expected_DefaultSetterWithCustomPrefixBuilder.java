@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class DefaultSetterWithCustomPrefixBuilder implements SetterWithCustomPrefixBuilder,
@@ -17,6 +18,7 @@ public final class DefaultSetterWithCustomPrefixBuilder implements SetterWithCus
   private int year;
 
   public DefaultSetterWithCustomPrefixBuilder() {
+    TestDefaultsResolver.applyDefaults(this, SetterWithCustomPrefix.class, "with");
   }
 
   public DefaultSetterWithCustomPrefixBuilder withEngineSize(double engineSize) {

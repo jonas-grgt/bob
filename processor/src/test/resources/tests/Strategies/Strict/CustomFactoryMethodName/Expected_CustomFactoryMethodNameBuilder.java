@@ -3,6 +3,7 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
+import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Double;
@@ -21,6 +22,7 @@ public final class CustomFactoryMethodNameBuilder {
   private int year;
 
   public CustomFactoryMethodNameBuilder() {
+    TestDefaultsResolver.applyDefaults(this, CustomFactoryMethodName.class);
   }
 
   public CustomFactoryMethodNameBuilder engineSize(double engineSize) {

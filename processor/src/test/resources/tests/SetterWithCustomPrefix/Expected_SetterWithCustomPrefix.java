@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class SetterWithCustomPrefixBuilder {
@@ -14,6 +15,7 @@ public final class SetterWithCustomPrefixBuilder {
   private float fuelEfficiency;
 
   public SetterWithCustomPrefixBuilder() {
+    TestDefaultsResolver.applyDefaults(this, SetterWithCustomPrefix.class, "with");
   }
 
   public SetterWithCustomPrefixBuilder withMake(String make) {

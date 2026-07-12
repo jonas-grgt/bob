@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class UseConstructorWithTheMostNumberOfParametersBuilder {
@@ -14,6 +15,7 @@ public final class UseConstructorWithTheMostNumberOfParametersBuilder {
   private float fuelEfficiency;
 
   public UseConstructorWithTheMostNumberOfParametersBuilder() {
+    TestDefaultsResolver.applyDefaults(this, UseConstructorWithTheMostNumberOfParameters.class);
   }
 
   public UseConstructorWithTheMostNumberOfParametersBuilder make(String make) {
