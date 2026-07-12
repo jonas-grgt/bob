@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class BooleanFieldHasOtherNameThanSetterBuilder {
@@ -10,6 +11,7 @@ public final class BooleanFieldHasOtherNameThanSetterBuilder {
   private boolean isHappy;
 
   public BooleanFieldHasOtherNameThanSetterBuilder() {
+    TestDefaultsResolver.applyDefaults(this, BooleanFieldHasOtherNameThanSetter.class);
   }
 
   public BooleanFieldHasOtherNameThanSetterBuilder firstName(String firstName) {

@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class DefaultCustomFactoryMethodNameBuilder implements CustomFactoryMethodNameBuilder.BuildStep,
@@ -17,6 +18,7 @@ public final class DefaultCustomFactoryMethodNameBuilder implements CustomFactor
   private int year;
 
   public DefaultCustomFactoryMethodNameBuilder() {
+    TestDefaultsResolver.applyDefaults(this, CustomFactoryMethodName.class);
   }
 
   public DefaultCustomFactoryMethodNameBuilder engineSize(double engineSize) {

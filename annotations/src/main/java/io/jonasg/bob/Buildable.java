@@ -119,11 +119,24 @@ public @interface Buildable {
 
 	/**
 	 * Marks a class as a container for default values.
+	 * This annotation is meant to be used in the main source set.
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.TYPE })
 	@interface Defaults {
+		Class<?> value() default DefaultsAsInnerClass.class;
+	}
+
+	/**
+	 * Marks a class as a container for test-scoped default values
+	 * that are applied at runtime via reflection.
+	 * This annotation is meant to be used in the test source set.
+	 */
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE })
+	@interface TestDefaults {
 		Class<?> value() default DefaultsAsInnerClass.class;
 	}
 

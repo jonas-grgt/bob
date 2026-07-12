@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class WithDefaultsAsInnerClassBuilder {
@@ -14,6 +15,7 @@ public final class WithDefaultsAsInnerClassBuilder {
   private int year = WithDefaultsAsInnerClass.Defaults.year;
 
   public WithDefaultsAsInnerClassBuilder() {
+    TestDefaultsResolver.applyDefaults(this, WithDefaultsAsInnerClass.class);
   }
 
   public WithDefaultsAsInnerClassBuilder engineSize(double engineSize) {

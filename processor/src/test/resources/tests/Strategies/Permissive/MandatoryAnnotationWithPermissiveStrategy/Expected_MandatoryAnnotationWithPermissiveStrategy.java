@@ -3,6 +3,7 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
+import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Double;
 import java.lang.String;
@@ -19,6 +20,7 @@ public final class MandatoryAnnotationWithPermissiveStrategyBuilder {
   private float fuelEfficiency;
 
   public MandatoryAnnotationWithPermissiveStrategyBuilder() {
+    TestDefaultsResolver.applyDefaults(this, MandatoryAnnotationWithPermissiveStrategy.class);
   }
 
   public MandatoryAnnotationWithPermissiveStrategyBuilder make(String make) {

@@ -1,7 +1,10 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
+
 public final class DefaultValuesForParamsWithNoneMatchingFieldBuilder {
   public DefaultValuesForParamsWithNoneMatchingFieldBuilder() {
+    TestDefaultsResolver.applyDefaults(this, DefaultValuesForParamsWithNoneMatchingField.class);
   }
 
   public DefaultValuesForParamsWithNoneMatchingField build() {

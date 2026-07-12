@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class ExcludeFieldsFromBuilderBuilder {
@@ -10,6 +11,7 @@ public final class ExcludeFieldsFromBuilderBuilder {
   private double engineSize;
 
   public ExcludeFieldsFromBuilderBuilder() {
+    TestDefaultsResolver.applyDefaults(this, ExcludeFieldsFromBuilder.class);
   }
 
   public ExcludeFieldsFromBuilderBuilder make(String make) {

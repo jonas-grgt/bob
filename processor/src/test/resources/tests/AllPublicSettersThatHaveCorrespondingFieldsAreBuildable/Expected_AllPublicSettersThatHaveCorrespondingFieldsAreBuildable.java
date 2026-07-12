@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder {
@@ -14,6 +15,7 @@ public final class AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilde
   private float fuelEfficiency;
 
   public AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder() {
+    TestDefaultsResolver.applyDefaults(this, AllPublicSettersThatHaveCorrespondingFieldsAreBuildable.class);
   }
 
   public AllPublicSettersThatHaveCorrespondingFieldsAreBuildableBuilder make(String make) {

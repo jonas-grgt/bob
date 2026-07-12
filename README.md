@@ -399,6 +399,33 @@ Order order = new OrderBuilder()
 
 This also works with `STRICT` — a `Supplier<T>` default satisfies the mandatory check and the field is excluded from enforcement.
 
+### Test defaults
+
+But what if you wanted to define defaults only for test purposes? 
+Then there is no good reason to have `Buildable.Defaults` annotated classes in `src/main` right?
+Also no-one wants test defaults on their production classpath!
+
+`@Buildable.TestDefaults` allows you to define defaults in `src/test` while your buildable types live in
+`src/main`. It works exactly like `@Buildable.Defaults`, but the generated builder will only pick up the defaults 
+**only if the test class is on the classpath**.
+
+Goes in `src/main` and is blissfully unaware of the existence of test defaults:
+```java
+@Buildable
+public class Car {
+    private String color;
+    private int year;
+}
+```
+
+Goes into `src/test` and is aware of the existence of test defaults:
+```java
+@Buildable.TestDefaults(Car.class)
+public class CarDefaults {
+    public static String color = "blue";
+}
+```
+
 ### Records
 
 All strategies and features also work with records:

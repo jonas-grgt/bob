@@ -1,5 +1,6 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 
@@ -15,6 +16,7 @@ public final class DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBu
   private float fuelEfficiency;
 
   public DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder() {
+    TestDefaultsResolver.applyDefaults(this, GenerateStepBuilderWithSingleMandatoryAnnotatedField.class);
   }
 
   public DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder year(int year) {

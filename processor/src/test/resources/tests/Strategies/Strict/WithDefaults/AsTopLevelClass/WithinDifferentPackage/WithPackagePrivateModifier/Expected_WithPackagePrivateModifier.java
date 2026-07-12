@@ -3,6 +3,7 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
+import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Float;
@@ -20,6 +21,7 @@ public final class WithPackagePrivateModifierBuilder {
   private int year = DefaultsClass.year;
 
   public WithPackagePrivateModifierBuilder() {
+    TestDefaultsResolver.applyDefaults(this, WithPackagePrivateModifier.class);
   }
 
   public WithPackagePrivateModifierBuilder engineSize(double engineSize) {

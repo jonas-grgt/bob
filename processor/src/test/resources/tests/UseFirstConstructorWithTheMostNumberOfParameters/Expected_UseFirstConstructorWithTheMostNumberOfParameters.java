@@ -1,5 +1,7 @@
 package io.jonasg.bob.test;
 
+import io.jonasg.bob.TestDefaultsResolver;
+
 public final class UseFirstConstructorWithTheMostNumberOfParametersBuilder {
   private double engineSize;
 
@@ -8,6 +10,7 @@ public final class UseFirstConstructorWithTheMostNumberOfParametersBuilder {
   private float fuelEfficiency;
 
   public UseFirstConstructorWithTheMostNumberOfParametersBuilder() {
+    TestDefaultsResolver.applyDefaults(this, UseFirstConstructorWithTheMostNumberOfParameters.class);
   }
 
   public UseFirstConstructorWithTheMostNumberOfParametersBuilder engineSize(double engineSize) {
