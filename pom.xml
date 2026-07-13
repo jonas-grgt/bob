@@ -202,6 +202,7 @@
 							<version>4.26</version>
 							<file>eclipse-formatter.xml</file>
 						</eclipse>
+						<removeUnusedImports />
 					</java>
 				</configuration>
 			</plugin>
