@@ -2,7 +2,7 @@ package io.jonasg.bob;
 
 import org.jspecify.annotations.Nullable;
 
-import java.lang.reflect.Field;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -146,30 +146,6 @@ public final class TestDefaultsResolver {
 	}
 
 	private static Class<?> boxType(Class<?> primitive) {
-		if (primitive == int.class) {
-			return Integer.class;
-		}
-		if (primitive == long.class) {
-			return Long.class;
-		}
-		if (primitive == float.class) {
-			return Float.class;
-		}
-		if (primitive == double.class) {
-			return Double.class;
-		}
-		if (primitive == boolean.class) {
-			return Boolean.class;
-		}
-		if (primitive == byte.class) {
-			return Byte.class;
-		}
-		if (primitive == short.class) {
-			return Short.class;
-		}
-		if (primitive == char.class) {
-			return Character.class;
-		}
-		return primitive;
+		return MethodType.methodType(primitive).wrap().returnType();
 	}
 }
