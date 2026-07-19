@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 import java.util.function.Supplier;
 
@@ -16,7 +15,6 @@ public final class WithSupplierDefaultBuilder {
   private Supplier<String> uniqueName = WithSupplierDefault.Defaults.uniqueName;
 
   public WithSupplierDefaultBuilder() {
-    TestDefaultsResolver.applyDefaults(this, WithSupplierDefault.class);
   }
 
   public WithSupplierDefaultBuilder engineSize(double engineSize) {

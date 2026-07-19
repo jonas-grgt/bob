@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class WithDefaultsAsInnerClassBuilder {
@@ -15,7 +14,6 @@ public final class WithDefaultsAsInnerClassBuilder {
   private float fuelEfficiency;
 
   public WithDefaultsAsInnerClassBuilder() {
-    TestDefaultsResolver.applyDefaults(this, WithDefaultsAsInnerClass.class);
   }
 
   public WithDefaultsAsInnerClassBuilder make(String make) {

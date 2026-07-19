@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder implements GenerateStepBuilderWithSingleArgumentConstructorBuilder.BuildStep, GenerateStepBuilderWithSingleArgumentConstructorBuilder {
@@ -15,7 +14,6 @@ public final class DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilde
   private float fuelEfficiency;
 
   public DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder() {
-    TestDefaultsResolver.applyDefaults(this, GenerateStepBuilderWithSingleArgumentConstructor.class);
   }
 
   public DefaultGenerateStepBuilderWithSingleArgumentConstructorBuilder year(int year) {

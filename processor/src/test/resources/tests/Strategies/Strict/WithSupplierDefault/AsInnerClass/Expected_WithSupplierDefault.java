@@ -3,7 +3,6 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
-import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 import java.util.function.Supplier;
@@ -14,7 +13,6 @@ public final class WithSupplierDefaultBuilder {
   private final ValidatableField<String> other = ValidatableField.ofNoneNullableField("other", "WithSupplierDefault");
 
   public WithSupplierDefaultBuilder() {
-    TestDefaultsResolver.applyDefaults(this, WithSupplierDefault.class);
   }
 
   public WithSupplierDefaultBuilder uniqueName(String uniqueName) {

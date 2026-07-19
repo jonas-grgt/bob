@@ -3,7 +3,6 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
-import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Integer;
 import java.lang.String;
@@ -20,7 +19,6 @@ public final class ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder
   private float fuelEfficiency;
 
   public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder() {
-    TestDefaultsResolver.applyDefaults(this, ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls.class);
   }
 
   public ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder make(String make) {

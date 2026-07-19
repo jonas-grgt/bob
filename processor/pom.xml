@@ -21,6 +21,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.jonasg</groupId>
+			<artifactId>bob-test-defaults</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>

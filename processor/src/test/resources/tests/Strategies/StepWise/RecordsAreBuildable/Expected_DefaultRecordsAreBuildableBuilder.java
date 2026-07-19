@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class DefaultRecordsAreBuildableBuilder implements RecordsAreBuildableBuilder.BuildStep,
@@ -20,7 +19,6 @@ public final class DefaultRecordsAreBuildableBuilder implements RecordsAreBuilda
   private float fuelEfficiency;
 
   public DefaultRecordsAreBuildableBuilder() {
-    TestDefaultsResolver.applyDefaults(this, RecordsAreBuildable.class);
   }
 
   public DefaultRecordsAreBuildableBuilder make(String make) {

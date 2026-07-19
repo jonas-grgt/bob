@@ -6,60 +6,47 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Resolves and applies default values to a builder at runtime via reflection.
- * This enables test source set {@link Buildable.TestDefaults} classes that are
- * not
- * visible to the annotation processor at compile time.
+ * Resolves and applies test defaults to a builder at runtime via reflection.
  */
 public final class TestDefaultsResolver {
 
 	private static final Logger logger = Logger.getLogger(TestDefaultsResolver.class.getName());
+	private static final String TEST_DEFAULTS_ANNOTATION = "io.jonasg.bob.TestDefaults";
+	private static final Set<String> fineLogOnce = ConcurrentHashMap.newKeySet();
 
 	private TestDefaultsResolver() {
 	}
 
-	/**
-	 * Applies - using the builders setters - default values from a
-	 * {@link Buildable.TestDefaults} class to the
-	 * given builder instance.
-	 *
-	 * @param builder
-	 *            the builder instance to apply defaults to
-	 * @param buildableType
-	 *            the type annotated with {@link Buildable}
-	 */
 	public static void applyDefaults(
 			Object builder,
 			Class<?> buildableType) {
 		applyDefaults(builder, buildableType, null);
 	}
 
-	/**
-	 * Applies - using the builders prefixed setters - default values from a
-	 * {@link Buildable.TestDefaults} class to the
-	 * given builder instance.
-	 *
-	 * @param builder
-	 *            the builder instance to apply defaults to
-	 * @param buildableType
-	 *            the type annotated with {@link Buildable}
-	 * @param setterPrefix
-	 *            the setter prefix used by the builder (empty string
-	 *            if none)
-	 */
 	public static void applyDefaults(
 			Object builder,
 			Class<?> buildableType,
 			@Nullable String setterPrefix) {
+		logFineOnce(
+				"lookup:" + buildableType.getName(),
+				"Checking test defaults for " + buildableType.getName());
 		Class<?> defaultsClass = findDefaultsClass(buildableType);
 		if (defaultsClass == null) {
+			logFineOnce(
+					"not-found:" + buildableType.getName(),
+					"No test defaults found for " + buildableType.getName());
 			return;
 		}
+		logFineOnce(
+				"resolved:" + buildableType.getName(),
+				"Resolved test defaults class " + defaultsClass.getName() + " for " + buildableType.getName());
 
 		Arrays.stream(defaultsClass.getDeclaredFields()).forEach(field -> {
 			if (!Modifier.isStatic(field.getModifiers())) {
@@ -93,24 +80,29 @@ public final class TestDefaultsResolver {
 	}
 
 	private static @Nullable Class<?> findDefaultsClass(Class<?> buildableType) {
-		// Check for inner class annotated with @Buildable.TestDefaults
 		for (Class<?> inner : buildableType.getDeclaredClasses()) {
-			if (inner.isAnnotationPresent(Buildable.TestDefaults.class)) {
+			if (hasTestDefaultsAnnotation(inner)) {
 				return inner;
 			}
 		}
 
-		// Check for standalone Builders: {TypeName}Defaults
 		try {
-			Class<?> defaultsClass = Class.forName(buildableType.getName() + "Defaults");
-			if (defaultsClass.isAnnotationPresent(Buildable.TestDefaults.class)) {
-				return defaultsClass;
+			Class<?> registryClass = Class.forName("io.jonasg.bob.TestDefaultsRegistry");
+			Method findMethod = registryClass.getMethod("findDefaultsClassName", String.class);
+			String defaultsClassName = (String) findMethod.invoke(null, buildableType.getName());
+			if (defaultsClassName != null) {
+				return Class.forName(defaultsClassName);
 			}
-		} catch (ClassNotFoundException e) {
-			// not found
+		} catch (Exception e) {
+			// registry not available or lookup failed
 		}
 
 		return null;
+	}
+
+	private static boolean hasTestDefaultsAnnotation(Class<?> type) {
+		return Arrays.stream(type.getAnnotations())
+				.anyMatch(annotation -> annotation.annotationType().getName().equals(TEST_DEFAULTS_ANNOTATION));
 	}
 
 	private static String setterName(String fieldName, @Nullable String prefix) {
@@ -147,5 +139,11 @@ public final class TestDefaultsResolver {
 
 	private static Class<?> boxType(Class<?> primitive) {
 		return MethodType.methodType(primitive).wrap().returnType();
+	}
+
+	private static void logFineOnce(String key, String message) {
+		if (fineLogOnce.add(key)) {
+			logger.log(Level.FINE, message);
+		}
 	}
 }

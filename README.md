@@ -45,7 +45,18 @@ Since Java 23, [annotation processors require explicit configuration](https://bu
         <groupId>io.jonasg</groupId>
         <artifactId>bob-annotations</artifactId>
         <version>${bob.version}</version>
-        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.jonasg</groupId>
+        <artifactId>bob-defaults</artifactId>
+        <version>${bob.version}</version>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.jonasg</groupId>
+        <artifactId>bob-test-defaults</artifactId>
+        <version>${bob.version}</version>
+        <scope>test</scope>
     </dependency>
 </dependencies>
 
@@ -81,6 +92,12 @@ Since Java 23, [annotation processors require explicit configuration](https://bu
     </dependency>
     <dependency>
         <groupId>io.jonasg</groupId>
+        <artifactId>bob-test-defaults</artifactId>
+        <version>${bob.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.jonasg</groupId>
         <artifactId>bob-processor</artifactId>
         <version>${bob.version}</version>
     </dependency>
@@ -94,21 +111,29 @@ Since Java 23, [annotation processors require explicit configuration](https://bu
 ```groovy
 dependencies {
     annotationProcessor "io.jonasg:bob-processor:" + bobVersion
-    compileOnly "io.jonasg:bob-annotations:" + bobVersion
+    implementation "io.jonasg:bob-annotations:" + bobVersion
+    runtimeOnly "io.jonasg:bob-defaults:" + bobVersion
+
+    testImplementation "io.jonasg:bob-test-defaults:" + bobVersion
 }
 ```
 </details>
 
+- `bob-annotations` and `bob-processor` are enough for builder generation.
+- Add `bob-test-defaults` when you use `@TestDefaults` together with `@Buildable(runtimeDefaults = true)`; it transitively includes `bob-defaults`.
+- If you want runtime defaults (using `@Buildable.Defaults`) in non-test runtime, add `bob-defaults` explicitly.
+
 ## @Buildable reference
 
-| Attribute         | Type         | Default      | Description                                                   |
-|-------------------|--------------|--------------|---------------------------------------------------------------|
-| `strategy`        | `Strategy[]` | `PERMISSIVE` | Controls builder behavior (see [Strategies](#strategies))     |
-| `mandatoryFields` | `String[]`   | `{}`         | Field names that must be set before `build()`                 |
-| `excludeFields`   | `String[]`   | `{}`         | Fields to exclude from the generated builder                  |
-| `setterPrefix`    | `String`     | `""`         | Prefix for setter methods (e.g. `"with"` → `.withColor(...)`) |
-| `packageName`     | `String`     | `""`         | Override the package for the generated builder                |
-| `factoryName`     | `String`     | `""`         | Name for the static factory method on the builder             |
+| Attribute         | Type         | Default      | Description                                                          |
+|-------------------|--------------|--------------|----------------------------------------------------------------------|
+| `strategy`        | `Strategy[]` | `PERMISSIVE` | Controls builder behavior (see [Strategies](#strategies))            |
+| `mandatoryFields` | `String[]`   | `{}`         | Field names that must be set before `build()`                        |
+| `excludeFields`   | `String[]`   | `{}`         | Fields to exclude from the generated builder                         |
+| `setterPrefix`    | `String`     | `""`         | Prefix for setter methods (e.g. `"with"` → `.withColor(...)`)        |
+| `packageName`     | `String`     | `""`         | Override the package for the generated builder                       |
+| `factoryName`     | `String`     | `""`         | Name for the static factory method on the builder                    |
+| `runtimeDefaults` | `boolean`    | `false`      | Enables runtime defaults; mainly used together with `@TestDefaults`  |
 
 ## How it works
 
@@ -403,26 +428,55 @@ This also works with `STRICT` — a `Supplier<T>` default satisfies the mandator
 
 But what if you wanted to define defaults only for test purposes? 
 Then there is no good reason to have `Buildable.Defaults` annotated classes in `src/main` right?
-Also no-one wants test defaults on their production classpath!
+Also, no-one wants test defaults on their production classpath!
 
-`@Buildable.TestDefaults` allows you to define defaults in `src/test` while your buildable types live in
+`@TestDefaults` allows you to define defaults in `src/test` while your buildable types live in
 `src/main`. It works exactly like `@Buildable.Defaults`, but the generated builder will only pick up the defaults 
 **only if the test class is on the classpath**.
+Set `runtimeDefaults = true` on the buildable type to enable this runtime lookup.
+
+> Defaults class fields must be `static`. If the defaults class is in a different package from the buildable type,
+> fields must be `public`.
 
 Goes in `src/main` and is blissfully unaware of the existence of test defaults:
 ```java
-@Buildable
+@Buildable(runtimeDefaults = true)
 public class Car {
     private String color;
     private int year;
 }
 ```
 
-Goes into `src/test` and is aware of the existence of test defaults:
+Let the **top-level class** (point it at the buildable type explicitly):
 ```java
-@Buildable.TestDefaults(Car.class)
+@TestDefaults(Car.class)
 public class CarDefaults {
     public static String color = "blue";
+    public static int year = 2025;
+}
+```
+
+Remember that inner classes are always auto-discovered and do **not** require: `runtimeDefaults = true`.
+```java
+@Buildable(runtimeDefaults = true)
+public class Car {
+    private String color;
+    private int year;
+
+    @TestDefaults
+    public static class TestDefaults {
+        public static String color = "blue";
+        public static int year = 2025;
+    }
+}
+```
+
+#### Lazy defaults
+`Supplier<T>` fields are evaluated lazily at `build()` time, just like `@Buildable.Defaults`:
+```java
+@TestDefaults(Car.class)
+public class CarDefaults {
+    public static Supplier<String> color = () -> pickRandomColor();
 }
 ```
 

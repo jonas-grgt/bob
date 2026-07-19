@@ -9,6 +9,8 @@
 	<url>https://github.com/jonas-grgt/bob</url>
 	<modules>
 		<module>annotations</module>
+		<module>defaults</module>
+		<module>test-defaults</module>
 		<module>processor</module>
 	</modules>
 	<groupId>io.jonasg</groupId>

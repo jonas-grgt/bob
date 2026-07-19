@@ -3,7 +3,6 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
-import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 
@@ -13,7 +12,6 @@ public final class FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategyBu
   private int year;
 
   public FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategyBuilder() {
-    TestDefaultsResolver.applyDefaults(this, FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategy.class);
   }
 
   public FailWhenOptionalParamAnnotationIsUsedWithAllowNullsStrategyBuilder make(String make) {
