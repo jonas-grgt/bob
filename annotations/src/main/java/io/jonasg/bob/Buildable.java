@@ -84,6 +84,18 @@ public @interface Buildable {
 	String factoryName() default "";
 
 	/**
+	 * Enables runtime defaults resolution for the generated builder.
+	 * <p>
+	 * When enabled, generated builders call {@code DefaultsResolver} during
+	 * construction. This is needed for runtime defaults support,
+	 * including {@code @TestDefaults}.
+	 * </p>
+	 *
+	 * @return whether runtime defaults lookup is enabled
+	 */
+	boolean runtimeDefaults() default false;
+
+	/**
 	 * Marks a constructor as buildable.
 	 * This means that a builder will be generated
 	 * using the selected constructor as opposed to the one with the most
@@ -125,19 +137,18 @@ public @interface Buildable {
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.TYPE })
 	@interface Defaults {
+		/**
+		 * The buildable type this defaults class provides values for.
+		 * Defaults to {@link DefaultsAsInnerClass}, which means the annotated class
+		 * must be a static inner class of the {@link Buildable}-annotated type.
+		 * Set this explicitly when the defaults class is a top-level class
+		 * separate from the buildable type, e.g.
+		 * {@code @Buildable.Defaults(Car.class)}.
+		 *
+		 * @return the buildable type these defaults apply to
+		 */
 		Class<?> value() default DefaultsAsInnerClass.class;
-	}
 
-	/**
-	 * Marks a class as a container for test-scoped default values
-	 * that are applied at runtime via reflection.
-	 * This annotation is meant to be used in the test source set.
-	 */
-	@Documented
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.TYPE })
-	@interface TestDefaults {
-		Class<?> value() default DefaultsAsInnerClass.class;
 	}
 
 }

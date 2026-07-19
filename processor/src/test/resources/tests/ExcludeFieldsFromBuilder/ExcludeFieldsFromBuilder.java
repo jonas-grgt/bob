@@ -2,7 +2,7 @@ package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
 
-@Buildable(excludeFields = {"year"})
+@Buildable(excludeFields = {"year"}, runtimeDefaults = true)
 public class ExcludeFieldsFromBuilder {
 	private String make;
 

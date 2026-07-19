@@ -1,6 +1,6 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
+import java.lang.ReflectiveOperationException;
 import java.lang.String;
 
 public final class SetterWithCustomPrefixBuilder {
@@ -15,7 +15,12 @@ public final class SetterWithCustomPrefixBuilder {
   private float fuelEfficiency;
 
   public SetterWithCustomPrefixBuilder() {
-    TestDefaultsResolver.applyDefaults(this, SetterWithCustomPrefix.class, "with");
+    try {
+      Class<?> resolverClass = Class.forName("io.jonasg.bob.DefaultsResolver");
+      java.lang.reflect.Method method = resolverClass.getMethod("applyDefaults", Object.class, Class.class, String.class);
+      method.invoke(null, this, SetterWithCustomPrefix.class, "with");
+    } catch (ReflectiveOperationException ignored) {
+    }
   }
 
   public SetterWithCustomPrefixBuilder withMake(String make) {

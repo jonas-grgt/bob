@@ -1,6 +1,6 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
+import java.lang.ReflectiveOperationException;
 import java.lang.String;
 
 public final class ExcludeFieldsFromBuilderBuilder {
@@ -11,7 +11,12 @@ public final class ExcludeFieldsFromBuilderBuilder {
   private double engineSize;
 
   public ExcludeFieldsFromBuilderBuilder() {
-    TestDefaultsResolver.applyDefaults(this, ExcludeFieldsFromBuilder.class);
+    try {
+      Class<?> resolverClass = Class.forName("io.jonasg.bob.DefaultsResolver");
+      java.lang.reflect.Method method = resolverClass.getMethod("applyDefaults", Object.class, Class.class);
+      method.invoke(null, this, ExcludeFieldsFromBuilder.class);
+    } catch (ReflectiveOperationException ignored) {
+    }
   }
 
   public ExcludeFieldsFromBuilderBuilder make(String make) {

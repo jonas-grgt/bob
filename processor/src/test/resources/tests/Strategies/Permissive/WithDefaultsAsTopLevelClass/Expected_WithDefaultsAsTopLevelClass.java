@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class WithDefaultsAsTopLevelClassBuilder {
@@ -15,7 +14,6 @@ public final class WithDefaultsAsTopLevelClassBuilder {
   private int year = DefaultsClass.year;
 
   public WithDefaultsAsTopLevelClassBuilder() {
-    TestDefaultsResolver.applyDefaults(this, WithDefaultsAsTopLevelClass.class);
   }
 
   public WithDefaultsAsTopLevelClassBuilder engineSize(double engineSize) {

@@ -1,6 +1,5 @@
 package io.jonasg.bob.test.other;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.test.OverrideDefaultPackage;
 import java.lang.String;
 
@@ -16,7 +15,6 @@ public final class OverrideDefaultPackageBuilder {
   private float fuelEfficiency;
 
   public OverrideDefaultPackageBuilder() {
-    TestDefaultsResolver.applyDefaults(this, OverrideDefaultPackage.class);
   }
 
   public OverrideDefaultPackageBuilder make(String make) {

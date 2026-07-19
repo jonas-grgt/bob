@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder implements GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.YearStep, GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.BuildStep, GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder {
@@ -15,7 +14,6 @@ public final class DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStep
   private float fuelEfficiency;
 
   public DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder() {
-    TestDefaultsResolver.applyDefaults(this, GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWise.class);
   }
 
   public DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder make(

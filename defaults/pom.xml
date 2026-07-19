@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>io.jonasg</groupId>
+		<artifactId>bob</artifactId>
+		<version>0.8.0</version>
+	</parent>
+
+	<artifactId>bob-defaults</artifactId>
+	<name>bob-defaults</name>
+	<description>Bob runtime defaults resolver</description>
+	<url>https://github.com/jonasgeiregat/bob</url>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+</project>

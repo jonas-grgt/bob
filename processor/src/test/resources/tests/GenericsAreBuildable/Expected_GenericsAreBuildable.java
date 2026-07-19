@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.Class;
 import java.lang.String;
 
@@ -10,7 +9,6 @@ public final class GenericsAreBuildableBuilder<T, R extends String> {
   private R topping;
 
   public GenericsAreBuildableBuilder() {
-    TestDefaultsResolver.applyDefaults(this, GenericsAreBuildable.class);
   }
 
   public GenericsAreBuildableBuilder<T, R> contents(T contents) {

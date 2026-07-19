@@ -1,6 +1,5 @@
 package io.jonasg.bob.test;
 
-import io.jonasg.bob.TestDefaultsResolver;
 import java.lang.String;
 
 public final class AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder {
@@ -15,7 +14,6 @@ public final class AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilde
   private float fuelEfficiency;
 
   public AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder() {
-    TestDefaultsResolver.applyDefaults(this, AllConstructorParamsAreBuildableAndByDefaultNotEnforced.class);
   }
 
   public AllConstructorParamsAreBuildableAndByDefaultNotEnforcedBuilder make(String make) {

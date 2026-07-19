@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("unused")
 class TestDefaultsResolverTest {
 
-	public static class SimpleBuilder {
+	public static class BuildableTestType {
 		private String name;
 		private int age;
 		private boolean active;
@@ -41,7 +41,7 @@ class TestDefaultsResolverTest {
 	}
 
 	public static class InnerDefaultsOwner {
-		@Buildable.TestDefaults
+		@TestDefaults
 		public static class Defaults {
 			public static String name = "InnerDefault";
 			public static int age = 99;
@@ -50,7 +50,7 @@ class TestDefaultsResolverTest {
 
 	@Test
 	void appliesDefaultsFromInnerClassAnnotatedWithTestDefaults() {
-		var builder = new SimpleBuilder();
+		var builder = new BuildableTestType();
 		TestDefaultsResolver.applyDefaults(builder, InnerDefaultsOwner.class);
 
 		assertThat(builder.name).isEqualTo("InnerDefault");
@@ -58,7 +58,7 @@ class TestDefaultsResolverTest {
 	}
 
 	public static class TopLevelDefaultsOwner {
-		@Buildable.TestDefaults(TopLevelDefaultsOwner.class)
+		@TestDefaults(TopLevelDefaultsOwner.class)
 		public static class MyDefaults {
 			public static String name = "TopLevelDefault";
 		}
@@ -66,7 +66,7 @@ class TestDefaultsResolverTest {
 
 	@Test
 	void appliesDefaultsFromTopLevelClassWithExplicitValue() {
-		var builder = new SimpleBuilder();
+		var builder = new BuildableTestType();
 		TestDefaultsResolver.applyDefaults(builder, TopLevelDefaultsOwner.class);
 
 		assertThat(builder.name).isEqualTo("TopLevelDefault");
@@ -85,7 +85,7 @@ class TestDefaultsResolverTest {
 	}
 
 	public static class SupplierDefaultsOwner {
-		@Buildable.TestDefaults
+		@TestDefaults
 		public static class Defaults {
 			public static Supplier<String> uniqueName = () -> "supplier-value-" + UUID.randomUUID();
 		}
@@ -121,7 +121,7 @@ class TestDefaultsResolverTest {
 	}
 
 	public static class PrefixedDefaultsOwner {
-		@Buildable.TestDefaults
+		@TestDefaults
 		public static class Defaults {
 			public static String name = "PrefixedDefault";
 			public static int age = 42;
@@ -178,5 +178,32 @@ class TestDefaultsResolverTest {
 		TestDefaultsResolver.applyDefaults(builder, InnerDefaultsOwner.class);
 
 		assertThat(builder.engineSize).isNull();
+	}
+
+	@TestDefaults(BuildableTestType.class)
+	public static class RegistryDefaultsClass {
+		public static String name = "RegistryDefault";
+		public static int age = 11;
+	}
+
+	@Test
+	void appliesDefaultsFromRegistryWhenNotFindableByConvention() {
+		var builder = new BuildableTestType();
+		TestDefaultsResolver.applyDefaults(builder, BuildableTestType.class);
+
+		assertThat(builder.name).isEqualTo("RegistryDefault");
+		assertThat(builder.age).isEqualTo(11);
+	}
+
+	public static class UnregisteredOwner {
+	}
+
+	@Test
+	void doesNothingWhenRegistryDoesNotContainMapping() {
+		var builder = new BuildableTestType();
+		TestDefaultsResolver.applyDefaults(builder, UnregisteredOwner.class);
+
+		assertThat(builder.name).isNull();
+		assertThat(builder.age).isEqualTo(0);
 	}
 }

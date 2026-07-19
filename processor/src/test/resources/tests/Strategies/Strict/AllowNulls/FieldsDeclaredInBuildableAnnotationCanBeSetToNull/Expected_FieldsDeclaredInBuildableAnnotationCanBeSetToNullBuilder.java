@@ -3,7 +3,6 @@ package io.jonasg.bob.test;
 import io.jonasg.bob.MandatoryFieldMissingException;
 import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
-import io.jonasg.bob.TestDefaultsResolver;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Float;
@@ -22,7 +21,6 @@ public final class FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder {
   private final ValidatableField<Float> fuelEfficiency = ValidatableField.ofNullableField("fuelEfficiency", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
 
   public FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder() {
-    TestDefaultsResolver.applyDefaults(this, FieldsDeclaredInBuildableAnnotationCanBeSetToNull.class);
   }
 
   public FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder make(String make) {

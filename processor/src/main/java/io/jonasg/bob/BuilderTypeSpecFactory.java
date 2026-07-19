@@ -659,16 +659,27 @@ class BuilderTypeSpecFactory {
 				: ClassName.get(def.packageName(), def.fullTypeName());
 		var constructorBuilder = MethodSpec.constructorBuilder()
 				.addModifiers(Modifier.PUBLIC);
-		if (this.buildable.setterPrefix().isEmpty()) {
-			constructorBuilder.addStatement("$T.applyDefaults(this, $T.class)",
-					TestDefaultsResolver.class,
-					rawClassName);
-		} else {
-			constructorBuilder.addStatement("$T.applyDefaults(this, $T.class, $S)",
-					TestDefaultsResolver.class,
-					rawClassName,
-					this.buildable.setterPrefix());
+		if (!this.buildable.runtimeDefaults()) {
+			return constructorBuilder.build();
 		}
+		constructorBuilder.beginControlFlow("try")
+				.addStatement("Class<?> resolverClass = Class.forName($S)", "io.jonasg.bob.DefaultsResolver");
+		if (this.buildable.setterPrefix().isEmpty()) {
+			constructorBuilder
+					.addStatement(
+							"java.lang.reflect.Method method = resolverClass.getMethod($S, Object.class, Class.class)",
+							"applyDefaults")
+					.addStatement("method.invoke(null, this, $T.class)", rawClassName);
+		} else {
+			constructorBuilder
+					.addStatement(
+							"java.lang.reflect.Method method = resolverClass.getMethod($S, Object.class, Class.class, String.class)",
+							"applyDefaults")
+					.addStatement("method.invoke(null, this, $T.class, $S)", rawClassName,
+							this.buildable.setterPrefix());
+		}
+		constructorBuilder.nextControlFlow("catch ($T ignored)", ReflectiveOperationException.class)
+				.endControlFlow();
 		return constructorBuilder.build();
 	}
 

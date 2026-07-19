@@ -2,7 +2,7 @@ package io.jonasg.bob.test;
 
 import io.jonasg.bob.Buildable;
 
-@Buildable(setterPrefix = "with")
+@Buildable(setterPrefix = "with", runtimeDefaults = true)
 public class SetterWithCustomPrefix {
 	private String make;
 
