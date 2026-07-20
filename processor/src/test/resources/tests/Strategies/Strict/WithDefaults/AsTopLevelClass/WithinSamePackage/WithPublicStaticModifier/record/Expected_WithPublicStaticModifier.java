@@ -7,7 +7,9 @@ import io.jonasg.bob.ValidatableField;
 import java.lang.Boolean;
 import java.lang.Float;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class WithPublicStaticModifierBuilder {
   private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "WithPublicStaticModifier");
 

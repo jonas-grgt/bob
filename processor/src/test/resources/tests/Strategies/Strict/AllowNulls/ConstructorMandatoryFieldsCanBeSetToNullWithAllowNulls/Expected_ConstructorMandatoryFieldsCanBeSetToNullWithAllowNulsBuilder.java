@@ -6,7 +6,9 @@ import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Integer;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class ConstructorMandatoryFieldsCanBeSetToNullWithAllowNullsBuilder {
   private final ValidatableField<String> make = ValidatableField.ofNullableField("make", "ConstructorMandatoryFieldsCanBeSetToNullWithAllowNulls");
 

@@ -2,7 +2,9 @@ package io.jonasg.bob.test;
 
 import java.lang.ReflectiveOperationException;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class SetterWithCustomPrefixBuilder {
   private String make;
 

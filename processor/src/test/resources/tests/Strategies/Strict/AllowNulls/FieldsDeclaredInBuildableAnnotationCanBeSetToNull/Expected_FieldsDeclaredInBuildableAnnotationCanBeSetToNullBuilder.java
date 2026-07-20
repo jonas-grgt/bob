@@ -8,7 +8,9 @@ import java.lang.Boolean;
 import java.lang.Float;
 import java.lang.Integer;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class FieldsDeclaredInBuildableAnnotationCanBeSetToNullBuilder {
   private final ValidatableField<String> make = ValidatableField.ofNullableField("make", "FieldsDeclaredInBuildableAnnotationCanBeSetToNull");
 

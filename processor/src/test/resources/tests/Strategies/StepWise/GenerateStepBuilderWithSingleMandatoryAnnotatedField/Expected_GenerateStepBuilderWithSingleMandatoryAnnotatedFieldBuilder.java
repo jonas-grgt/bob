@@ -1,7 +1,9 @@
 package io.jonasg.bob.test;
 
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public interface GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder {
   static GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder newBuilder() {
     return new DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder();

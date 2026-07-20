@@ -8,7 +8,9 @@ import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Float;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class WithDefaultsAsInnerClassBuilder {
   private int year = WithDefaultsAsInnerClass.Defaults.year;
 

@@ -2,7 +2,9 @@ package io.jonasg.bob.test;
 
 import java.lang.String;
 import java.util.function.Supplier;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class WithSupplierDefaultBuilder {
   private String make;
 

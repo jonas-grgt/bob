@@ -2,7 +2,9 @@ package io.jonasg.bob.test.other;
 
 import io.jonasg.bob.test.OverrideDefaultPackage;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class OverrideDefaultPackageBuilder {
   private String make;
 

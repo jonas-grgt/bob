@@ -8,7 +8,9 @@ import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Float;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class CustomFactoryMethodNameBuilder {
   private final ValidatableField<Double> engineSize = ValidatableField.ofNoneNullableField("engineSize", "CustomFactoryMethodName");
 

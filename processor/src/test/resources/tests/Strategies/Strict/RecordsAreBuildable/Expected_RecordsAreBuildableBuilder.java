@@ -9,7 +9,9 @@ import java.lang.Double;
 import java.lang.Float;
 import java.lang.Integer;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class RecordsAreBuildableBuilder {
   private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "RecordsAreBuildable");
 

@@ -6,7 +6,9 @@ import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.Double;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class MandatoryAnnotationWithPermissiveStrategyBuilder {
   private String make;
 

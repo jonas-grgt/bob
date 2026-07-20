@@ -11,6 +11,8 @@ import java.util.Map;
 
 class BuilderGenerator {
 
+	private static final String GENERATED_BY = BuildableProcessor.class.getCanonicalName();
+
 	private final Filer filer;
 
 	private final Map<TypeMirror, DefaultValues> defaultsForBuildable;
@@ -38,7 +40,7 @@ class BuilderGenerator {
 		}
 
 		List<TypeSpec> typeSpecs = builderTypeSpecFactory.typeSpecs();
-		typeSpecs.forEach(t -> TypeWriter.write(filer, packageName, t));
+		typeSpecs.forEach(t -> TypeWriter.write(filer, packageName, t, GENERATED_BY));
 	}
 
 	private String getPackageName(TypeDefinition typeDefinition, Buildable buildable) {

@@ -5,7 +5,9 @@ import io.jonasg.bob.MandatoryFieldsMissingException;
 import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class JSpecifyNullMarkedClassWithAllowNullsBuilder {
   private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "JSpecifyNullMarkedClassWithAllowNulls");
 

@@ -7,7 +7,9 @@ import io.jonasg.bob.ValidatableField;
 import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSetBuilder {
   private final ValidatableField<String> make = ValidatableField.ofNoneNullableField("make", "ThrowExceptionWhenMandatoryAnnotatedFieldsAreNotSet");
 

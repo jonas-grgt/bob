@@ -1,5 +1,8 @@
 package io.jonasg.bob.test;
 
+import javax.annotation.processing.Generated;
+
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class UseFirstConstructorWithTheMostNumberOfParametersBuilder {
   private double engineSize;
 

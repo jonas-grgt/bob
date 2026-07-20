@@ -6,7 +6,9 @@ import io.jonasg.bob.MissingField;
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
 import java.util.function.Supplier;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class WithSupplierDefaultBuilder {
   private Supplier<String> uniqueName = WithSupplierDefault.Defaults.uniqueName;
 

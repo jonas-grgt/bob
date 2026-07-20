@@ -1,7 +1,9 @@
 package io.jonasg.bob.test;
 
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class DefaultGenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder implements GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.YearStep, GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder.BuildStep, GenerateStepBuilderWhenConstructorPolicyIsEnforcedStepWiseBuilder {
   private String make;
 

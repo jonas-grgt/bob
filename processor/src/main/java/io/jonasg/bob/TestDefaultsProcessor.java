@@ -29,6 +29,8 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public final class TestDefaultsProcessor extends AbstractProcessor {
 
+	private static final String GENERATED_BY = TestDefaultsProcessor.class.getCanonicalName();
+
 	private static final ClassName MAP_CLASS = ClassName.get(Map.class);
 	private static final ClassName HASHMAP_CLASS = ClassName.get("java.util", "HashMap");
 
@@ -120,6 +122,6 @@ public final class TestDefaultsProcessor extends AbstractProcessor {
 				.addMethod(findMethod)
 				.build();
 
-		TypeWriter.write(processingEnv.getFiler(), "io.jonasg.bob", typeSpec);
+		TypeWriter.write(processingEnv.getFiler(), "io.jonasg.bob", typeSpec, GENERATED_BY);
 	}
 }

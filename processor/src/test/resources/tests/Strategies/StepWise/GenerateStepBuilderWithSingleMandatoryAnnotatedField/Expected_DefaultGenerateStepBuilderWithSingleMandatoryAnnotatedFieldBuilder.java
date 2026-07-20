@@ -2,7 +2,9 @@ package io.jonasg.bob.test;
 
 import io.jonasg.bob.ValidatableField;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
+@Generated("io.jonasg.bob.BuildableProcessor")
 public final class DefaultGenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder implements GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder.BuildStep, GenerateStepBuilderWithSingleMandatoryAnnotatedFieldBuilder {
   private int year;
 
