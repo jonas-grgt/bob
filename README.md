@@ -1,6 +1,13 @@
 # 👷‍Bob [![Maven Central](https://img.shields.io/maven-central/v/io.jonasg/bob-annotations.svg)](https://search.maven.org/artifact/io.jonasg/bob-annotations) [![License](https://img.shields.io/github/license/jonas-grgt/bob.svg)](https://opensource.org/licenses/Apache-2.0)
 
-🪶 Lightweight Builder generator for Java. A feature-rich alternative to Lombok's `@Builder` with support for **step builders**, **strict validation**, and more.
+🪶 Lightweight Builder generator for Java. 
+
+A feature-rich alternative to Lombok's `@Builder` with support for 
+- **Step Builders**
+- **Mandatory Field Enforcement**
+- **Optional Fields**
+- **JSpecify**
+- **Default (Test) Values** 
 
 ## Quick start
 
