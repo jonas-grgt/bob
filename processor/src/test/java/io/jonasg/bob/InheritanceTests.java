@@ -235,4 +235,66 @@ class InheritanceTests {
 								"/tests/Inheritance/StaticInheritedFieldExcluded/Expected_StaticInheritedFieldExcluded.java"))
 				.executeTest();
 	}
+
+	@Test
+	void defaultsForInheritedFieldsAreApplied() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/Inheritance/InheritedFieldWithDefaults/InheritedFieldWithDefaults.java",
+						"/tests/Inheritance/InheritedFieldWithDefaults/Vehicle.java",
+						"/tests/Inheritance/InheritedFieldWithDefaults/InheritedFieldDefaults.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.InheritedFieldWithDefaultsBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/Inheritance/InheritedFieldWithDefaults/Expected_InheritedFieldWithDefaults.java"))
+				.executeTest();
+	}
+
+	@Test
+	void mandatoryFieldsCanReferenceInheritedFields() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/Inheritance/MandatoryFieldsWithInheritedField/MandatoryFieldsWithInheritedField.java",
+						"/tests/Inheritance/MandatoryFieldsWithInheritedField/Vehicle.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.MandatoryFieldsWithInheritedFieldBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/Inheritance/MandatoryFieldsWithInheritedField/Expected_MandatoryFieldsWithInheritedField.java"))
+				.executeTest();
+	}
+
+	@Test
+	void defaultsKeyedToSuperclassAreNotAppliedToSubclassBuilder() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles(
+						"/tests/Inheritance/SuperclassDefaultsNotApplied/SuperclassDefaultsNotApplied.java",
+						"/tests/Inheritance/SuperclassDefaultsNotApplied/Vehicle.java",
+						"/tests/Inheritance/SuperclassDefaultsNotApplied/VehicleDefaults.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.SuperclassDefaultsNotAppliedBuilder")
+				.matches(
+						CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+						JavaFileObjectUtils.readFromResource(
+								"/tests/Inheritance/SuperclassDefaultsNotApplied/Expected_SuperclassDefaultsNotApplied.java"))
+				.executeTest();
+	}
 }
