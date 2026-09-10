@@ -26,10 +26,9 @@ public final class BuildableProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		var elementUtils = processingEnv.getElementUtils();
-
-		var typeDefinitionFactory = new TypeDefinitionFactory(elementUtils);
-
 		Types types = processingEnv.getTypeUtils();
+
+		var typeDefinitionFactory = new TypeDefinitionFactory(elementUtils, types);
 		Elements elements = processingEnv.getElementUtils();
 
 		TypeMirror defaultsAsInnerClassMarker = elements
