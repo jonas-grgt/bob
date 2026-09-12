@@ -4,6 +4,7 @@
 
 A feature-rich alternative to Lombok's `@Builder` with support for 
 - **Step Builders**
+- **Inheritance**
 - **Mandatory Field Enforcement**
 - **Optional Fields**
 - **JSpecify**
