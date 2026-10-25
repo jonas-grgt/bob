@@ -56,13 +56,6 @@ class StepBuilderInterfaceTypeSpecFactory {
 				.addModifiers(Modifier.PUBLIC);
 		interfaces.add(ClassName.get(this.packageName, builderInterfaceName));
 
-		// Add static newBuilder method
-		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(builderStaticFactoryMethodName())
-				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-				.returns(ClassName.get(this.packageName, builderInterfaceName))
-				.addStatement("return new $L()", builderImplName)
-				.build());
-
 		List<BuildableField> reversedBuildableFields = reverseList(this.buildableFields);
 
 		// Determine mandatory fields (excluding optional ones)
@@ -96,6 +89,14 @@ class StepBuilderInterfaceTypeSpecFactory {
 		stepBuilderBuilder.addType(buildStep);
 		interfaces.add(ClassName.get("", builderInterfaceName + "." + "BuildStep"));
 
+		// Without mandatory fields the builder starts directly at the BuildStep
+		if (mandatoryFields.isEmpty()) {
+			stepBuilderBuilder.addMethod(staticFactoryMethod(ClassName.get("", "BuildStep"), builderImplName));
+			return new BuilderDetails(stepBuilderBuilder.build(), interfaces);
+		}
+		stepBuilderBuilder.addMethod(
+				staticFactoryMethod(ClassName.get(this.packageName, builderInterfaceName), builderImplName));
+
 		// Add each mandatory field as a separate interface,
 		// Skipping the last field because that should be defined as a method within
 		// the main Builder interface itself.
@@ -125,6 +126,14 @@ class StepBuilderInterfaceTypeSpecFactory {
 				.returns(ClassName.get("", nextStep.get().name()))
 				.build());
 		return new BuilderDetails(stepBuilderBuilder.build(), interfaces);
+	}
+
+	private MethodSpec staticFactoryMethod(TypeName returnType, String builderImplName) {
+		return MethodSpec.methodBuilder(builderStaticFactoryMethodName())
+				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+				.returns(returnType)
+				.addStatement("return new $L()", builderImplName)
+				.build();
 	}
 
 	private String builderStaticFactoryMethodName() {

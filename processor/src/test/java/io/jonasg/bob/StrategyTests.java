@@ -891,6 +891,48 @@ public class StrategyTests {
 		}
 
 		@Test
+		void allOptionalConstructorArgsStartWithBuildStep() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/StepWise/AllOptionalConstructorArgsStepWise/AllOptionalConstructorArgsStepWise.java",
+							"/tests/Strategies/StepWise/AllOptionalConstructorArgsStepWise/AllOptionalConstructorArgsStepWiseUsage.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.AllOptionalConstructorArgsStepWiseBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/AllOptionalConstructorArgsStepWise/Expected_AllOptionalConstructorArgsStepWiseBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
+		void noArgConstructorStartsWithBuildStep() {
+			Cute.blackBoxTest()
+					.given()
+					.processors(List.of(BuildableProcessor.class))
+					.andSourceFiles(
+							"/tests/Strategies/StepWise/NoArgConstructorStepWise/NoArgConstructorStepWise.java",
+							"/tests/Strategies/StepWise/NoArgConstructorStepWise/NoArgConstructorStepWiseUsage.java")
+					.whenCompiled()
+					.thenExpectThat()
+					.compilationSucceeds()
+					.andThat()
+					.generatedSourceFile(
+							"io.jonasg.bob.test.NoArgConstructorStepWiseBuilder")
+					.matches(
+							CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+							JavaFileObjectUtils.readFromResource(
+									"/tests/Strategies/StepWise/NoArgConstructorStepWise/Expected_NoArgConstructorStepWiseBuilder.java"))
+					.executeTest();
+		}
+
+		@Test
 		void optionalFieldInStepWise() {
 			Cute.blackBoxTest()
 					.given()
