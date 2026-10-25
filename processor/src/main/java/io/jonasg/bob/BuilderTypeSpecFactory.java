@@ -67,6 +67,7 @@ class BuilderTypeSpecFactory {
 		List<String> errors = collectInvalidStrategyCombinations();
 		errors.addAll(collectConflictingMandatoryAndDefaults());
 		errors.addAll(collectUnknownMandatoryFields());
+		errors.addAll(collectExcludedMandatoryFields());
 		List<String> warnings = collectRedundantMandatoryAnnotations();
 		if (!errors.isEmpty() || !warnings.isEmpty()) {
 			throw new BuilderValidationException(errors, warnings);
@@ -222,6 +223,15 @@ class BuilderTypeSpecFactory {
 		return errors;
 	}
 
+	private List<String> collectExcludedMandatoryFields() {
+		List<String> excluded = Arrays.asList(this.buildable.excludeFields());
+		return Arrays.stream(this.buildable.mandatoryFields())
+				.filter(excluded::contains)
+				.map(f -> "Field '%s' is listed in both mandatoryFields and excludeFields. Remove it from one of them."
+						.formatted(f))
+				.toList();
+	}
+
 	private boolean isNullableField(ParameterDefinition p) {
 		boolean paramHasNullable = this.constructorDefinition.parameters().stream()
 				.filter(param -> param.name().equals(p.name()))
@@ -319,7 +329,7 @@ class BuilderTypeSpecFactory {
 
 		Optional<VariableElement> defaultField = getFieldDefault(field);
 
-		if ((field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) &&
+		if (isValidated(field) &&
 				defaultField.isEmpty()) {
 			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
 				builder.addStatement("this.$L = $L", field.name(), field.name());
@@ -337,6 +347,14 @@ class BuilderTypeSpecFactory {
 				.build();
 	}
 
+	/**
+	 * Whether the field must be set before build(); excluded fields never are.
+	 */
+	private boolean isValidated(BuildableField field) {
+		return notExcluded(field)
+				&& (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory());
+	}
+
 	private boolean isAnEnforcedConstructorPolicy() {
 		return this.strategy().contains(Strategy.STRICT) ||
 				this.strategy().contains(Strategy.ALLOW_NULLS);
@@ -350,7 +368,7 @@ class BuilderTypeSpecFactory {
 
 	protected FieldSpec generateField(BuildableField field) {
 		Optional<VariableElement> defaultField = getFieldDefault(field);
-		if ((field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory())
+		if (isValidated(field)
 				&& defaultField.isEmpty()) {
 
 			if (strategy().contains(Strategy.STRICT) && field.isOptional()) {
@@ -457,7 +475,7 @@ class BuilderTypeSpecFactory {
 
 	private CodeBlock generateValidationCode() {
 		var validatableFields = buildableFields.stream()
-				.filter(f -> (isAnEnforcedConstructorPolicy() && f.isConstructorArgument() || f.isMandatory())
+				.filter(f -> isValidated(f)
 						&& !f.isOptional())
 				.toList();
 
@@ -510,7 +528,7 @@ class BuilderTypeSpecFactory {
 					boolean isOptionalInStrict = strategy().contains(Strategy.STRICT)
 							&& matchingField.get().isOptional();
 					boolean isSupplier = getSupplierTypeArgument(matchingField.get()).isPresent()
-							|| ((isAnEnforcedConstructorPolicy() || matchingField.get().isMandatory())
+							|| (isValidated(matchingField.get())
 									&& !isOptionalInStrict
 									&& getFieldDefault(matchingField.get()).isEmpty());
 					return String.format("%s%s", param.name(), isSupplier ? ".get()" : "");
@@ -532,7 +550,7 @@ class BuilderTypeSpecFactory {
 	}
 
 	protected CodeBlock generateFieldAssignment(BuildableField field) {
-		if (field.isConstructorArgument() && isAnEnforcedConstructorPolicy() || field.isMandatory()) {
+		if (isValidated(field)) {
 			return CodeBlock.builder()
 					.addStatement("instance.$L(this.$L.get())",
 							field.setterMethodName().orElseThrow(), field.name())
