@@ -3,6 +3,7 @@ package io.jonasg.bob;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
+import com.palantir.javapoet.TypeVariableName;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -25,8 +26,15 @@ class TypeSpecInterfaceBuilder {
 
 		private final List<MethodSpec> methods = new ArrayList<>();
 
+		private List<TypeVariableName> typeVariables = List.of();
+
 		public InterfaceBuilder(String name) {
 			this.name = name;
+		}
+
+		public InterfaceBuilder typeVariables(List<TypeVariableName> typeVariables) {
+			this.typeVariables = typeVariables;
+			return this;
 		}
 
 		@SuppressWarnings("UnusedReturnValue")
@@ -38,6 +46,7 @@ class TypeSpecInterfaceBuilder {
 		public TypeSpec build() {
 			var builder = TypeSpec.interfaceBuilder(this.name);
 			builder.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+			builder.addTypeVariables(this.typeVariables);
 			this.methods.forEach(builder::addMethod);
 			return builder.build();
 		}
@@ -53,8 +62,15 @@ class TypeSpecInterfaceBuilder {
 
 		private String methodName;
 
+		private List<TypeVariableName> typeVariables = List.of();
+
 		public FunctionalInterfaceBuilder(String name) {
 			this.name = name;
+		}
+
+		public FunctionalInterfaceBuilder typeVariables(List<TypeVariableName> typeVariables) {
+			this.typeVariables = typeVariables;
+			return this;
 		}
 
 		public FunctionalInterfaceBuilder methodName(String methodName) {
@@ -75,6 +91,7 @@ class TypeSpecInterfaceBuilder {
 		public TypeSpec build() {
 			var builder = TypeSpec.interfaceBuilder(this.name);
 			builder.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+			builder.addTypeVariables(this.typeVariables);
 			MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(this.methodName)
 					.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 					.returns(this.returnType);

@@ -12,9 +12,7 @@ import com.palantir.javapoet.TypeVariableName;
 import io.jonasg.bob.StepBuilderInterfaceTypeSpecFactory.BuilderDetails;
 import io.jonasg.bob.definitions.ConstructorDefinition;
 import io.jonasg.bob.definitions.FieldDefinition;
-import io.jonasg.bob.definitions.GenericParameterDefinition;
 import io.jonasg.bob.definitions.ParameterDefinition;
-import io.jonasg.bob.definitions.SimpleTypeDefinition;
 import io.jonasg.bob.definitions.TypeDefinition;
 
 import javax.lang.model.element.Modifier;
@@ -87,16 +85,14 @@ class BuilderTypeSpecFactory {
 			builderDetails.interfaces().forEach(builder::addSuperinterface);
 		}
 
-		if (!this.typeDefinition.genericParameters().isEmpty()) {
-			builder.addTypeVariables(toTypeVariableNames(this.typeDefinition));
-		}
+		builder.addTypeVariables(this.typeDefinition.typeVariables());
 
 		builder.addMethods(generateSetters());
 		builder.addFields(generateFields());
 		builder.addMethod(generateBuildMethod());
 		builder.addMethod(generateConstructor());
 
-		if (!this.typeDefinition.genericParameters().isEmpty()) {
+		if (!this.typeDefinition.typeVariables().isEmpty()) {
 			builder.addMethod(of());
 		}
 
@@ -581,87 +577,29 @@ class BuilderTypeSpecFactory {
 		body.addStatement("return new $L<>()", builderTypeName(this.typeDefinition));
 		Builder builder = MethodSpec.methodBuilder("of")
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-				.addTypeVariables(builderTypeGenerics())
+				.addTypeVariables(this.typeDefinition.typeVariables())
 				.returns(builderType());
-		for (ParameterDefinition parameter : this.typeDefinition.genericParameters()) {
-			builder.addParameter(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"),
-					TypeVariableName.get(parameter.name())), String.format("%stype", parameter.name()));
+		for (TypeVariableName typeVariable : this.typeDefinition.typeVariables()) {
+			builder.addParameter(ParameterizedTypeName.get(ClassName.get(Class.class),
+					TypeVariableName.get(typeVariable.name())), String.format("%stype", typeVariable.name()));
 		}
 		builder.addCode(body.build());
 		return builder.build();
 	}
 
 	protected TypeName builderType() {
-		if (this.typeDefinition.genericParameters().isEmpty()) {
-			String result;
-			if (!this.buildable.packageName().isEmpty()) {
-				result = this.buildable.packageName();
-			} else {
-				result = this.typeDefinition.packageName();
-			}
-			return ClassName.get(result, builderTypeName(this.typeDefinition));
-		}
-		List<TypeVariableName> typeVariableNames = toTypeVariableNames(this.typeDefinition);
-		String result;
-		if (!this.buildable.packageName().isEmpty()) {
-			result = this.buildable.packageName();
-		} else {
-			result = this.typeDefinition.packageName();
-		}
-		return ParameterizedTypeName.get(ClassName.get(result, builderTypeName(this.typeDefinition)),
-				typeVariableNames.toArray(new TypeName[0]));
-	}
-
-	private List<TypeVariableName> builderTypeGenerics() {
-		List<TypeVariableName> typeVariableNames = new ArrayList<>();
-		for (GenericParameterDefinition param : this.typeDefinition.genericParameters()) {
-			List<TypeVariableName> bounds = new ArrayList<>();
-			for (SimpleTypeDefinition definition : param.bounds()) {
-				bounds.add(TypeVariableName.get(definition.typeName()));
-			}
-			typeVariableNames.add(TypeVariableName.get(param.name(), bounds.toArray(new TypeName[0])));
-		}
-		return typeVariableNames;
+		return this.typeDefinition.withTypeVariables(
+				ClassName.get(this.packageName, builderTypeName(this.typeDefinition)));
 	}
 
 	protected TypeName className(TypeDefinition definition) {
-		if (definition.genericParameters().isEmpty()) {
-			if (definition.isNested()) {
-				return ClassName.get(definition.packageName(), definition.nestedIn())
-						.nestedClass(definition.typeName());
-			} else {
-				return ClassName.get(definition.packageName(), definition.fullTypeName());
-			}
-		} else {
-			List<TypeVariableName> genericParameters = toTypeVariableNames(definition);
-			return ParameterizedTypeName.get(
-					ClassName.get(definition.packageName(), definition.fullTypeName()),
-					genericParameters.toArray(new TypeName[0]));
-		}
-	}
-
-	private List<TypeVariableName> toTypeVariableNames(TypeDefinition definition) {
-		List<TypeVariableName> genericParameters = new ArrayList<>();
-		for (GenericParameterDefinition parameterDefinition : definition.genericParameters()) {
-			genericParameters
-					.add(TypeVariableName.get(parameterDefinition.name(),
-							simpleClassNames(parameterDefinition.bounds())
-									.toArray(new TypeName[parameterDefinition.bounds().size()])));
-		}
-		return genericParameters;
-	}
-
-	private List<TypeName> simpleClassNames(List<SimpleTypeDefinition> definitions) {
-		List<TypeName> typeNames = new ArrayList<>();
-		for (SimpleTypeDefinition definition : definitions) {
-			typeNames.add(ClassName.get(definition.packageName(), definition.fullTypeName()));
-		}
-		return typeNames;
+		return definition.withTypeVariables(definition.className());
 	}
 
 	private MethodSpec addStaticFactoryMethod(String name) {
 		return MethodSpec.methodBuilder(name)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+				.addTypeVariables(this.typeDefinition.typeVariables())
 				.returns(this.builderType())
 				.addStatement("return new $T()", this.builderType())
 				.build();
@@ -680,10 +618,7 @@ class BuilderTypeSpecFactory {
 	}
 
 	private MethodSpec generateConstructor() {
-		TypeDefinition def = this.typeDefinition;
-		ClassName rawClassName = def.isNested()
-				? ClassName.get(def.packageName(), def.nestedIn()).nestedClass(def.typeName())
-				: ClassName.get(def.packageName(), def.fullTypeName());
+		ClassName rawClassName = this.typeDefinition.className();
 		var constructorBuilder = MethodSpec.constructorBuilder()
 				.addModifiers(Modifier.PUBLIC);
 		if (!this.buildable.runtimeDefaults()) {

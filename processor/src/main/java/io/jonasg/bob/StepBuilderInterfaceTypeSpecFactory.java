@@ -53,8 +53,9 @@ class StepBuilderInterfaceTypeSpecFactory {
 		Set<TypeName> interfaces = new HashSet<>();
 		String builderInterfaceName = String.format("%sBuilder", this.typeDefinition.typeName());
 		Builder stepBuilderBuilder = TypeSpec.interfaceBuilder(builderInterfaceName)
-				.addModifiers(Modifier.PUBLIC);
-		interfaces.add(ClassName.get(this.packageName, builderInterfaceName));
+				.addModifiers(Modifier.PUBLIC)
+				.addTypeVariables(this.typeDefinition.typeVariables());
+		interfaces.add(generic(ClassName.get(this.packageName, builderInterfaceName)));
 
 		List<BuildableField> reversedBuildableFields = reverseList(this.buildableFields);
 
@@ -70,32 +71,33 @@ class StepBuilderInterfaceTypeSpecFactory {
 		// Generate BuildStep interface containing the build method plus all optional
 		// fields.
 		Set<BuildableField> mandatoryFieldSet = new HashSet<>(mandatoryFields);
-		InterfaceBuilder buildStepInterfaceBuilder = TypeSpecInterfaceBuilder.anInterface("BuildStep");
+		InterfaceBuilder buildStepInterfaceBuilder = TypeSpecInterfaceBuilder.anInterface("BuildStep")
+				.typeVariables(this.typeDefinition.typeVariables());
 		reversedBuildableFields.stream()
 				.filter(this::notExcluded)
 				.filter(field -> !mandatoryFieldSet.contains(field))
 				.forEach(field -> buildStepInterfaceBuilder.addMethod(MethodSpec.methodBuilder(setterName(field.name()))
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-						.returns(ClassName.get("", "BuildStep"))
+						.returns(generic(ClassName.get("", "BuildStep")))
 						.addParameter(TypeName.get(field.type()), field.name())
 						.build()));
 		// Add terminal build method
 		buildStepInterfaceBuilder.addMethod(MethodSpec.methodBuilder("build")
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-				.returns(ClassName.get(this.typeDefinition.packageName(), this.typeDefinition.typeName()))
+				.returns(generic(this.typeDefinition.className()))
 				.build());
 		buildStepInterfaceBuilder.build();
 		TypeSpec buildStep = buildStepInterfaceBuilder.build();
 		stepBuilderBuilder.addType(buildStep);
-		interfaces.add(ClassName.get("", builderInterfaceName + "." + "BuildStep"));
+		interfaces.add(generic(ClassName.get("", builderInterfaceName + "." + "BuildStep")));
 
 		// Without mandatory fields the builder starts directly at the BuildStep
 		if (mandatoryFields.isEmpty()) {
-			stepBuilderBuilder.addMethod(staticFactoryMethod(ClassName.get("", "BuildStep"), builderImplName));
+			stepBuilderBuilder.addMethod(staticFactoryMethod(generic(ClassName.get("", "BuildStep")), builderImplName));
 			return new BuilderDetails(stepBuilderBuilder.build(), interfaces);
 		}
 		stepBuilderBuilder.addMethod(
-				staticFactoryMethod(ClassName.get(this.packageName, builderInterfaceName), builderImplName));
+				staticFactoryMethod(generic(ClassName.get(this.packageName, builderInterfaceName)), builderImplName));
 
 		// Add each mandatory field as a separate interface,
 		// Skipping the last field because that should be defined as a method within
@@ -107,11 +109,12 @@ class StepBuilderInterfaceTypeSpecFactory {
 				.filter(this::notExcluded)
 				.map(field -> {
 					String name = String.format("%sStep", capitalize(field.name()));
-					interfaces.add(ClassName.get("", builderInterfaceName + "." + name));
+					interfaces.add(generic(ClassName.get("", builderInterfaceName + "." + name)));
 					return TypeSpecInterfaceBuilder.functionalInterface(name)
+							.typeVariables(this.typeDefinition.typeVariables())
 							.methodName(setterName(field.name()))
 							.addArgument(TypeName.get(field.type()), field.name())
-							.returns(ClassName.get("", nextStep.get().name()))
+							.returns(generic(ClassName.get("", nextStep.get().name())))
 							.build();
 				})
 				.peek(nextStep::set)
@@ -123,7 +126,7 @@ class StepBuilderInterfaceTypeSpecFactory {
 		stepBuilderBuilder.addMethod(MethodSpec.methodBuilder(setterName(buildableField.name()))
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 				.addParameter(TypeName.get(buildableField.type()), buildableField.name())
-				.returns(ClassName.get("", nextStep.get().name()))
+				.returns(generic(ClassName.get("", nextStep.get().name())))
 				.build());
 		return new BuilderDetails(stepBuilderBuilder.build(), interfaces);
 	}
@@ -131,9 +134,16 @@ class StepBuilderInterfaceTypeSpecFactory {
 	private MethodSpec staticFactoryMethod(TypeName returnType, String builderImplName) {
 		return MethodSpec.methodBuilder(builderStaticFactoryMethodName())
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+				.addTypeVariables(this.typeDefinition.typeVariables())
 				.returns(returnType)
-				.addStatement("return new $L()", builderImplName)
+				.addStatement(this.typeDefinition.typeVariables().isEmpty()
+						? "return new $L()"
+						: "return new $L<>()", builderImplName)
 				.build();
+	}
+
+	private TypeName generic(ClassName raw) {
+		return this.typeDefinition.withTypeVariables(raw);
 	}
 
 	private String builderStaticFactoryMethodName() {

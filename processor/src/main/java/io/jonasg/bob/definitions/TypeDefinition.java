@@ -1,5 +1,10 @@
 package io.jonasg.bob.definitions;
 
+import com.palantir.javapoet.ClassName;
+import com.palantir.javapoet.ParameterizedTypeName;
+import com.palantir.javapoet.TypeName;
+import com.palantir.javapoet.TypeVariableName;
+
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
@@ -9,40 +14,63 @@ import java.util.List;
  * Defines a specific Java Type.
  * It declares its fields, constructors, methods and generic parameters.
  */
-public class TypeDefinition extends SimpleTypeDefinition {
+public class TypeDefinition {
+
+	private String typeName;
+
+	private String packageName;
+
+	private ClassName className;
 
 	private List<FieldDefinition> fields = new ArrayList<>();
 
 	private List<ConstructorDefinition> constructors = new ArrayList<>();
 
-	private List<GenericParameterDefinition> genericParameters = new ArrayList<>();
+	private List<TypeVariableName> typeVariables = new ArrayList<>();
 
 	private List<MethodDefinition> methods;
 
 	private TypeMirror buildableTypeMirror;
 
-	public TypeDefinition() {
-		super();
+	public String typeName() {
+		return typeName;
+	}
+
+	public String packageName() {
+		return packageName;
+	}
+
+	/**
+	 * The raw (non-parameterized) class name, including any enclosing types.
+	 */
+	public ClassName className() {
+		return className;
+	}
+
+	/**
+	 * {@code raw} parameterized with this type's type variables, e.g.
+	 * {@code Box<T>}.
+	 */
+	public TypeName withTypeVariables(ClassName raw) {
+		if (typeVariables.isEmpty()) {
+			return raw;
+		}
+		return ParameterizedTypeName.get(raw, typeVariables.toArray(new TypeName[0]));
 	}
 
 	public List<FieldDefinition> fields() {
 		return fields;
 	}
 
-	public String nestedIn() {
-		return parent;
-	}
-
-	public List<GenericParameterDefinition> genericParameters() {
-		return new ArrayList<>(genericParameters);
+	/**
+	 * The declared type variables, including their bounds.
+	 */
+	public List<TypeVariableName> typeVariables() {
+		return new ArrayList<>(typeVariables);
 	}
 
 	public List<ConstructorDefinition> constructors() {
 		return new ArrayList<>(constructors);
-	}
-
-	public boolean isNested() {
-		return parent != null;
 	}
 
 	public static Builder newBuilder() {
@@ -116,8 +144,8 @@ public class TypeDefinition extends SimpleTypeDefinition {
 			return this;
 		}
 
-		public Builder enclosedIn(String enclosedIn) {
-			instance.parent = enclosedIn;
+		public Builder className(ClassName className) {
+			instance.className = className;
 			return this;
 		}
 
@@ -131,8 +159,8 @@ public class TypeDefinition extends SimpleTypeDefinition {
 			return this;
 		}
 
-		public Builder genericParameters(List<GenericParameterDefinition> generics) {
-			instance.genericParameters = generics;
+		public Builder typeVariables(List<TypeVariableName> typeVariables) {
+			instance.typeVariables = typeVariables;
 			return this;
 		}
 

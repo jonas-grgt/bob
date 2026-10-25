@@ -1,12 +1,13 @@
 package io.jonasg.bob.definitions;
 
+import com.palantir.javapoet.ClassName;
+import com.palantir.javapoet.TypeVariableName;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -15,11 +16,8 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,52 +45,16 @@ public class TypeDefinitionFactory {
 		this.element = element;
 		return TypeDefinition.newBuilder()
 				.typeName(typeName())
-				.genericParameters(generics(element))
+				.typeVariables(((TypeElement) element).getTypeParameters().stream()
+						.map(TypeVariableName::get)
+						.toList())
+				.className(ClassName.get((TypeElement) element))
 				.packageName(packageName())
 				.methods(methods())
-				.enclosedIn(outerFullTypeName())
 				.fields(fields())
 				.constructors(constructors(element))
 				.buildableTypeMirror(element.asType())
 				.build();
-	}
-
-	private List<GenericParameterDefinition> generics(Element element) {
-		List<GenericParameterDefinition> parameters = new ArrayList<>();
-		if (ElementKind.CLASS.equals(element.getKind())) {
-			for (TypeParameterElement param : ((TypeElement) element).getTypeParameters()) {
-				parameters.add(new GenericParameterDefinition(param.asType(), param.getSimpleName().toString(),
-						toTypeDefinitions(param.getBounds())));
-			}
-		}
-		return parameters;
-	}
-
-	private List<SimpleTypeDefinition> toTypeDefinitions(List<? extends TypeMirror> mirrors) {
-		List<SimpleTypeDefinition> definitions = new ArrayList<>();
-		for (TypeMirror mirror : mirrors) {
-			if (!"java.lang.Object".equals(mirror.toString())) {
-				List<String> parts = new ArrayList<>(Arrays.asList(mirror.toString().split("\\.")));
-				Collections.reverse(parts);
-				String name = parts.get(0);
-				parts.remove(0);
-				Collections.reverse(parts);
-				String packageName = join(parts.toArray(new String[0]), ".");
-				definitions.add(new SimpleTypeDefinition(name, packageName));
-			}
-		}
-		return definitions;
-	}
-
-	private static String join(String[] aArr, String sSep) {
-		StringBuilder sbStr = new StringBuilder();
-		for (int i = 0, il = aArr.length; i < il; i++) {
-			if (i > 0) {
-				sbStr.append(sSep);
-			}
-			sbStr.append(aArr[i]);
-		}
-		return sbStr.toString();
 	}
 
 	private List<ConstructorDefinition> constructors(Element element) {
@@ -112,32 +74,12 @@ public class TypeDefinitionFactory {
 		return definitions;
 	}
 
-	private String outerType(Element enclosingElement) {
-		StringBuilder enclosedIn = null;
-		while (!enclosingElement.getKind().equals(ElementKind.PACKAGE)) {
-			if (enclosedIn == null) {
-				enclosedIn = Optional.ofNullable(enclosingElement.getSimpleName().toString())
-						.map(StringBuilder::new)
-						.orElse(null);
-			} else {
-				enclosedIn.append(String.format(".%s", enclosingElement.getSimpleName()));
-			}
-			enclosingElement = enclosingElement.getEnclosingElement();
-		}
-		return enclosedIn == null ? null : enclosedIn.toString();
-	}
-
 	private String typeName() {
 		return element.getSimpleName().toString();
 	}
 
 	private String packageName() {
 		return elementUtils.getPackageOf(element).getQualifiedName().toString();
-	}
-
-	private String outerFullTypeName() {
-		Element enclosingElement = element.getEnclosingElement();
-		return outerType(enclosingElement);
 	}
 
 	private List<FieldDefinition> fields() {
