@@ -562,12 +562,16 @@ class BuilderTypeSpecFactory {
 	}
 
 	protected String defaultForType(TypeMirror type) {
-		return switch (type.toString()) {
-			case "int" -> "0";
-			case "long" -> "0L";
-			case "float" -> "0.0f";
-			case "double" -> "0.0d";
-			case "boolean" -> "false";
+		// byte and short need a cast: constants are not narrowed in invocation contexts
+		return switch (type.getKind()) {
+			case BYTE -> "(byte) 0";
+			case SHORT -> "(short) 0";
+			case CHAR -> "'\\u0000'";
+			case INT -> "0";
+			case LONG -> "0L";
+			case FLOAT -> "0.0f";
+			case DOUBLE -> "0.0d";
+			case BOOLEAN -> "false";
 			default -> "null";
 		};
 	}
