@@ -56,11 +56,11 @@ class BuilderTypeSpecFactory {
 			boolean isInNullMarkedScope) {
 		this.typeDefinition = typeDefinition;
 		this.buildable = buildable;
+		this.packageName = packageName;
 		this.constructorDefinition = extractConstructorDefinitionFrom(typeDefinition);
 		this.isInNullMarkedScope = isInNullMarkedScope;
 		this.buildableFields = extractBuildableFieldsFrom(typeDefinition);
 		this.typeUtils = typeUtils;
-		this.packageName = packageName;
 	}
 
 	public List<TypeSpec> typeSpecs() {
@@ -123,7 +123,7 @@ class BuilderTypeSpecFactory {
 						isNullableField(p),
 						p.type()));
 
-		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods()
+		Stream<BuildableField> setterBuildableFields = this.typeDefinition.getSetterMethods(this.packageName)
 				.stream()
 				.filter(setter -> !eligibleConstructorParams
 						.contains(new ParameterDefinition(setter.type(), setter.field().name())))
@@ -284,10 +284,19 @@ class BuilderTypeSpecFactory {
 		}
 		if (buildableConstructors.isEmpty()) {
 			return typeDefinition.constructors().stream()
-					.max(Comparator.comparingInt(c -> c.parameters().size())).orElseThrow();
-		} else {
-			return buildableConstructors.get(0);
+					.filter(c -> c.isAccessibleFrom(this.packageName))
+					.max(Comparator.comparingInt(c -> c.parameters().size()))
+					.orElseThrow(() -> new IllegalArgumentException(String.format(
+							"%s has no constructor accessible from package '%s'",
+							typeDefinition.typeName(), this.packageName)));
 		}
+		ConstructorDefinition annotated = buildableConstructors.get(0);
+		if (!annotated.isAccessibleFrom(this.packageName)) {
+			throw new IllegalArgumentException(String.format(
+					"The @Buildable.Constructor of %s is not accessible from package '%s'",
+					typeDefinition.typeName(), this.packageName));
+		}
+		return annotated;
 	}
 
 	private List<Strategy> strategy() {
@@ -433,7 +442,7 @@ class BuilderTypeSpecFactory {
 						&& buildableFields.stream().anyMatch(BuildableField::isMandatory))) {
 			builder.addCode(generateValidationCode());
 		}
-		if (typeDefinition.containsSetterMethods()) {
+		if (typeDefinition.containsSetterMethods(this.packageName)) {
 			createConstructorAndSetterAwareBuildMethod(builder);
 		} else {
 			builder.addCode(CodeBlock.builder()

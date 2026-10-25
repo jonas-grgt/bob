@@ -107,7 +107,7 @@ public class TypeDefinitionFactory {
 						allAnnotations));
 			}
 			definitions.add(new ConstructorDefinition(constructorParams, constructor.getModifiers(),
-					constructor.getAnnotationMirrors()));
+					constructor.getAnnotationMirrors(), packageName()));
 		}
 		return definitions;
 	}
@@ -192,12 +192,7 @@ public class TypeDefinitionFactory {
 			DeclaredType declaredSuperclass = (DeclaredType) superclass;
 			TypeElement superclassElement = (TypeElement) declaredSuperclass.asElement();
 			for (ExecutableElement method : ElementFilter.methodsIn(superclassElement.getEnclosedElements())) {
-				if (method.getModifiers().contains(Modifier.PRIVATE)
-						|| method.getModifiers().contains(Modifier.STATIC)) {
-					continue;
-				}
-				if (!method.getModifiers().contains(Modifier.PUBLIC)
-						&& !isInSamePackage(superclassElement)) {
+				if (method.getModifiers().contains(Modifier.STATIC)) {
 					continue;
 				}
 				definitions.add(toMethodDefinition(method));
@@ -207,13 +202,10 @@ public class TypeDefinitionFactory {
 		return definitions;
 	}
 
-	private boolean isInSamePackage(TypeElement other) {
-		return elementUtils.getPackageOf(other).getQualifiedName()
-				.equals(elementUtils.getPackageOf(element).getQualifiedName());
-	}
-
 	private MethodDefinition toMethodDefinition(ExecutableElement method) {
-		return new MethodDefinition(method.getSimpleName().toString(), parameterTypes(method));
+		return new MethodDefinition(method.getSimpleName().toString(), parameterTypes(method),
+				method.getModifiers(),
+				elementUtils.getPackageOf(method).getQualifiedName().toString());
 	}
 
 	private List<TypeMirror> parameterTypes(ExecutableElement element) {

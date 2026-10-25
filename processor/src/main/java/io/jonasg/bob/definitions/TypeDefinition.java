@@ -49,10 +49,14 @@ public class TypeDefinition extends SimpleTypeDefinition {
 		return new Builder();
 	}
 
-	public List<SetterMethodDefinition> getSetterMethods() {
+	/**
+	 * Setter methods that can be called from a type in the given package.
+	 */
+	public List<SetterMethodDefinition> getSetterMethods(String accessibleFromPackage) {
 		List<SetterMethodDefinition> setters = new ArrayList<>();
 		List<MethodDefinition> methodsWithOneParam = this.methods.stream()
 				.filter(m -> m.parameters().size() == 1)
+				.filter(m -> m.isAccessibleFrom(accessibleFromPackage))
 				.toList();
 		for (FieldDefinition field : fields) {
 			String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
@@ -83,8 +87,8 @@ public class TypeDefinition extends SimpleTypeDefinition {
 				&& field.type().getKind().equals(TypeKind.BOOLEAN);
 	}
 
-	public boolean containsSetterMethods() {
-		return !getSetterMethods().isEmpty();
+	public boolean containsSetterMethods(String accessibleFromPackage) {
+		return !getSetterMethods(accessibleFromPackage).isEmpty();
 	}
 
 	/**

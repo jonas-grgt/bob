@@ -14,16 +14,20 @@ public final class ConstructorDefinition {
 
 	private final List<? extends AnnotationMirror> annotations;
 
+	private final String declaringPackage;
+
 	public ConstructorDefinition(List<ParameterDefinition> parameters,
 			Set<Modifier> modifiers,
-			List<? extends AnnotationMirror> annotations) {
+			List<? extends AnnotationMirror> annotations,
+			String declaringPackage) {
 		this.parameters = parameters;
 		this.modifiers = modifiers;
 		this.annotations = annotations;
+		this.declaringPackage = declaringPackage;
 	}
 
-	public boolean isPrivate() {
-		return modifiers.contains(Modifier.PRIVATE);
+	public boolean isAccessibleFrom(String packageName) {
+		return Accessibility.isAccessible(modifiers, declaringPackage, packageName);
 	}
 
 	public List<ParameterDefinition> parameters() {
