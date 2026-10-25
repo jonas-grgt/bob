@@ -10,6 +10,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -54,6 +55,7 @@ public class TypeDefinitionFactory {
 				.fields(fields())
 				.constructors(constructors(element))
 				.buildableTypeMirror(element.asType())
+				.types(types)
 				.build();
 	}
 
@@ -121,7 +123,7 @@ public class TypeDefinitionFactory {
 
 	private List<MethodDefinition> methods() {
 		List<MethodDefinition> definitions = ElementFilter.methodsIn(element.getEnclosedElements()).stream()
-				.map(this::toMethodDefinition)
+				.map(m -> toMethodDefinition(m, parameterTypes(m)))
 				.collect(Collectors.toList());
 		definitions.addAll(inheritedMethods());
 		return definitions;
@@ -137,15 +139,17 @@ public class TypeDefinitionFactory {
 				if (method.getModifiers().contains(Modifier.STATIC)) {
 					continue;
 				}
-				definitions.add(toMethodDefinition(method));
+				// resolve type variables of a generic superclass, like inherited fields
+				var methodType = (ExecutableType) types.asMemberOf(declaredSuperclass, method);
+				definitions.add(toMethodDefinition(method, List.copyOf(methodType.getParameterTypes())));
 			}
 			superclass = superclassElement.getSuperclass();
 		}
 		return definitions;
 	}
 
-	private MethodDefinition toMethodDefinition(ExecutableElement method) {
-		return new MethodDefinition(method.getSimpleName().toString(), parameterTypes(method),
+	private MethodDefinition toMethodDefinition(ExecutableElement method, List<TypeMirror> parameterTypes) {
+		return new MethodDefinition(method.getSimpleName().toString(), parameterTypes,
 				method.getModifiers(),
 				elementUtils.getPackageOf(method).getQualifiedName().toString());
 	}

@@ -7,7 +7,9 @@ import com.palantir.javapoet.TypeVariableName;
 
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -27,6 +29,8 @@ public class TypeDefinition {
 	private List<ConstructorDefinition> constructors = new ArrayList<>();
 
 	private List<TypeVariableName> typeVariables = new ArrayList<>();
+
+	private Types types;
 
 	private List<MethodDefinition> methods;
 
@@ -78,7 +82,11 @@ public class TypeDefinition {
 	}
 
 	/**
-	 * Setter methods that can be called from a type in the given package.
+	 * Setter methods that can be called from a type in the given package, at most
+	 * one
+	 * per field. Fluent {@code x(..)} and {@code setX(..)} methods both qualify;
+	 * one
+	 * whose parameter type matches the field type is preferred.
 	 */
 	public List<SetterMethodDefinition> getSetterMethods(String accessibleFromPackage) {
 		List<SetterMethodDefinition> setters = new ArrayList<>();
@@ -87,22 +95,29 @@ public class TypeDefinition {
 				.filter(m -> m.isAccessibleFrom(accessibleFromPackage))
 				.toList();
 		for (FieldDefinition field : fields) {
-			String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
-			methodsWithOneParam.stream()
-					.filter(m -> m.name().equals(field.name()) ||
-							isABooleanField(field, m))
+			List<MethodDefinition> candidates = methodsWithOneParam.stream()
+					.filter(m -> isFluentSetter(field, m) || isPrefixedSetter(field, m))
+					.sorted(Comparator.comparing((MethodDefinition m) -> !isFluentSetter(field, m)))
+					.toList();
+			candidates.stream()
+					.filter(m -> types.isSameType(m.parameters().get(0), field.type()))
 					.findFirst()
-					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
-					.ifPresent(setters::add);
-			methodsWithOneParam.stream()
-					.filter(m -> m.name().equals(String.format("set%s", name))
-							|| (isIsPrefixedBooleanField(field)
-									&& m.name().equals(String.format("set%s", name.substring(2)))))
-					.findFirst()
+					.or(() -> candidates.stream().findFirst())
 					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
 		}
 		return setters;
+	}
+
+	private boolean isFluentSetter(FieldDefinition field, MethodDefinition m) {
+		return m.name().equals(field.name()) || isABooleanField(field, m);
+	}
+
+	private boolean isPrefixedSetter(FieldDefinition field, MethodDefinition m) {
+		String name = field.name().substring(0, 1).toUpperCase() + field.name().substring(1);
+		return m.name().equals(String.format("set%s", name))
+				|| (isIsPrefixedBooleanField(field)
+						&& m.name().equals(String.format("set%s", name.substring(2))));
 	}
 
 	private boolean isABooleanField(FieldDefinition field, MethodDefinition m) {
@@ -161,6 +176,11 @@ public class TypeDefinition {
 
 		public Builder typeVariables(List<TypeVariableName> typeVariables) {
 			instance.typeVariables = typeVariables;
+			return this;
+		}
+
+		public Builder types(Types types) {
+			instance.types = types;
 			return this;
 		}
 
