@@ -64,8 +64,8 @@ public class TypeDefinition extends SimpleTypeDefinition {
 					.ifPresent(setters::add);
 			methodsWithOneParam.stream()
 					.filter(m -> m.name().equals(String.format("set%s", name))
-							|| (m.name().equals(String.format("set%s", name.substring(2)))
-									&& field.type().getKind().equals(TypeKind.BOOLEAN)))
+							|| (isIsPrefixedBooleanField(field)
+									&& m.name().equals(String.format("set%s", name.substring(2)))))
 					.findFirst()
 					.map(m -> new SetterMethodDefinition(m.name(), field, m.parameters().get(0)))
 					.ifPresent(setters::add);
@@ -74,8 +74,12 @@ public class TypeDefinition extends SimpleTypeDefinition {
 	}
 
 	private boolean isABooleanField(FieldDefinition field, MethodDefinition m) {
+		return isIsPrefixedBooleanField(field)
+				&& m.name().equalsIgnoreCase(field.name().substring(2));
+	}
+
+	private boolean isIsPrefixedBooleanField(FieldDefinition field) {
 		return field.name().startsWith("is")
-				&& m.name().equalsIgnoreCase(field.name().substring(2))
 				&& field.type().getKind().equals(TypeKind.BOOLEAN);
 	}
 

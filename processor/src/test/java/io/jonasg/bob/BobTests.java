@@ -108,6 +108,21 @@ class BobTests {
 	}
 
 	@Test
+	void singleCharacterFieldNameIsBuildable() {
+		Cute.blackBoxTest()
+				.given()
+				.processors(List.of(BuildableProcessor.class))
+				.andSourceFiles("/tests/SingleCharacterFieldName/SingleCharacterFieldName.java")
+				.whenCompiled()
+				.thenExpectThat()
+				.compilationSucceeds()
+				.andThat()
+				.generatedSourceFile("io.jonasg.bob.test.SingleCharacterFieldNameBuilder")
+				.exists()
+				.executeTest();
+	}
+
+	@Test
 	void excludeFieldsFromBuilder() {
 		Cute.blackBoxTest()
 				.given()
