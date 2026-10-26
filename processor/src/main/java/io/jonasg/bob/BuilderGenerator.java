@@ -4,7 +4,6 @@ import com.palantir.javapoet.TypeSpec;
 import io.jonasg.bob.definitions.TypeDefinition;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +14,10 @@ class BuilderGenerator {
 
 	private final Filer filer;
 
-	private final Map<TypeMirror, DefaultValues> defaultsForBuildable;
+	/** Keyed by the qualified name of the buildable type. */
+	private final Map<String, DefaultValues> defaultsForBuildable;
 
-	public BuilderGenerator(Filer filer, Map<TypeMirror, DefaultValues> defaultsForBuildable) {
+	public BuilderGenerator(Filer filer, Map<String, DefaultValues> defaultsForBuildable) {
 		this.filer = filer;
 		this.defaultsForBuildable = defaultsForBuildable;
 	}
@@ -34,7 +34,7 @@ class BuilderGenerator {
 				packageName,
 				isInNullMarkedScope);
 
-		var defaults = this.defaultsForBuildable.get(typeDefinition.buildableTypeMirror());
+		var defaults = this.defaultsForBuildable.get(typeDefinition.className().canonicalName());
 		if (defaults != null) {
 			builderTypeSpecFactory.setDefaults(defaults);
 		}

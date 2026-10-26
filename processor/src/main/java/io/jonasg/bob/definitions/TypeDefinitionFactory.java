@@ -54,7 +54,6 @@ public class TypeDefinitionFactory {
 				.methods(methods())
 				.fields(fields())
 				.constructors(constructors(element))
-				.buildableTypeMirror(element.asType())
 				.types(types)
 				.build();
 	}

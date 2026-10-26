@@ -15,9 +15,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes("io.jonasg.bob.Buildable")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
@@ -35,13 +35,26 @@ public final class BuildableProcessor extends AbstractProcessor {
 				.getTypeElement(Buildable.DefaultsAsInnerClass.class.getCanonicalName())
 				.asType();
 
-		Map<TypeMirror, DefaultValues> defaultValuesForBuildable = roundEnv
-				.getElementsAnnotatedWith(Buildable.Defaults.class)
-				.stream()
-				.map(e -> this.mapDefaults(e, types, defaultsAsInnerClassMarker))
-				.collect(Collectors.toMap(
-						Map.Entry::getKey,
-						e -> new DefaultValues(types.asElement(e.getValue()))));
+		// keyed by qualified name: TypeMirror equality is not guaranteed and a generic
+		// buildable (Car<T>) never equals the raw type referenced in
+		// @Defaults(Car.class)
+		Map<String, DefaultValues> defaultValuesForBuildable = new HashMap<>();
+		Map<String, TypeElement> defaultsHolderForBuildable = new HashMap<>();
+		for (Element element : roundEnv.getElementsAnnotatedWith(Buildable.Defaults.class)) {
+			Map.Entry<TypeMirror, TypeMirror> mapping = this.mapDefaults(element, types, defaultsAsInnerClassMarker);
+			String buildableName = ((TypeElement) types.asElement(mapping.getKey())).getQualifiedName().toString();
+			TypeElement defaultsHolder = (TypeElement) types.asElement(mapping.getValue());
+			TypeElement existing = defaultsHolderForBuildable.putIfAbsent(buildableName, defaultsHolder);
+			if (existing != null) {
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+						"Multiple @Buildable.Defaults classes for %s: %s and %s"
+								.formatted(buildableName, existing.getQualifiedName(),
+										defaultsHolder.getQualifiedName()),
+						element);
+				continue;
+			}
+			defaultValuesForBuildable.put(buildableName, new DefaultValues(defaultsHolder));
+		}
 
 		var builderGenerator = new BuilderGenerator(processingEnv.getFiler(),
 				defaultValuesForBuildable);

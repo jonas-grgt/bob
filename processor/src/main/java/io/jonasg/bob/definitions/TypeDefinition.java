@@ -6,7 +6,6 @@ import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeVariableName;
 
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,8 +32,6 @@ public class TypeDefinition {
 	private Types types;
 
 	private List<MethodDefinition> methods;
-
-	private TypeMirror buildableTypeMirror;
 
 	public String typeName() {
 		return typeName;
@@ -134,13 +131,6 @@ public class TypeDefinition {
 		return !getSetterMethods(accessibleFromPackage).isEmpty();
 	}
 
-	/**
-	 * The TypeMirror of the class that is Buildable
-	 */
-	public TypeMirror buildableTypeMirror() {
-		return buildableTypeMirror;
-	}
-
 	public static class Builder {
 		private TypeDefinition instance = new TypeDefinition();
 
@@ -181,11 +171,6 @@ public class TypeDefinition {
 
 		public Builder types(Types types) {
 			instance.types = types;
-			return this;
-		}
-
-		public Builder buildableTypeMirror(TypeMirror type) {
-			instance.buildableTypeMirror = type;
 			return this;
 		}
 
